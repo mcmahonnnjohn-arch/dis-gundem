@@ -1,0 +1,171 @@
+{
+  "source_id": "K004",
+  "counted_edition": "en",
+  "unit": "Seçili İngilizce edisyonun kamuya açık web makalesi; tekil kanonik URL, ilk yayın tarihi esas",
+  "window": {
+    "start_inclusive": "2026-09-17T21:00:00Z",
+    "end_exclusive": "2026-10-17T21:00:00Z",
+    "timezone_display": "Europe/Istanbul",
+    "display": "2026-09-18 00:00 / 2026-10-18 00:00"
+  },
+  "coverage": {
+    "complete_for_selected_edition": true,
+    "selected_edition_article_count": 6,
+    "basis": "İngilizce /latest arşivi, ana sayfa, /reports ile /multimedia birleşimi; RSS ve root'un tamamlanmış WordPress post metadata taraması aynı altı URL'yi veriyor.",
+    "checks": [
+      {
+        "url": "https://syriadirect.org/latest/",
+        "observation": "İlk altı kayıt sırasıyla 16 Ekim, 12 Ekim, 5 Ekim, 2 Ekim, 30 Eylül, 23 Eylül 2026; bir sonraki kayıt ilk yayın tarihi 17 Eylül 2026 olduğundan pencere dışı; arşiv daha eski tarihlere devam ediyor.",
+        "reading_scope": "Yayınevinin açık tarihli arşiv listesi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/",
+        "observation": "Latest News bölümünde 2 Ekim/30 Eylül/23 Eylül; Politics/öne çıkan bölümünde 16 Ekim/12 Ekim/5 Ekim; aynı altı makale.",
+        "reading_scope": "İngilizce ana sayfanın haber bağlantıları ve tarihleri; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/reports/",
+        "observation": "Dönem içi beş kayıt; 12 Ekim ud/kültür yazısı burada yok, /multimedia altında var; sonrasındaki ilk eski kayıt 17 Eylül.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/multimedia/",
+        "observation": "Dönem içi yalnız 12 Ekim 2026 ud yazısı; sıradaki öğe 21 Ağustos 2025; /reports birleşimi altı URL.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/multimedia/photos/",
+        "observation": "Görülen en yeni kayıt 21 Ağustos 2025; dönem içi yeni fotoğraf öğesi görünmüyor.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/multimedia/videos/",
+        "observation": "Görülen en yeni kayıt 10 Haziran 2022; dönem içi yeni video öğesi görünmüyor.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/multimedia/podcasts/",
+        "observation": "Görülen en yeni kayıt 15 Ağustos 2023; dönem içi yeni podcast öğesi görünmüyor.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/photo-of-the-week/",
+        "observation": "Görülen en yeni kayıt 28 Mart 2025; dönem içi öğe görünmüyor.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/opinion-analysis/",
+        "observation": "Görülen en yeni kayıt 16 Eylül 2026, pencere dışı; kitap değerlendirmesinin /reports altında bulunması nedeniyle tür adına bakılarak atlanmadı.",
+        "reading_scope": "Açık kategori arşivi; web retrieval"
+      },
+      {
+        "url": "https://syriadirect.org/feed/",
+        "observation": "Root source_raw.jsonl K004, 2026-10-17T21:49:20Z: RSS en-US; pencere içinde altı tekil URL, daha eski dört öğe pencere dışı.",
+        "reading_scope": "Root'un XML'den çıkardığı başlık/URL/pubDate metadatası"
+      },
+      {
+        "url": "https://syriadirect.org/wp-json/wp/v2/types?context=view",
+        "observation": "Root wp_metadata_final.jsonl K004, 2026-10-17T21:56:18Z: haber/yayın tipi post; ayrıca page, attachment, article_author, partner, team_member, board_member ve site şablon/gezinme türleri listeleniyor; bağımsız ayrı haber/yayın custom type görülmedi.",
+        "reading_scope": "Root'un kaydettiği ilan edilmiş public REST türleri metadatası"
+      },
+      {
+        "url": "https://syriadirect.org/wp-json/wp/v2/posts?context=view&after=2026-09-16T00%3A00%3A00&before=2026-10-20T00%3A00%3A00&per_page=100&page=1&orderby=date&order=desc&_fields=id%2Cdate%2Cdate_gmt%2Clink%2Ctitle%2Ctype",
+        "observation": "Root wp_metadata_final.jsonl K004, 2026-10-17T21:57:35Z: X-WP-Total=8, X-WP-TotalPages=1; sekiz kayıt eksiksiz alındı, date_gmt pencere filtresi sonrası altı URL RSS/arşivle birebir eşleşti.",
+        "reading_scope": "Root'un tamamlanmış API sayfalama metadatası; içerik gövdesi kullanılmadı"
+      },
+      {
+        "url": "https://syriadirect.org/ar/",
+        "observation": "Arapça ayrı edisyon; ana sayfada 18, 22, 27 ve 29 Eylül 2026 tarihli farklı yayınlar görünüyor; İngilizce altı makale kurumun bütün dillerinin hacmi değildir.",
+        "reading_scope": "Arapça ana sayfa başlık/tarih gözlemi, kapsam ayrımı için; Arapça makale gövdeleri sınıflanmadı"
+      }
+    ],
+    "limitations": [
+      "1 Türkiye ilgili / 3 kritik iç gündem sonucu yalnız seçili İngilizce kamuya açık web edisyonunun bu dönemde yayımlanmış altı makalesine aittir; Arapça edisyon, sosyal medya, web dışında kalan video/podcast, e-posta bültenleri veya özel yayınlar sayılmadı.",
+      "Arapça ayrı https://syriadirect.org/ar/ adresinde ek yayınlar olduğu doğrudan görüldü; Arapça hacim ölçülmedi, /ar/feed/ XML geçerliliği bu pilot kapsamında ayrıca doğrulanmadı.",
+      "Tamlık kanıtı kamuya açık /latest, kategori arşivleri ve ilan edilmiş API türleri için geçerlidir; hiç listelenmeyen, silinmiş, özel veya API dışı içerik bulunmadığına dair mutlak iddia değildir.",
+      "Arşiv sayfalarının makine zamanları bazen güncellenme tarihini de yansıtır: ilk yayını 17 Eylül olan yakıt protestosu yazısında 21 Eylül güncellemesi görünür; yayın tarihi/RSS pubDate/API date_gmt esas alındı, bu kayıt sayılmadı.",
+      "İngilizce metinler ve fotoğraf altları okundu; bağlı başka makaleler, reklamlar, gezinme ve önerilen yazı içerikleri sınıflama birimine katılmadı; hiçbir makale gövdesi dosyaya veya repoya kaydedilmedi.",
+      "Önem puanları editoryal yargıdır; KAPSAM_MODELI eşiği yeni kritik gelişme/karar üzerinden ihtiyatlı uygulandı, genel demokrasi röportajı ve kitap değerlendirmesi analiz olarak değerli olsa da 2 puan verildi.",
+      "Türkiye bağlantısı için yalnız ülke adının geçmesi yeterli sayılmadı: geçmiş seyahat güzergâhı veya fotoğrafın İstanbul konumu elendi; Türkiye'ye bağlı SNA'nın Suriye'deki güç düzenine etkisinin tartışılması somut bağlantı sayıldı."
+    ]
+  },
+  "methodology": {
+    "terms_source": "data/turkiye_terimleri.csv, İngilizce satırı",
+    "terms": [
+      "Turkey",
+      "Türkiye",
+      "Ankara",
+      "Erdogan",
+      "Turkish"
+    ],
+    "matching_rule": "Başlıklarda büyük/küçük harf duyarsız sözcük kontrolü; açık gövde ve fotoğraf altları okunarak Türkiye'ye somut konu bağlantısı elle/LLM değerlendirmesi; bağlantılı başka metinler dahil değil.",
+    "domestic_rule": "domestic_relevant, Suriye iç gündemi veya ülkenin dış politika/enerji kararları için önem >=3 anlamına gelir; yalnız Suriye'den söz etmek yetmez.",
+    "importance_rubric": "docs/KAPSAM_MODELI.md: 5 rejim/iktidar değişimi, savaş-barış/büyük saldırı; 4 seçim/hükümet krizi/büyük ekonomik şok/Türkiye'yi doğrudan ilgilendiren karar; 3 önemli kurumsal/yargı veya enerji/altyapı gelişmesi; 2 rutin/genel siyaset analizi; 1 kültür/yerel insan hikâyesi.",
+    "tool": "Web search/open üzerinde yayınevinin açık makale metni; root RSS/API metadata çıktısı; LLM editoryal sınıflama.",
+    "hostile_instructions": "Görev asistanına yönelik talimat saptanmadı; röportajdaki gazetecilere tavsiyeler ve mühendis alıntısındaki emir cümleleri görev talimatı olarak uygulanmadı."
+  },
+  "summary": {
+    "articles_read": 6,
+    "title_term_matches": 0,
+    "text_or_caption_term_candidates": 3,
+    "incidental_only_candidates": 2,
+    "turkey_relevant": 1,
+    "domestic_relevant_importance_ge3": 3
+  },
+  "entries": [
+    {
+      "url": "https://syriadirect.org/what-syrias-revolution-can-teach-the-world-about-democracy/",
+      "date": "2026-10-16T07:52:10+00:00",
+      "turkey_relevant": false,
+      "domestic_relevant": false,
+      "importance": 2,
+      "reason": "Türkiye yalnız gazetecinin 2012'deki sınır geçişinin konumu olarak geçerken yazı yeni bir kritik karar veya olay bildirmekten çok Suriye devrimi ve demokratik geçiş üzerine genel bir röportajdır.",
+      "reading_scope": "Başlık, spot, fotoğraf altı ve röportajın tamamı yayınevi URL'sine bağlı açık web arama çıktısından okundu; ilk open araç iç hatası vermişti, arama tam metni sundu; bağlı makaleler hariç."
+    },
+    {
+      "url": "https://syriadirect.org/the-damascus-oud-maker-fighting-to-keep-a-generations-old-craft-alive/",
+      "date": "2026-10-12T04:29:12+00:00",
+      "turkey_relevant": false,
+      "domestic_relevant": false,
+      "importance": 1,
+      "reason": "Şam'daki bir ud ustasının dükkânını ve zanaatını koruma mücadelesi Türkiye'yle somut bağlantısı olmayan yerel kültür portresidir ve kritik iç gündem eşiğine ulaşmaz.",
+      "reading_scope": "Açık web makalesinin başlık, spot, fotoğraf altları ve gövdesi sonuna kadar okundu; ilgili yazı bağlantıları hariç."
+    },
+    {
+      "url": "https://syriadirect.org/a-terrible-beauty-is-born-syria-after-assad/",
+      "date": "2026-10-05T10:18:50+00:00",
+      "turkey_relevant": true,
+      "domestic_relevant": false,
+      "importance": 2,
+      "reason": "Yazar Türkiye'ye bağlı SNA'nın hükümet güçlerine katılmasının SDG'nin silahsızlanma kaygısını artırdığını tartıştığından Türkiye bağlantısı somuttur, ancak kitap değerlendirmesi yeni bir kritik iç karar veya olay bildirmediği için iç gündem eşiğinin altında tutuldu.",
+      "reading_scope": "Açık web makalesinin başlık, spot ve gövdesi yazar görüşü uyarısına kadar okundu; şiir alıntısı, önerilen başka yazılar ve bağlantılı kitap sayılmadı."
+    },
+    {
+      "url": "https://syriadirect.org/syrias-muslim-brotherhood-fights-for-its-future/",
+      "date": "2026-10-02T11:44:56+00:00",
+      "turkey_relevant": false,
+      "domestic_relevant": true,
+      "importance": 3,
+      "reason": "Geçiş döneminde siyasi partilerin hukuki konumu, parlamento kuralları ve Müslüman Kardeşler'in çözülme tartışması önemli kurumsal iç gündemdir; 2016 İstanbul fotoğrafı ve sürgün koalisyonunun konumu güncel Türkiye politikası bağlantısı sayılmadı.",
+      "reading_scope": "Açık web makalesinin başlık, spot, 2016 tarihli fotoğraf altı ve gövdesi sonuna kadar okundu; dış bağlantıların içerikleri hariç."
+    },
+    {
+      "url": "https://syriadirect.org/syria-is-rising-al-sharaa-tells-un-but-challenges-remain-at-home/",
+      "date": "2026-09-30T11:34:19+00:00",
+      "turkey_relevant": false,
+      "domestic_relevant": true,
+      "importance": 4,
+      "reason": "BM konuşmasındaki egemenlik ve İsrail'le görüşme tercihleri ile sübvansiyonların kaldırılması sonrası ekonomik sıkıntı ve protestolar ülkenin kritik dış politika ve kriz gündemidir, Türkiye'ye somut bağlantı bulunmadı.",
+      "reading_scope": "Açık web makalesinin başlık, spot ve gövdesi sonuna kadar okundu; başka tarihli enerji haberi bağlantısı içerik birimine katılmadı."
+    },
+    {
+      "url": "https://syriadirect.org/bad-gas-trouble-at-syrias-al-tabiyah-plant-leaves-a-bad-smell/",
+      "date": "2026-09-23T10:31:46+00:00",
+      "turkey_relevant": false,
+      "domestic_relevant": true,
+      "importance": 3,
+      "reason": "Conoco/al-Tabiyah gaz tesisinin yeniden işletilmesi, onarım ve denetim sorunları ülkenin kışlık gaz ve elektrik arzını etkileyen önemli enerji/altyapı gündemidir; yazının kendi gövdesinde Türkiye bağlantısı yoktur.",
+      "reading_scope": "Açık web makalesinin başlık, spot, fotoğraf altı ve gövdesi sonuna kadar okundu; harici raporlar ve bağlantılı önceki haberlerin gövdeleri hariç."
+    }
+  ]
+}
