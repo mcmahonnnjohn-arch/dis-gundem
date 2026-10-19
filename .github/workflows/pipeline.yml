@@ -1,0 +1,74 @@
+name: pipeline
+
+on:
+  schedule:
+    - cron: "17 * * * *"        # saatlik toplama (UTC)
+    - cron: "41 3 * * 1"        # haftalık ölçüm + budama raporu (Pazartesi 06:41 İstanbul)
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "seed | fetch | classify | measure | check-feeds"
+        default: "check-feeds"
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'none' }}
+  LLM_MODEL: ${{ vars.LLM_MODEL }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  # Secrets yoksa DRY_RUN'a düşer; hat yine çalışır, çıktılar artifact olur
+  DRY_RUN: ${{ secrets.SUPABASE_URL == '' && '1' || '0' }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ./pipeline
+      - name: Komutu seç
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "job=${{ inputs.job }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "41 3 * * 1" ]; then echo "job=measure" >> $GITHUB_OUTPUT
+          else echo "job=fetch" >> $GITHUB_OUTPUT; fi
+      - name: seed
+        if: steps.pick.outputs.job == 'seed'
+        run: disgundem seed
+      - name: fetch + classify
+        if: steps.pick.outputs.job == 'fetch'
+        run: |
+          disgundem fetch
+          disgundem classify --limit 300
+      - name: classify
+        if: steps.pick.outputs.job == 'classify'
+        run: disgundem classify --limit 500
+      - name: measure
+        if: steps.pick.outputs.job == 'measure'
+        run: disgundem measure --days 30 --report
+      - name: check-feeds
+        if: steps.pick.outputs.job == 'check-feeds'
+        run: disgundem check-feeds
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: out-${{ steps.pick.outputs.job }}-${{ github.run_id }}
+          path: data/out/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ./pipeline pytest
+      - run: cd pipeline && python -m pytest -q

@@ -1,0 +1,60 @@
+# Mimari (v0.1, 19 Ekim 2026)
+
+```
+kaynak envanteri (data/kaynak_envanteri_v3.csv)
+        │  disgundem seed
+        ▼
+   Supabase ── sources / countries / regions / dossiers / themes
+        │
+        │  disgundem fetch   (saatlik, GitHub Actions)
+        │    rss → feedparser · gnews → Google News RSS (yerel dil edisyonu) · scrape → liste sayfası · gmail → premium bültenler
+        ▼
+   articles (status=fetched)            ← yalnız başlık, link, tarih, kısa lead; gövde yok
+        │
+        │  disgundem classify  (LLM: Türkiye ile ilgili mi, ülkeler, tema, dosya, önem 1-5, çerçeve, 2-3 cümle Türkçe özet)
+        ▼
+   articles (status=queued | rejected)  ← editorial_queue görünümü
+        │
+        │  editör onayı (yayın yüzeyi/arayüz; bu PR'de yok)
+        ▼
+   articles (approved → published)  ·  clusters (gelişme kümesi)  ·  analyses (Analiz içerik tipi)
+        │
+        │  disgundem measure  (haftalık) → source_metrics + budama raporu
+        ▼
+   kaynak budama kararı (editör)
+```
+
+## Neden böyle
+
+- **Ülke ve dosya birinci sınıf.** `countries.scope` (A/B/R/T/P) kaynak değil ülke özelliği; yeni ülke eklemek = `sources.COUNTRIES`'e bir satır + CSV'ye kaynak. Bir haber `article_countries` ve `article_dossiers` ile birden fazla yere bağlanır; Doğu Akdeniz gibi dosyalar ülke sayfasına sığmayan konuları toplar.
+- **Hacim ölçümü hatta gömülü.** PR #1 elle ölçümün sürdürülemez olduğunu gösterdi. `source_metrics` her hafta kayan 30 günlük pencereyi yazar; `measure --report` pasif/çekirdek adaylarını listeler. Karar editörün.
+- **Telif.** Hiçbir toplayıcı makale gövdesi almaz. Premium (P) kaynaklar yalnız Gmail bülteninden başlık+link; `articles.excerpt` premiumda boş. Özet LLM'in kendi cümleleriyle, alıntısız.
+- **Editör onayı kodda.** `articles.status` akışı `fetched → classified/queued → approved → published`; `published` dışında hiçbir satır anon okumasına açık değil (RLS).
+- **Sağlayıcıdan bağımsız LLM.** `LLM_PROVIDER=anthropic|openai|none`; `none` modunda terim filtresi çalışır, hat yine akar. Prompt sürümü (`prompts/classify_v1.md`) her kayda yazılır; prompt değişince karşılaştırılabilir.
+- **DRY_RUN varsayılan.** Supabase anahtarı yoksa her komut `data/out/*.jsonl`'e yazar; CI'da artifact olur. Böylece hat, veritabanı kurulmadan test edilir.
+
+## Toplama yöntemi seçimi (seed sırasında)
+
+| Durum | method |
+| --- | --- |
+| CSV'de çalışan RSS var | `rss` |
+| Premium (P) bülten | `gmail` |
+| Scraping/sitemap alternatifi notlanmış | `scrape` (liste sayfası, yalnız başlık+link) |
+| Diğer | `gnews` — `site:domain` + yerel dil Türkiye terimleri, ülke edisyonu |
+
+A kapsamı kaynaklarda `gnews` Türkiye filtresi uygulamaz (iç gündem de gerekli); B'de uygular.
+
+## Kurulum (dev)
+
+1. Supabase'de **dev** projesi aç; `supabase/migrations/0001_schema.sql`'i SQL editöründe çalıştır (vector eklentisi açık olmalı).
+2. Repo secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`; isteğe bağlı `ANTHROPIC_API_KEY` veya `OPENAI_API_KEY` + vars `LLM_PROVIDER`, `LLM_MODEL`.
+3. Actions → pipeline → Run workflow → `seed`, sonra `check-feeds` (RSS adreslerinin gerçek durumu), sonra saatlik `fetch` kendiliğinden.
+4. Yerelde: `cp .env.example .env`, `pip install -e ./pipeline`, `disgundem check-feeds --core`.
+
+## Bu PR'de olmayanlar (sonraki görevler)
+
+- Kümeleme (`articles.embedding` sütunu hazır; embedding üretimi ve küme oluşturma yok)
+- Analiz taslağı üretimi (`analyses` tablosu hazır; LLM akışı yok)
+- Editör arayüzü ve yayın yüzeyi (Astro/Next; `published` RLS politikası hazır)
+- Gmail OAuth kurulumu (kod hazır, token yok)
+- Kaynak özel scraper seçicileri (`fetch/scrape.py: SELECTORS`)
