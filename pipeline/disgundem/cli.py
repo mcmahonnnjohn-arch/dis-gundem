@@ -1,4 +1,4 @@
-"""disgundem CLI: seed | fetch | classify | measure | report | check-feeds"""
+"""disgundem CLI: seed | fetch | premium-import | classify | measure | check-feeds"""
 from __future__ import annotations
 
 import argparse
@@ -43,7 +43,7 @@ def _fetch_one(s, matcher, src: dict) -> tuple[dict, list[Item], str | None]:
         elif src["method"] == "scrape":
             items = fetch_listing(client, src["id"], src.get("local_url") or src["url"], lang)
         else:
-            return src, [], None  # gmail ayrı komutta, manual atlanır
+            return src, [], None  # manual (premium): Chrome oturumu + premium-import
         return src, items, None
     except Exception as e:
         return src, [], f"{type(e).__name__}: {e}"
@@ -82,14 +82,23 @@ def cmd_fetch(s, args):
     print(f"toplam yeni: {total_new}")
 
 
-def cmd_gmail(s, args):
-    from .fetch.gmail import fetch_gmail
+def cmd_premium_import(s, args):
+    """Claude in Chrome premium tarama oturumunun çıktısını (JSON) kuyruğa alır.
+
+    Dosya biçimi: [{"source_id":"K170","url":"...","title":"...","published_at":"2026-10-19",
+                   "summary_tr":"kendi cümlelerimizle 2-3 cümle","countries":["sy"],"themes":["enerji"],
+                   "dossiers":[], "frame":"notr", "note":"..."}]
+    Makale metni, uzun alıntı kabul edilmez: summary_tr 600 karakteri aşarsa kayıt reddedilir.
+    """
+    from .fetch.premium import load_session
     store = Store(s)
-    items = fetch_gmail(s, since_days=args.days)
-    rows = [{"source_id": i.source_id, "url": i.url, "title": i.title, "lang": "en", "published_at": i.published_at,
-             "status": "fetched", "classification": {"fetch": i.extra}} for i in items]
+    rows, links, rejected = load_session(args.file)
     store.upsert_articles(rows)
-    print(f"gmail: {len(rows)} başlık")
+    for aid, c, t, d in links:
+        store.set_article_links(aid, c, t, d)
+    print(f"premium-import: {len(rows)} kayıt kuyruğa, {len(rejected)} reddedildi")
+    for r in rejected:
+        print("  reddedildi:", r)
 
 
 def cmd_classify(s, args):
@@ -164,8 +173,8 @@ def main(argv=None):
     f = sub.add_parser("fetch", help="çekirdek kaynakları topla")
     f.add_argument("--source", nargs="*", help="yalnız bu ID'ler")
     f.add_argument("--method", choices=["rss", "gnews", "scrape"])
-    g = sub.add_parser("gmail", help="premium bültenlerden başlık topla")
-    g.add_argument("--days", type=int, default=2)
+    g = sub.add_parser("premium-import", help="Claude in Chrome premium tarama çıktısını (JSON) kuyruğa al")
+    g.add_argument("file")
     c = sub.add_parser("classify", help="toplananları sınıflandır, özetle, kuyruğa al")
     c.add_argument("--limit", type=int, default=200)
     m = sub.add_parser("measure", help="kayan pencere hacmi hesapla")
@@ -175,7 +184,7 @@ def main(argv=None):
     k.add_argument("--core", action="store_true")
     args = p.parse_args(argv)
     s = config.load()
-    {"seed": cmd_seed, "fetch": cmd_fetch, "gmail": cmd_gmail, "classify": cmd_classify,
+    {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "classify": cmd_classify,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 

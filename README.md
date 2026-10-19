@@ -14,7 +14,8 @@ pip install -e ./pipeline
 cp .env.example .env            # DRY_RUN=1 ile veritabanı gerekmez
 disgundem seed                  # envanteri yükle (dry-run: data/out/)
 disgundem check-feeds --core    # çekirdek RSS adreslerini dene
-disgundem fetch                 # çekirdek kaynakları topla
+disgundem fetch                 # çekirdek kaynakları topla (premium hariç)
+disgundem premium-import data/premium/2026-10-19.json   # Claude in Chrome premium oturumu çıktısı
 disgundem classify              # sınıflandır, kuyruğa al
 disgundem measure --report      # 30 günlük hacim + budama raporu
 ```

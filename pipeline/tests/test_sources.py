@@ -21,6 +21,6 @@ def test_dictionaries_consistent():
 def test_core_has_feed_or_fallback():
     for s in load_sources():
         if s.status == "cekirdek":
-            assert s.method in ("rss", "gnews", "scrape", "gmail"), s.id
+            assert s.method in ("rss", "gnews", "scrape", "manual"), s.id
             if s.method == "rss":
                 assert s.feed_url and s.feed_url.startswith("http"), s.id

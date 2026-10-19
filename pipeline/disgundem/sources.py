@@ -109,8 +109,8 @@ STATUS_MAP = {"Çekirdek": "cekirdek", "Yedek": "yedek", "Kontrol et": "kontrol"
 def _method(row: dict) -> str:
     t = row.get("Toplama", "")
     feed = row.get("RSS / Besleme URL", "")
-    if row.get("Kapsam") == "P" and "bülten" in t.lower():
-        return "gmail"
+    if row.get("Kapsam") == "P":
+        return "manual"   # premium: Claude in Chrome oturumuyla okunur, `disgundem premium-import` ile girilir
     if feed.startswith("http"):
         return "rss"
     if "scraping" in row.get("Besleme kapsamı / durumu", "").lower() or "sitemap" in row.get("Alternatif erişim", "").lower():

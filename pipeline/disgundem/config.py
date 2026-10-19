@@ -30,8 +30,6 @@ class Settings:
     llm_model: str = ""
     anthropic_key: str = ""
     openai_key: str = ""
-    gmail_token_path: str = ""
-    gmail_label: str = "Kaynak/Premium"
     dry_run: bool = True
     user_agent: str = "DisGundemBot/0.1 (+https://github.com/mcmahonnnjohn-arch/dis-gundem; baslik/metadata toplama)"
     http_timeout: float = 15.0
@@ -53,8 +51,6 @@ def load() -> Settings:
         llm_model=env("LLM_MODEL", ""),
         anthropic_key=env("ANTHROPIC_API_KEY", ""),
         openai_key=env("OPENAI_API_KEY", ""),
-        gmail_token_path=env("GMAIL_TOKEN_PATH", ""),
-        gmail_label=env("GMAIL_LABEL", "Kaynak/Premium"),
         dry_run=env("DRY_RUN", "1") not in ("0", "false", "False"),
     )
     if not (s.supabase_url and s.supabase_key):
