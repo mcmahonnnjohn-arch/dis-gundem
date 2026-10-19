@@ -7,7 +7,8 @@ kaynak envanteri (data/kaynak_envanteri_v3.csv)
    Supabase ── sources / countries / regions / dossiers / themes
         │
         │  disgundem fetch   (saatlik, GitHub Actions)
-        │    rss → feedparser · gnews → Google News RSS (yerel dil edisyonu) · scrape → liste sayfası · gmail → premium bültenler
+        │    rss → feedparser · gnews → Google News RSS (yerel dil edisyonu) · scrape → liste sayfası
+        │  premium (FT, Bloomberg, WSJ, Economist, FA, FP): editörün Claude in Chrome oturumu → data/premium/*.json → disgundem premium-import
         ▼
    articles (status=fetched)            ← yalnız başlık, link, tarih, kısa lead; gövde yok
         │
@@ -28,7 +29,7 @@ kaynak envanteri (data/kaynak_envanteri_v3.csv)
 
 - **Ülke ve dosya birinci sınıf.** `countries.scope` (A/B/R/T/P) kaynak değil ülke özelliği; yeni ülke eklemek = `sources.COUNTRIES`'e bir satır + CSV'ye kaynak. Bir haber `article_countries` ve `article_dossiers` ile birden fazla yere bağlanır; Doğu Akdeniz gibi dosyalar ülke sayfasına sığmayan konuları toplar.
 - **Hacim ölçümü hatta gömülü.** PR #1 elle ölçümün sürdürülemez olduğunu gösterdi. `source_metrics` her hafta kayan 30 günlük pencereyi yazar; `measure --report` pasif/çekirdek adaylarını listeler. Karar editörün.
-- **Telif.** Hiçbir toplayıcı makale gövdesi almaz. Premium (P) kaynaklar yalnız Gmail bülteninden başlık+link; `articles.excerpt` premiumda boş. Özet LLM'in kendi cümleleriyle, alıntısız.
+- **Telif.** Hiçbir toplayıcı makale gövdesi almaz. Premium (P) kaynaklar sunucuda hiç toplanmaz: editör kendi abonelikleriyle Claude in Chrome'da okur, çıktı yalnız başlık+link+tarih+kendi cümleleriyle özet olarak `premium-import` ile girer; özet 600 karakteri, alıntı 15 kelimeyi aşarsa kayıt reddedilir. Chrome yalnız premium için; diğer her şey sunucu tarafında.
 - **Editör onayı kodda.** `articles.status` akışı `fetched → classified/queued → approved → published`; `published` dışında hiçbir satır anon okumasına açık değil (RLS).
 - **Sağlayıcıdan bağımsız LLM.** `LLM_PROVIDER=anthropic|openai|none`; `none` modunda terim filtresi çalışır, hat yine akar. Prompt sürümü (`prompts/classify_v1.md`) her kayda yazılır; prompt değişince karşılaştırılabilir.
 - **DRY_RUN varsayılan.** Supabase anahtarı yoksa her komut `data/out/*.jsonl`'e yazar; CI'da artifact olur. Böylece hat, veritabanı kurulmadan test edilir.
@@ -38,7 +39,7 @@ kaynak envanteri (data/kaynak_envanteri_v3.csv)
 | Durum | method |
 | --- | --- |
 | CSV'de çalışan RSS var | `rss` |
-| Premium (P) bülten | `gmail` |
+| Premium (P) | `manual` — sunucuda toplanmaz; Claude in Chrome oturumu + `premium-import` |
 | Scraping/sitemap alternatifi notlanmış | `scrape` (liste sayfası, yalnız başlık+link) |
 | Diğer | `gnews` — `site:domain` + yerel dil Türkiye terimleri, ülke edisyonu |
 
@@ -56,5 +57,5 @@ A kapsamı kaynaklarda `gnews` Türkiye filtresi uygulamaz (iç gündem de gerek
 - Kümeleme (`articles.embedding` sütunu hazır; embedding üretimi ve küme oluşturma yok)
 - Analiz taslağı üretimi (`analyses` tablosu hazır; LLM akışı yok)
 - Editör arayüzü ve yayın yüzeyi (Astro/Next; `published` RLS politikası hazır)
-- Gmail OAuth kurulumu (kod hazır, token yok)
+- Premium Chrome tarama oturumunun standart talimatı (prompts/premium_session.md)
 - Kaynak özel scraper seçicileri (`fetch/scrape.py: SELECTORS`)
