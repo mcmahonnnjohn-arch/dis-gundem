@@ -1,0 +1,282 @@
+{
+  "checked_at_utc": "2026-10-17T22:36:47+00:00",
+  "overall_passed": true,
+  "checks_passed": 30,
+  "checks_total": 30,
+  "checks": [
+    {
+      "check": "Original 15 columns preserved",
+      "passed": true,
+      "detail": [
+        "ID",
+        "Kapsam",
+        "Bölge",
+        "Ülke",
+        "Kaynak",
+        "URL",
+        "Dil",
+        "Tür",
+        "Eğilim / Bağlam",
+        "Güv.",
+        "İçerik rolü",
+        "Toplama",
+        "RSS / Besleme URL",
+        "Durum",
+        "Not"
+      ]
+    },
+    {
+      "check": "269 unique rows and exact addition/removal identities",
+      "passed": true,
+      "detail": {
+        "added": [
+          "K260",
+          "K261",
+          "K262",
+          "K263",
+          "K264",
+          "K265",
+          "K266",
+          "K267",
+          "K268",
+          "K269",
+          "K270",
+          "K271"
+        ],
+        "removed": [
+          "K187",
+          "K207"
+        ]
+      }
+    },
+    {
+      "check": "Required cells present",
+      "passed": true,
+      "detail": "269 x 3 nonempty"
+    },
+    {
+      "check": "Allowed verification statuses",
+      "passed": true,
+      "detail": {
+        "Canlı": 224,
+        "Taşındı": 11,
+        "Doğrulanamadı": 34
+      }
+    },
+    {
+      "check": "Feed result syntax",
+      "passed": true,
+      "detail": "Actual URL / explicit alternative / reason"
+    },
+    {
+      "check": "Every main volume honest format",
+      "passed": true,
+      "detail": "Number or concrete unmeasured reason"
+    },
+    {
+      "check": "A internal volume complete",
+      "passed": true,
+      "detail": "117 A sources; number or concrete unmeasured reason"
+    },
+    {
+      "check": "Only semantically verified monthly volume numeric",
+      "passed": true,
+      "detail": {
+        "K004": "1"
+      }
+    },
+    {
+      "check": "Scope role mapping correct",
+      "passed": true,
+      "detail": "A/B/R/T/P and roles agree"
+    },
+    {
+      "check": "Evidence identity set complete",
+      "passed": true,
+      "detail": "269 current IDs + 2 merge traces"
+    },
+    {
+      "check": "CSV status/feed identical to evidence",
+      "passed": true,
+      "detail": "269 records"
+    },
+    {
+      "check": "Working feeds backed by parsed dated metadata",
+      "passed": true,
+      "detail": {
+        "working_feeds": 114
+      }
+    },
+    {
+      "check": "Known wrong-scope feeds not approved",
+      "passed": true,
+      "detail": [
+        "K159",
+        "K178",
+        "K186",
+        "K232",
+        "K238",
+        "K240",
+        "K265",
+        "K270"
+      ]
+    },
+    {
+      "check": "All original 202 RSS outcomes reviewable",
+      "passed": true,
+      "detail": "86 direct + 63 alternatives + 51 unverified + 2 merges"
+    },
+    {
+      "check": "Merge target mapping",
+      "passed": true,
+      "detail": {
+        "K187": "K128",
+        "K207": "K060"
+      }
+    },
+    {
+      "check": "Core table and CSV exactly agree",
+      "passed": true,
+      "detail": "113 accessible core sources"
+    },
+    {
+      "check": "Conditional editorial candidates separate",
+      "passed": true,
+      "detail": "12 distinct, unverified, excluded from CSV core"
+    },
+    {
+      "check": "All think tanks and portal in report",
+      "passed": true,
+      "detail": "109 think tanks + K166; merged rows excluded"
+    },
+    {
+      "check": "Every country/group covered",
+      "passed": true,
+      "detail": {
+        "sections": 46,
+        "max_nonempty_lines_including_heading": 7
+      }
+    },
+    {
+      "check": "Country sections under ten lines",
+      "passed": true,
+      "detail": {
+        "Suriye": 6,
+        "Irak": 6,
+        "Lübnan": 6,
+        "İsrail": 6,
+        "Yunanistan": 6,
+        "GKRY": 6,
+        "KKTC": 6,
+        "Mısır": 7,
+        "Libya": 5,
+        "İran": 6,
+        "Suudi Arabistan": 6,
+        "Katar": 6,
+        "BAE": 6,
+        "Körfez": 6,
+        "MENA": 5,
+        "Azerbaycan": 7,
+        "Ermenistan": 6,
+        "Kafkasya (bölgesel)": 6,
+        "Rusya": 6,
+        "Ukrayna": 6,
+        "Karadeniz (bölgesel)": 6,
+        "Romanya": 6,
+        "AB": 7,
+        "Almanya": 7,
+        "Fransa": 7,
+        "Birleşik Krallık": 7,
+        "ABD": 7,
+        "Çin": 6,
+        "Asya-Pasifik (bölgesel)": 6,
+        "Hindistan": 7,
+        "Pakistan": 5,
+        "Japonya": 5,
+        "Afrika (bölgesel)": 7,
+        "Somali": 6,
+        "Etiyopya": 6,
+        "Sudan": 5,
+        "Nijerya": 6,
+        "Cezayir": 6,
+        "Senegal": 6,
+        "Türkiye": 7,
+        "Küresel": 7,
+        "Levant": 5,
+        "Gürcistan": 6,
+        "Hollanda": 6,
+        "Belçika": 6,
+        "İtalya": 7
+      }
+    },
+    {
+      "check": "Local language gaps explicit",
+      "passed": true,
+      "detail": "Country-specific missing-language reasons retained"
+    },
+    {
+      "check": "No duplicate normalized source URLs/names",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "Pilot complete and semantic totals reproducible",
+      "passed": true,
+      "detail": "6 full readings; 1 Turkey, 3 importance>=3; English only"
+    },
+    {
+      "check": "Only six designated premiums",
+      "passed": true,
+      "detail": "K170–K175"
+    },
+    {
+      "check": "Premium metadata only",
+      "passed": true,
+      "detail": "No article/API body requests in premium records"
+    },
+    {
+      "check": "No article bodies archived in evidence",
+      "passed": true,
+      "detail": "Only URLs, metadata/hash, and original classification rationales"
+    },
+    {
+      "check": "No external instruction flags applied",
+      "passed": true,
+      "detail": "Bounded accessed-page scan; no incident observed"
+    },
+    {
+      "check": "Artifact workbook and CSV roundtrip",
+      "passed": true,
+      "detail": "UTC date cells normalized to ISO before CSV serialization"
+    },
+    {
+      "check": "No stale internal drafting placeholders",
+      "passed": true,
+      "detail": "Completed technical outcomes replace provisional drafting notes"
+    },
+    {
+      "check": "Relative report links resolve",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "csv_sha256": "7ce80ed6d5cc6916aa335c0f86de46f2389e5311929844899133a3ea9e79b855",
+  "limits": {
+    "unverified_sources": 34,
+    "unverified_feeds": 75,
+    "unmeasured_turkey_volumes": 268,
+    "unmeasured_A_domestic_volumes": 116,
+    "sample_not_statistical": "Seven edge home pages and the complete six-article English pilot were checked; no population error rate inferred."
+  },
+  "independent_review": {
+    "blocking_findings": 0,
+    "scope": "CSV, stored HTTP/API/feed metadata, source/ID accounting and report consistency; not a second full HTTP crawl or full ownership investigation",
+    "resolved_findings": [
+      "APS addition rationale now preserves HTTP 500 / open Arabic gap",
+      "202 accounting distinguishes 87 original rows from 86 unique final sources",
+      "Internal drafting placeholders replaced with completed outcomes",
+      "Empty selected measurement channel no longer claims all source metadata is unreadable"
+    ],
+    "sample_scope": "7 edge home pages in an independent web channel; complete 6-article selected English Syria Direct archive/content pilot; changed/new URL technical checks"
+  }
+}
