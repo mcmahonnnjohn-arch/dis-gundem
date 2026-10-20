@@ -1,7 +1,7 @@
-# Dış Gündem — Yayın Kılavuzu (taslak v0.1)
+# Dış Gündem — Yayın Kılavuzu (v1.0)
 
-**Durum:** taslak · editör onayı bekliyor · 20 Ekim 2026
-Bu kılavuz, otomatik özetlerin ve editör metinlerinin dilini bağlar. Özetleme promptu (`classify_v2`) bu belgeye ve `data/sozluk/varliklar.csv` sözlüğüne göre çalışır. **【KARAR】** işaretli maddeler editörün seçimini bekliyor; yanlarında önerim var.
+**Durum:** editör onayladı · 20 Ekim 2026
+Bu kılavuz, otomatik özetlerin ve editör metinlerinin dilini bağlar. Özetleme promptu (`classify_v2`) bu belgeye ve `data/sozluk/varliklar.csv` sözlüğüne göre çalışır. §4'teki adlandırma tercihleri 20 Ekim 2026'da editör tarafından onaylandı; değişiklik kılavuz sürümünü artırır.
 
 ---
 
@@ -33,11 +33,11 @@ Bu kılavuz, otomatik özetlerin ve editör metinlerinin dilini bağlar. Özetle
 4. **Yazılış AA standardıdır.** Türkçede yerleşik yazılışı olan adlar öyle yazılır (Netanyahu, Zelenskiy, Pezeşkiyan). Yerleşik yazılışı yoksa §5'teki çeviriyazı kuralları uygulanır.
 5. **Ülke adı:** metinde "Türkiye". Yabancı kaynağın başlığından aktarılan "Turkey" Türkçe metinde "Türkiye" olur.
 
-## 4. Adlandırma tercihleri 【KARAR】
+## 4. Adlandırma tercihleri (onaylı)
 
-Türk basınında oturmuş ama birbirinden farklı tercihler var. Son sütun, AA/TRT ve Dışişleri'nin yaygın kullanımına dayanan başlangıç önerisidir; seçim editörün.
+Türk basınında oturmuş ama birbirinden farklı tercihler var. Son sütun geçerli kuraldır.
 
-| Konu | Seçenekler | Başlangıç önerisi (AA/TRT kullanımı) |
+| Konu | Seçenekler | Kural |
 |---|---|---|
 | Güney Kıbrıs yönetimi | GKRY · Kıbrıs Rum Yönetimi · Kıbrıs Rum Kesimi · "Kıbrıs Cumhuriyeti" (yalnız atıfla) | **"GKRY"** kısaltma; ilk geçişte "Güney Kıbrıs Rum Yönetimi (GKRY)" |
 | Hristodulidis'in unvanı | GKRY Lideri · Rum lider · "Kıbrıs Cumhurbaşkanı" (yalnız atıfla) | **"GKRY Lideri"**, ikinci geçişte "Rum lider" (AA kullanımı) |
