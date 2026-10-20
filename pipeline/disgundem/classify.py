@@ -17,8 +17,11 @@ from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countri
 from .terms import Matcher
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "classify_v2"   # v2: makale metni, sözlük, yayın kılavuzu kuralları, uyarılar
-AUDIT_VERSION = "denetim_v1"
+PROMPT_VERSION = "classify_v3"   # v2: makale metni, sözlük, kılavuz, uyarılar; v3: kesin 3 cümle / 600 kr
+AUDIT_VERSION = "denetim_v2"     # v2: yalnız yanıltıcı hatalar, her sorun özetten birebir ifadeye dayanır
+AUDIT_TYPES = {"desteksiz", "ad", "unvan", "sayi", "atif", "uslup", "adlandirma"}
+MAX_SUMMARY = 600
+MAX_SENTENCES = 3
 MODEL_WARNINGS = {"sozlukte_yok", "tek_kaynak", "dusuk_guven"}
 THINKING_OFF = {"type": "disabled"}
 # Bazı modeller (ör. Sonnet 5.5) düşünmeyi kapatmak için farklı değer ister; API hata mesajı bunu söyler.
@@ -65,6 +68,27 @@ def _user_prompt(item: Item, src: Source, text: str | None = None) -> str:
         "kaynak_egilim": src.lean_note[:200],
         "yayin_tarihi": item.published_at.isoformat() if item.published_at else None,
     }, ensure_ascii=False)
+
+
+def _norm(t: str) -> str:
+    return " ".join((t or "").split()).strip(" .,;:\"'«»“”‘’").lower()
+
+
+def fit_summary(text: str | None) -> str | None:
+    """Kılavuz sınırı: en fazla 3 cümle ve 600 karakter; kesme cümle sınırında (kelime ortasında değil)."""
+    if not text:
+        return text
+    text = " ".join(text.split())
+    sents = re.split(r"(?<=[.!?…])\s+(?=[A-ZÇĞİÖŞÜ0-9\"'«“(])", text)
+    out = ""
+    for sn in sents[:MAX_SENTENCES]:
+        cand = f"{out} {sn}".strip()
+        if len(cand) > MAX_SUMMARY:
+            break
+        out = cand
+    if not out:   # tek cümle bile sığmıyor: kelime sınırında kes
+        out = text[:MAX_SUMMARY - 1].rsplit(" ", 1)[0] + "…"
+    return out
 
 
 def _parse(text: str) -> dict:
@@ -164,10 +188,20 @@ class Classifier:
         except Exception as e:
             log.warning("%s denetim hatası: %s", item.url, e)
             return {"gecti": None, "sorunlar": [], "duzeltilmis_ozet": None, "hata": str(e)[:200]}
-        sorunlar = [x for x in raw.get("sorunlar") or [] if isinstance(x, dict)]
+        # Yalnız özette birebir geçen bir ifadeye dayanan, tanımlı türdeki sorunlar sayılır; "eksik", "sorun yok"
+        # türü gözlemler ve özette olmayan alıntılar atılır (ilk denemede 32 özetin 30'u gereksiz işaretlendi).
+        summ = _norm(summary)
+        sorunlar, atilan = [], 0
+        for x in raw.get("sorunlar") or []:
+            ok = (isinstance(x, dict) and x.get("tur") in AUDIT_TYPES
+                  and len(_norm(x.get("ozet_ifadesi"))) >= 3 and _norm(x.get("ozet_ifadesi")) in summ)
+            if ok:
+                sorunlar.append(x)
+            else:
+                atilan += 1
         fixed = raw.get("duzeltilmis_ozet")
-        return {"gecti": bool(raw.get("gecti")) and not sorunlar, "sorunlar": sorunlar,
-                "duzeltilmis_ozet": fixed if isinstance(fixed, str) and fixed.strip() else None}
+        return {"gecti": not sorunlar, "sorunlar": sorunlar, "atilan": atilan,
+                "duzeltilmis_ozet": fixed if sorunlar and isinstance(fixed, str) and fixed.strip() else None}
 
     def classify(self, item: Item, src: Source, text: str | None = None, audit: bool = True) -> Classification:
         """Kuyruk haberi için sınıflandırma + Türkçe özet. `text` makale metnidir; yalnız bu çağrıda kullanılır."""
@@ -194,14 +228,14 @@ class Classifier:
             warnings.append("dusuk_guven")
         audit_res = None
         if audit and summary:
+            summary = fit_summary(summary)
             audit_res = self.audit(item, text, summary)
             if audit_res["gecti"] is False:
                 warnings.append("denetim")
                 if audit_res["duzeltilmis_ozet"]:
                     audit_res["ilk_ozet"] = summary
                     summary = audit_res["duzeltilmis_ozet"]
-        if summary and len(summary) > 600:   # telif ve kılavuz sınırı; kesik özet editörde görünür
-            summary = summary[:597].rsplit(" ", 1)[0] + "…"
+        summary = fit_summary(summary)
         return Classification(
             turkey_related=bool(raw.get("turkey_related", hit)),
             countries=clean_countries(raw.get("countries"), src.country_id),

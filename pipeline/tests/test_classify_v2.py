@@ -82,7 +82,8 @@ ITEM = Item(source_id="K262", url="https://ex.com/a", title="الكوني يرح
 def test_audit_failure_replaces_summary_and_flags():
     first = {"turkey_related": True, "countries": ["ly", "tr"], "summary_tr": "Ulusal Mutabakat Hükümeti memnun.",
              "uyarilar": [], "sozlukte_olmayanlar": [], "confidence": 0.8, "publishable": True}
-    audit = {"gecti": False, "sorunlar": [{"tur": "unvan", "aciklama": "UMH 2021'de sona erdi"}],
+    audit = {"gecti": False, "sorunlar": [{"tur": "unvan", "ozet_ifadesi": "Ulusal Mutabakat Hükümeti",
+                                           "aciklama": "UMH 2021'de sona erdi"}],
              "duzeltilmis_ozet": "Libya Başkanlık Konseyi Başkan Yardımcısı Musa el-Koni onayı memnuniyetle karşıladı."}
     clf = _clf([first, audit])
     c = clf.classify(ITEM, SRC, text=BODY)
@@ -102,6 +103,26 @@ def test_no_text_warns_and_long_summary_trimmed():
     c = clf.classify(ITEM, SRC, text=None)
     assert {"metin_yok", "dusuk_guven", "sozlukte_yok"} <= set(c.warnings)
     assert len(c.summary_tr) <= 600
+
+
+def test_fit_summary_sentence_boundary():
+    from disgundem.classify import fit_summary
+    s = "Birinci cümle burada bitti. İkinci cümle de bitti. Üçüncü cümle tamam. Dördüncü cümle fazla."
+    assert fit_summary(s) == "Birinci cümle burada bitti. İkinci cümle de bitti. Üçüncü cümle tamam."
+    long = "A" * 300 + " kelime. " + "B" * 350 + " son."
+    assert fit_summary(long).endswith("kelime.")            # 600'ü aşan ikinci cümle hiç alınmaz
+
+
+def test_audit_drops_unanchored_and_omission_notes():
+    first = {"turkey_related": True, "summary_tr": "Güler Irak'taki varlığın süreceğini söyledi.", "confidence": 0.9}
+    audit = {"gecti": False, "sorunlar": [
+        {"tur": "desteksiz", "ozet_ifadesi": "kaynakta olmayan bir ifade", "aciklama": "x"},
+        {"tur": "eksik", "ozet_ifadesi": "Güler", "aciklama": "AFP atfı özete alınmamış"},
+        {"tur": "unvan", "ozet_ifadesi": "", "aciklama": "sorun yok"}],
+        "duzeltilmis_ozet": "Bambaşka özet."}
+    c = _clf([first, audit]).classify(ITEM, SRC, text=BODY)
+    assert c.audit["gecti"] is True and c.audit["atilan"] == 3
+    assert "denetim" not in c.warnings and c.summary_tr.startswith("Güler")   # düzeltme uygulanmadı
 
 
 def test_cmd_classify_never_persists_article_text(monkeypatch):
