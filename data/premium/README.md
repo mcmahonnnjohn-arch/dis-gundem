@@ -14,4 +14,5 @@ Biçim (liste):
   "summary_tr":"Kendi cümlelerimizle 2-3 cümle.","countries":["sy","tr"],"themes":["ekonomi"],"dossiers":["yeniden-insa"],
   "frame":"notr","importance":null,"lang":"en","note":"Yayının çerçevesi: ..."}]
 ```
+`importance` zorunludur (1–5, `docs/KAPSAM_MODELI.md` tablosu) ve kayıt sunucudaki huniyle aynı kapılardan geçer: 3 altı saklanmaz, 3 havuza, 4 ve üstü kuyruğa (ülke başına günde 4, toplam 30; 5 tavanı deler).
 `source_id` listede yoksa kayıt reddedilir. Makale metni, 600 karakterden uzun özet veya 15 kelimeden uzun alıntı içeren kayıt da reddedilir.
