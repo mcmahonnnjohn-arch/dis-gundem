@@ -83,7 +83,10 @@ class Classifier:
 
     def _call(self, system: str, user: str) -> str:
         if self.provider == "anthropic":
-            r = self._client.messages.create(model=self.model, max_tokens=4000, system=system,
+            # Eleme/sınıflandırma kısa, yapılandırılmış JSON: düşünme kapalı (bütçeyi yiyip yanıtı kesiyordu),
+            # 40 başlıklık parti için yeterli çıktı payı.
+            r = self._client.messages.create(model=self.model, max_tokens=8000, system=system,
+                                             thinking={"type": "disabled"},
                                              messages=[{"role": "user", "content": user}])
             # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
             return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
