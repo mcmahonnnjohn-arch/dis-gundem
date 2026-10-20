@@ -349,6 +349,13 @@ def cmd_eval(s, args):
     if clf.provider == "none":
         sys.exit("eval: LLM sağlayıcısı yok (LLM_PROVIDER/anahtar)")
     meta = ev.meta_for(clf, s)
+    if args.yalniz_olay:   # yalnız birleştirme ölçümü: özet üretilmez, tek LLM çağrısı
+        res = ev.olay_testi(clf, cases)
+        print(f"olay birleştirme: {res}")
+        from .olay import GROUP_VERSION
+        Store(s).insert_eval_run({"meta": {**meta, "olay": GROUP_VERSION}, "ozet": {"n": len(cases), "olay": res},
+                                  "sonuclar": [], "etiket": args.etiket or None})
+        return
     print(f"eval: {len(cases)} haber · {meta}")
     client = make_client(s) if s.article_text else None
     results = []
@@ -454,6 +461,7 @@ def main(argv=None):
     e.add_argument("--onayli", action="store_true", help="yalnız editör onaylı satırlar")
     e.add_argument("--hakemsiz", action="store_true", help="LLM hakem çağrısını atla (yalnız kurallar)")
     e.add_argument("--etiket", default="", help="çalışmaya not (ör. 'classify_v4 tabanı')")
+    e.add_argument("--yalniz-olay", action="store_true", help="yalnız olay birleştirme ölçümü")
     m = sub.add_parser("measure", help="kayan pencere hacmi hesapla")
     m.add_argument("--days", type=int, default=30)
     m.add_argument("--report", action="store_true")
