@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "seed | fetch | classify | classify-yeniden | measure | check-feeds | chrome-import"
+        description: "seed | fetch | classify | classify-yeniden | eval | measure | check-feeds | chrome-import"
         default: "check-feeds"
       file:
         description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
         default: ""
       sources:
-        description: "fetch için yalnız bu kaynak ID'leri, boşlukla (ör. K001 K019); boşsa sırası gelenler"
+        description: "fetch: yalnız bu kaynak ID'leri (ör. K001 K019) · eval: ek argümanlar (ör. --etiket taban --no 1 2)"
         default: ""
 
 env:
@@ -73,6 +73,11 @@ jobs:
       - name: classify-yeniden
         if: steps.pick.outputs.job == 'classify-yeniden'
         run: disgundem classify --yeniden --limit 200
+      - name: eval
+        if: steps.pick.outputs.job == 'eval'
+        env:
+          EVAL_ARGS: ${{ inputs.sources }}
+        run: disgundem eval $EVAL_ARGS
       - name: measure
         if: steps.pick.outputs.job == 'measure'
         run: disgundem measure --days 30 --report

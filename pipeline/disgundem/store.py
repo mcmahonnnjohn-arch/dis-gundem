@@ -123,6 +123,13 @@ class Store:
              .order("importance", desc=True).limit(limit + len(chrome)).execute())
         return [x for x in r.data if x.get("cluster_id") not in chrome][:limit]
 
+    def insert_eval_run(self, row: dict) -> None:
+        """Test seti ölçüm sonucu (özetler ve puanlar; makale metni yok)."""
+        if self.client is None:
+            self._dump("eval_runs", [row])
+            return
+        self.client.table("eval_runs").insert(self._clean([row])[0]).execute()
+
     def due_sources(self) -> list[dict]:
         """Çekirdek kaynaklardan tarama aralığı dolmuş olanlar (think tank haftalık, diğerleri saatlik)."""
         rows = self.active_sources()

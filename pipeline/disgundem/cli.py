@@ -270,6 +270,38 @@ def cmd_classify(s, args):
         sys.exit("classify: tüm LLM çağrıları hata verdi")
 
 
+def cmd_eval(s, args):
+    """Özet test setini güncel hatla çalıştırır ve puanlar (evaluate.py). Makale metni okunur, saklanmaz."""
+    from . import evaluate as ev
+    cases = ev.load_set(only_approved=args.onayli)
+    if args.no:
+        want = {int(x) for x in args.no}
+        cases = [c for c in cases if c["no"] in want]
+    clf = Classifier(s)
+    if clf.provider == "none":
+        sys.exit("eval: LLM sağlayıcısı yok (LLM_PROVIDER/anahtar)")
+    meta = ev.meta_for(clf, s)
+    print(f"eval: {len(cases)} haber · {meta}")
+    client = make_client(s) if s.article_text else None
+    results = []
+    try:
+        for c in cases:
+            r = ev.run_case(clf, client, s, c, use_judge=not args.hakemsiz)
+            k, h = r.kurallar, r.hakem or {}
+            print(f"  {r.no:>2} {r.lang} metin={r.metin:<8} olmalı={k['olmali_oran']:.2f} ihlal={len(k['ihlal'])} "
+                  f"doğruluk={h.get('dogruluk')} kapsam={h.get('kapsam')} atıf={h.get('atif')}")
+            results.append(r)
+    finally:
+        if client:
+            client.close()
+    agg = ev.aggregate(results)
+    md = ev.report_md(meta, agg, results)
+    (config.OUT / "eval_raporu.md").write_text(md, encoding="utf-8")
+    print(md)
+    Store(s).insert_eval_run({"meta": meta, "ozet": agg, "sonuclar": [r.as_dict() for r in results],
+                              "etiket": args.etiket or None})
+
+
 def cmd_measure(s, args):
     store = Store(s)
     rows = compute_window(store, days=args.days)
@@ -340,6 +372,11 @@ def main(argv=None):
     c = sub.add_parser("classify", help="toplananları sınıflandır, özetle, kuyruğa al")
     c.add_argument("--limit", type=int, default=200)
     c.add_argument("--yeniden", action="store_true", help="sunucu kökenli kuyruk haberlerini baştan özetle")
+    e = sub.add_parser("eval", help="özet test setini çalıştır ve puanla")
+    e.add_argument("--no", nargs="*", help="yalnız bu test numaraları")
+    e.add_argument("--onayli", action="store_true", help="yalnız editör onaylı satırlar")
+    e.add_argument("--hakemsiz", action="store_true", help="LLM hakem çağrısını atla (yalnız kurallar)")
+    e.add_argument("--etiket", default="", help="çalışmaya not (ör. 'classify_v4 tabanı')")
     m = sub.add_parser("measure", help="kayan pencere hacmi hesapla")
     m.add_argument("--days", type=int, default=30)
     m.add_argument("--report", action="store_true")
@@ -347,7 +384,7 @@ def main(argv=None):
     k.add_argument("--core", action="store_true")
     args = p.parse_args(argv)
     s = config.load()
-    {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify,
+    {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 
