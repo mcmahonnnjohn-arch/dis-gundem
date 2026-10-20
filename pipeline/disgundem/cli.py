@@ -7,6 +7,7 @@ import logging
 import sys
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import replace
 from datetime import datetime, timezone
 
 from . import config
@@ -93,12 +94,15 @@ def cmd_fetch(s, args):
             stats["raw"] += len(items)
             uh = {i.url: hashlib.md5(i.url.encode()).hexdigest() for i in items}
             seen = store.seen([(src["id"], uh[i.url], title_hash(i.title)) for i in items])
-            fresh = [i for i in items if (src["id"], uh[i.url]) not in seen]
+            stored = store.existing_urls(src["id"], [i.url for i in items])   # önceki çalışmada saklanmış makaleler
+            fresh = [i for i in items if (src["id"], uh[i.url]) not in seen and i.url not in stored]
             stats["dup"] += len(items) - len(fresh)
-            kept = prefilter(fresh, src, matcher, gates)
+            # Yaş/Türkiye filtresinden düşen "görüldü" sayılır; kaynak tavanı yüzünden bekleyen sayılmaz (sonra gelir).
+            passed = prefilter(fresh, src, matcher, replace(gates, max_items_per_source=10**9))
+            kept = passed[:gates.max_items_per_source]
             stats["prefiltered"] += len(fresh) - len(kept)
             for i in fresh:
-                if i not in kept:
+                if i not in passed:
                     seen_rows.append({"source_id": src["id"], "url_hash": uh[i.url], "title_hash": title_hash(i.title),
                                       "importance": 0})
             candidates += [(i, src) for i in kept]

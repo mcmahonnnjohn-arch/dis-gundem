@@ -75,8 +75,11 @@ class Store:
     def existing_urls(self, source_id: str, urls: list[str]) -> set[str]:
         if self.client is None or not urls:
             return set()
-        r = self.client.table("articles").select("url").eq("source_id", source_id).in_("url", urls).execute()
-        return {x["url"] for x in r.data}
+        out: set[str] = set()
+        for i in range(0, len(urls), 40):   # uzun URL listeleri GET sorgu sınırını aşmasın
+            r = self.client.table("articles").select("url").eq("source_id", source_id).in_("url", urls[i:i + 40]).execute()
+            out |= {x["url"] for x in r.data}
+        return out
 
     def existing_article_keys(self, source_ids: list[str]) -> set[tuple[str, str]]:
         """(source_id, url) çiftleri zaten saklı olanlar — içe almayı tekrar çalıştırmaya karşı güvenli kılar."""
