@@ -15,7 +15,7 @@ from .fetch import Item
 from .fetch.rss import fetch_feed, make_client
 from .fetch.gnews import fetch_gnews
 from .fetch.scrape import fetch_listing
-from .funnel import Gates, cluster, prefilter, select_for_queue, title_hash
+from .funnel import Gates, cluster, prefilter, primary_country, select_for_queue, title_hash
 from .measure import compute_window, prune_report
 from .sources import dictionaries, load_sources
 from .store import Store
@@ -137,7 +137,8 @@ def cmd_fetch(s, args):
         countries = sorted({c for x in grp for c in x["c"]})
         times = [x["item"].published_at for x in grp if x["item"].published_at] or [now]
         store.insert_cluster({"id": cid, "title_tr": None, "importance": max(x["imp"] for x in grp),
-                              "article_count": len(grp), "countries": countries, "first_seen": min(times),
+                              "article_count": len(grp), "countries": countries, "primary_country": primary_country(grp),
+                              "first_seen": min(times),
                               "last_seen": max(times), "status": status, "created_at": now})
         for x in grp:
             it = x["item"]
@@ -173,7 +174,9 @@ def cmd_premium_import(s, args):
         cid = str(uuid.uuid4())
         t = r["published_at"] or now
         store.insert_cluster({"id": cid, "title_tr": None, "importance": r["importance"], "article_count": 1,
-                              "countries": sorted(r["classification"]["countries"]), "first_seen": t, "last_seen": t,
+                              "countries": sorted(r["classification"]["countries"]),
+                              "primary_country": (r["classification"]["countries"] or ["tr"])[0],
+                              "first_seen": t, "last_seen": t,
                               "status": r["status"], "created_at": now})
         r["cluster_id"] = cid
     store.upsert_articles(kept)
