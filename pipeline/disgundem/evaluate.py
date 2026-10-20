@@ -91,11 +91,23 @@ class CaseResult:
         return self.__dict__
 
 
+_SRC: dict | None = None
+
+
+def _sources() -> dict:
+    """Kaynak envanteri (ad, ülke, kapsam, eğilim) — sınıflandırma promptu hattakiyle aynı bağlamı alsın."""
+    global _SRC
+    if _SRC is None:
+        from .sources import load_sources
+        _SRC = {x.id: x for x in load_sources()}
+    return _SRC
+
+
 def run_case(clf: Classifier, client, s, case: dict, use_judge: bool = True) -> CaseResult:
     item = Item(source_id=case.get("source_id", ""), url=case["url"], title=case["baslik"],
                 lang=case.get("lang"), excerpt=case.get("lead") or None)
-    src = SimpleNamespace(name=case.get("kaynak", case.get("source_id", "")), country_id=case.get("ulke", ""),
-                          tier=case.get("kapsam", "A"), langs=[case.get("lang") or ""], lean_note="")
+    src = _sources().get(case.get("source_id")) or SimpleNamespace(
+        name=case.get("source_id", ""), country_id="", tier="A", langs=[case.get("lang") or ""], lean_note="")
     text, st = fetch_text(client, case["url"], s.user_agent) if (client and case.get("url", "").startswith("http")) \
         else (None, "yok")
     c = clf.classify(item, src, text=text, audit=s.audit)
