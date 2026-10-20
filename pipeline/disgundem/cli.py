@@ -349,7 +349,7 @@ def cmd_eval(s, args):
     if clf.provider == "none":
         sys.exit("eval: LLM sağlayıcısı yok (LLM_PROVIDER/anahtar)")
     meta = ev.meta_for(clf, s)
-    if args.yalniz_olay:   # yalnız birleştirme ölçümü: özet üretilmez, tek LLM çağrısı
+    if getattr(args, "yalniz_olay", False):   # yalnız birleştirme ölçümü: özet üretilmez, tek LLM çağrısı
         res = ev.olay_testi(clf, cases)
         print(f"olay birleştirme: {res}")
         from .olay import GROUP_VERSION
