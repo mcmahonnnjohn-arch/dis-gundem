@@ -32,19 +32,34 @@ def cmd_seed(s, args):
     print(f"seed: {len(srcs)} kaynak, {len(dictionaries()['countries'])} ülke")
 
 
+def _collect(client, matcher, src: dict) -> tuple[list[Item], str]:
+    """Kaynağın yöntemine göre topla. RSS kırıksa Google News `site:` yedeğine düş; dönen ikinci değer kullanılan yol."""
+    lang = (src.get("langs") or [None])[0]
+    site = src.get("local_url") or src["url"]
+    if src["method"] == "rss" and src.get("feed_url"):
+        try:
+            items = fetch_feed(client, src["id"], src["feed_url"], lang)
+            return items, "rss+ua" if any(i.extra.get("browser_ua") for i in items) else "rss"
+        except Exception as e:
+            items = fetch_gnews(client, matcher, src["id"], site, lang or "en", turkey_only=(src["tier"] != "A"))
+            if items:
+                for i in items:
+                    i.extra["rss_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+                return items, "gnews-yedek"
+            raise
+    if src["method"] == "gnews":
+        return fetch_gnews(client, matcher, src["id"], site, lang or "en", turkey_only=(src["tier"] != "A")), "gnews"
+    if src["method"] == "scrape":
+        return fetch_listing(client, src["id"], site, lang), "scrape"
+    return [], "manual"  # premium: Chrome oturumu + premium-import
+
+
 def _fetch_one(s, matcher, src: dict) -> tuple[dict, list[Item], str | None]:
     client = make_client(s)
-    lang = (src.get("langs") or [None])[0]
     try:
-        if src["method"] == "rss" and src.get("feed_url"):
-            items = fetch_feed(client, src["id"], src["feed_url"], lang)
-        elif src["method"] == "gnews":
-            items = fetch_gnews(client, matcher, src["id"], src.get("local_url") or src["url"], lang or "en",
-                                turkey_only=(src["tier"] != "A"))
-        elif src["method"] == "scrape":
-            items = fetch_listing(client, src["id"], src.get("local_url") or src["url"], lang)
-        else:
-            return src, [], None  # manual (premium): Chrome oturumu + premium-import
+        items, via = _collect(client, matcher, src)
+        if via == "gnews-yedek":
+            log.warning("%s RSS kırık, gnews yedeği kullanıldı: %s", src["id"], items[0].extra.get("rss_error"))
         return src, items, None
     except Exception as e:
         return src, [], f"{type(e).__name__}: {e}"
@@ -194,31 +209,47 @@ def cmd_measure(s, args):
 
 
 def cmd_check_feeds(s, args):
-    """Envanterdeki RSS adreslerini ayrıştırıp sonuç tablosu basar (DB gerekmez)."""
+    """Envanterdeki RSS adreslerini dener; kırıksa tarayıcı başlığı ve gnews yedeğini de dener (DB gerekmez)."""
     srcs = [x for x in load_sources() if x.feed_url and (not args.core or x.status == "cekirdek")]
+    matcher = Matcher()
     print(f"check-feeds: {len(srcs)} besleme")
     results = []
 
     def one(x):
         client = make_client(s)
+        row = x.as_row()
+        rss_err = None
         try:
             items = fetch_feed(client, x.id, x.feed_url, x.langs[0] if x.langs else None)
-            newest = max((i.published_at for i in items if i.published_at), default=None)
-            return x, len(items), newest, None
+            via = "rss+ua" if any(i.extra.get("browser_ua") for i in items) else "rss"
         except Exception as e:
-            return x, 0, None, f"{type(e).__name__}: {str(e)[:70]}"
+            rss_err = f"{type(e).__name__}: {str(e)[:90]}"
+            try:
+                items, via = _collect(client, matcher, row)
+            except Exception:
+                items, via = [], "yok"
         finally:
             client.close()
+        newest = max((i.published_at for i in items if i.published_at), default=None)
+        return x, len(items), newest, via, rss_err
 
     with ThreadPoolExecutor(max_workers=s.concurrency) as ex:
-        for x, n, newest, err in ex.map(one, srcs):
-            results.append({"id": x.id, "name": x.name, "feed": x.feed_url, "items": n,
-                            "newest": newest.isoformat() if newest else None, "error": err})
-            print(f"  {x.id:5} {x.name[:34]:34} {n:4} kayıt  en yeni={newest.date() if newest else '-'}  {err or ''}")
+        for x, n, newest, via, err in ex.map(one, srcs):
+            results.append({"id": x.id, "name": x.name, "feed": x.feed_url, "items": n, "via": via,
+                            "newest": newest.isoformat() if newest else None, "rss_error": err})
+            print(f"  {x.id:5} {x.name[:30]:30} {n:4} kayıt  {via:11} en yeni={newest.date() if newest else '-'}  {err or ''}")
     p = config.OUT / "feed_check.json"
     p.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
+    by = {}
+    for r in results:
+        by[r["via"]] = by.get(r["via"], 0) + 1
     ok = sum(1 for r in results if r["items"] > 0)
-    print(f"çalışan: {ok}/{len(results)} → {p}")
+    print(f"çalışan: {ok}/{len(results)}  yol dağılımı: {by} → {p}")
+    broken = [r for r in results if r["via"] != "rss"]
+    if broken:
+        print("RSS dışı / kırık:")
+        for r in broken:
+            print(f"  {r['id']:5} {r['name'][:30]:30} {r['via']:11} {r['items']:4}  {r['rss_error'] or ''}")
 
 
 def main(argv=None):
