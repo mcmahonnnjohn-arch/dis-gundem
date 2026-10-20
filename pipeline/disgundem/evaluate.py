@@ -64,7 +64,9 @@ def rule_scores(case: dict, summary: str | None) -> dict:
 
 def judge(clf: Classifier, case: dict, summary: str, text: str | None = None) -> dict:
     system = (PROMPTS / f"{JUDGE_VERSION}.md").read_text(encoding="utf-8")
-    user = json.dumps({"baslik": case["baslik"], "metin": text or "", "kaynak_olgulari": case.get("kaynak_olgulari") or [],
+    src = _sources().get(case.get("source_id"))
+    user = json.dumps({"baslik": case["baslik"], "kaynak": getattr(src, "name", case.get("source_id", "")),
+                       "metin": text or "", "kaynak_olgulari": case.get("kaynak_olgulari") or [],
                        "referans_ozet": case["referans_ozet"], "aday_ozet": summary}, ensure_ascii=False)
     try:
         raw = _parse(clf._call(system, user, model=clf.summary_model, cache=True))
@@ -160,6 +162,30 @@ def report_md(meta: dict, agg: dict, results: list[CaseResult]) -> str:
             lines.append(f"- **{r.no}** ({r.lang}) eksik={r.kurallar['eksik']} ihlal={r.kurallar['ihlal']} "
                          f"doğruluk={h.get('dogruluk')} · {'; '.join(h.get('hatalar') or [])}")
     return "\n".join(lines)
+
+
+def olay_testi(clf: Classifier, cases: list[dict]) -> dict:
+    """Birleştirme ölçümü: başlıklar olay gruplayıcıya verilir, sonuç editörün `olay` gruplarıyla çift bazında
+    karşılaştırılır. `olay_belirsiz` işaretli haberler (aynı olay mı tartışmalı) puanlamaya girmez."""
+    from itertools import combinations
+    from .olay import group_items
+    items = [{"k": str(c["no"]), "t": [c["baslik"][:200]], "u": "", "z": ""} for c in cases]
+    pred = group_items(clf, items)
+    same_pred = {frozenset(p) for g in pred for p in combinations(g, 2)}
+    gold: dict[str, list[str]] = {}
+    for c in cases:
+        if c.get("olay"):
+            gold.setdefault(c["olay"], []).append(str(c["no"]))
+    same_gold = {frozenset(p) for g in gold.values() for p in combinations(g, 2)}
+    skip = {str(c["no"]) for c in cases if c.get("olay_belirsiz")}
+    sp = {p for p in same_pred if not (p & skip)}
+    sg = {p for p in same_gold if not (p & skip)}
+    hit = sp & sg
+    return {"kesinlik": round(len(hit) / len(sp), 3) if sp else None,
+            "duyarlilik": round(len(hit) / len(sg), 3) if sg else None,
+            "tahmin": [sorted(g, key=int) for g in pred],
+            "yanlis_birlesen": [sorted(p, key=int) for p in sp - sg],
+            "kacan": [sorted(p, key=int) for p in sg - sp]}
 
 
 def meta_for(clf: Classifier, s) -> dict:

@@ -363,6 +363,10 @@ def cmd_eval(s, args):
         if client:
             client.close()
     agg = ev.aggregate(results)
+    if not args.no:   # olay birleştirme ölçümü tüm sette anlamlı
+        agg["olay"] = ev.olay_testi(clf, cases)
+        print(f"olay birleştirme: kesinlik {agg['olay']['kesinlik']} · duyarlılık {agg['olay']['duyarlilik']} · "
+              f"yanlış birleşen {agg['olay']['yanlis_birlesen']} · kaçan {agg['olay']['kacan']}")
     md = ev.report_md(meta, agg, results)
     (config.OUT / "eval_raporu.md").write_text(md, encoding="utf-8")
     print(md)

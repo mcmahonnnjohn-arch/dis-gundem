@@ -76,12 +76,20 @@ def _norm(t: str) -> str:
     return " ".join((t or "").split()).strip(" .,;:\"'«»“”‘’").lower()
 
 
+PROCESS_SENT = re.compile(r"başlığa göre|başlıktan anlaşıl|başlık(?:ta|tan)? (?:dışında|yalnız)|lead|"
+                          r"ayrıntı(?:sı|lar)? (?:verilmiyor|bulunmuyor|belirtilmiyor)|kaynakta belirtilmiyor|"
+                          r"doğrulanam|dikkatle okunmalı|tam metin|metin(?:e)? erişil|anlaşılmıyor", re.I)
+
+
 def fit_summary(text: str | None) -> str | None:
-    """Kılavuz sınırı: en fazla 3 cümle ve 600 karakter; kesme cümle sınırında (kelime ortasında değil)."""
+    """Kılavuz sınırı: en fazla 3 cümle ve 600 karakter; kesme cümle sınırında (kelime ortasında değil).
+    Süreç cümleleri (kaynağın eksikliğini anlatan) prompt yasağına rağmen gelirse burada atılır."""
     if not text:
         return text
     text = " ".join(text.split())
     sents = re.split(r"(?<=[.!?…])\s+(?=[A-ZÇĞİÖŞÜ0-9\"'«“(])", text)
+    kept = [x for x in sents if not PROCESS_SENT.search(x)]
+    sents = kept or sents[:1]
     out = ""
     for sn in sents[:MAX_SENTENCES]:
         cand = f"{out} {sn}".strip()

@@ -243,3 +243,13 @@ def test_amp_fallback_when_body_is_client_rendered():
         return httpx.Response(200, text=f"<html><body><article><p>{body}</p></article></body></html>")
     text, st = fetch_text(_client(h), "https://ex.com/n/1", "Bot", "Erdogan Submits Makkah Defense Agreement")
     assert st == "ok" and text.startswith("Erdogan")
+
+
+def test_relevance_hebrew_prefixes_and_process_sentence_removed():
+    from disgundem.classify import fit_summary
+    from disgundem.fetch.article import relevance
+    title = "החיבוק מטראמפ, הפגישה החשאית וסימן השאלה המרכזי"
+    body = "טראמפ חיבק את נתניהו. הפגישה החשאית עם הגסת' עוררה שאלה מרכזית על איראן ועל הבחירות."
+    assert relevance(title, body) >= 0.34
+    s = fit_summary("Netanyahu Trump'ın desteğini aldı. Haberin kimleri kapsadığı başlıktan anlaşılmıyor.")
+    assert s == "Netanyahu Trump'ın desteğini aldı."

@@ -88,3 +88,26 @@ Yalnız kuyruğa giren haberlerde, özetleme sırasında makale metni okunur. Me
 ## 9. Düzeltme döngüsü
 
 Editörün kuyrukta yaptığı her düzeltme kaydedilir. Aynı türden düzeltme iki kez tekrarlanırsa sözlüğe ya da bu kılavuza eklenir; kılavuz sürümü artar (v0.2…).
+
+## 10. Aynı olay tek kart (21 Ekim 2026 editör kararı)
+
+- Aynı somut gelişmeyi anlatan haberler (aynı karar, açıklama, görüşme, saldırı) farklı dil ve kaynaklardan gelse de **tek kartta** toplanır (`disgundem birlestir`). Bir olayın tepkileri (ör. Libya meclisinin onayı ile Yunanistan'ın tepkisi) ayrı olaydır.
+- Kartın özeti üye haberlerin özetlerinden yazılır; kaynaklar arasında çelişen sayı/tarih/iddia kaynağına atfedilir.
+- Kaynaklar olayı belirgin biçimde farklı çerçeveliyorsa kartta **"Bakış farkı"** satırı yer alır: kim, nasıl görüyor ("Yunan basını mutabakatı yasadışı sayarken Libya kaynakları uzun vadeli ortaklık vurgusu yapıyor"). Fark yoksa satır yoktur.
+
+## 11. Kısaltma ve terimler (21 Ekim 2026 editör kararı)
+
+Genel okurun bilmeyebileceği kısaltma ve teknik terim (NAVTEX, MEB, IMEC, FATF, UAEA, OSINT, MQ-9…) ilk geçişte parantez içinde birkaç kelimeyle açıklanır: "NAVTEX (denizcilere seyir uyarısı)". Kısa açıklamalar sözlükte `kisa_aciklama` sütunundadır; yeni terim çıktıkça eklenir. Herkesin bildiği kısaltmalar (ABD, AB, BM, NATO, TBMM) açıklanmaz.
+
+## 12. Makale metnine erişilemezse (21 Ekim 2026 editör kararı)
+
+Sunucu metni okuyamazsa önce tarayıcı başlıklarıyla ve yayıncının AMP sürümüyle yeniden denenir. Olayın hiçbir haberinin metni okunamamışsa kart kuyruktan çıkar, havuza düşer (`DROP_NO_TEXT`); aynı olayda okunabilir tek bir haber kartı kuyrukta tutmaya yeter. Test setinde metni hiçbir yoldan okunamayan haber setten çıkarılır.
+
+## 13. Okur ekranı ilkeleri (21 Ekim 2026 editör kararı: "okunaklı, okuru yormayan")
+
+1. **Bir kart, bir olay.** Kartta sırasıyla: olay başlığı, özet, varsa bakış farkı, kaynaklar (yayın adı · ülke · dil). Başka hiçbir şey öne çıkmaz.
+2. **İç bilgi okura gösterilmez.** Kaynak kodları (K012), önem puanı, kontrol maddeleri, hakem notları, uyarı etiketleri yalnız editör görünümündedir ve orada da varsayılan olarak kapalıdır ("Ayrıntılar").
+3. **Okuma tipografisi.** Özet metni 18 px civarı, satır uzunluğu en fazla ~70 karakter, satır aralığı ≥ 1,5; özgün başlık küçük, ikincil renkte ve kendi yazı yönünde (Arapça/Farsça/İbranice sağdan sola).
+4. **Tek vurgu.** Renk yalnız durum bildirmek için (onaylı, düzeltme, uyarı); süs için renk, çerçeve ve rozet çoğaltılmaz.
+5. **Sakin yoğunluk.** Kartlar arasında belirgin boşluk; bir ekranda 3-4 karttan fazlası sıkıştırılmaz; uzun listeler süzgeçle (dil, ülke, dosya) daraltılır.
+6. **Her iki tema.** Açık ve koyu temada aynı okunurluk; düşük kontrastlı gri metin kullanılmaz.
