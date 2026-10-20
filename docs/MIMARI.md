@@ -6,15 +6,17 @@ kaynak envanteri (data/kaynak_envanteri_v3.csv)
         ▼
    Supabase ── sources / countries / regions / dossiers / themes
         │
-        │  disgundem fetch   (saatlik, GitHub Actions)
+        │  disgundem fetch   (3 saatte bir, GitHub Actions) — önem hunisi:
+        │    tekrar → ön filtre (B/R/T'de Türkiye terimi) → toplu LLM elemesi (yalnız başlık, 40'lık parti)
+        │    → önem<3 saklanmaz · 3 havuz · ≥4 kuyruk → kümeleme → ülke/gün ve toplam/gün tavanı
         │    rss → feedparser · gnews → Google News RSS (yerel dil edisyonu) · scrape → liste sayfası
         │  premium (FT, Bloomberg, WSJ, Economist, FA, FP): editörün Claude in Chrome oturumu → data/premium/*.json → disgundem premium-import
         ▼
-   articles (status=fetched)            ← yalnız başlık, link, tarih, kısa lead; gövde yok
+   clusters + articles (status=queued | pool)   ← yalnız başlık, link, tarih, kısa lead; gövde yok
         │
-        │  disgundem classify  (LLM: Türkiye ile ilgili mi, ülkeler, tema, dosya, önem 1-5, çerçeve, 2-3 cümle Türkçe özet)
+        │  disgundem classify  (yalnız kuyruktakiler: 2-3 cümle Türkçe özet, tema, dosya, çerçeve)
         ▼
-   articles (status=queued | rejected)  ← editorial_queue görünümü
+   editorial_queue görünümü (küme bazlı; günde ~15-30 küme hedefi)
         │
         │  editör onayı (yayın yüzeyi/arayüz; bu PR'de yok)
         ▼
@@ -32,6 +34,7 @@ kaynak envanteri (data/kaynak_envanteri_v3.csv)
 - **Telif.** Hiçbir toplayıcı makale gövdesi almaz. Premium (P) kaynaklar sunucuda hiç toplanmaz: editör kendi abonelikleriyle Claude in Chrome'da okur, çıktı yalnız başlık+link+tarih+kendi cümleleriyle özet olarak `premium-import` ile girer; özet 600 karakteri, alıntı 15 kelimeyi aşarsa kayıt reddedilir. Chrome yalnız premium için; diğer her şey sunucu tarafında.
 - **Editör onayı kodda.** `articles.status` akışı `fetched → classified/queued → approved → published`; `published` dışında hiçbir satır anon okumasına açık değil (RLS).
 - **Sağlayıcıdan bağımsız LLM.** `LLM_PROVIDER=anthropic|openai|none`; `none` modunda terim filtresi çalışır, hat yine akar. Prompt sürümü (`prompts/classify_v1.md`) her kayda yazılır; prompt değişince karşılaştırılabilir.
+- **Önem hunisi.** Ham akış (çekirdek 134 kaynaktan günde birkaç bin başlık) veritabanına girmez; yalnız önem ≥ 3 saklanır, ≥ 4 kuyruğa girer, aynı olay tek küme. LLM maliyeti iki kademeli: ucuz toplu eleme (yalnız başlık) herkese, özet yalnız kuyruğa girenlere. `LLM_PROVIDER=none` modunda yalnız Türkiye terimi geçenler havuza düşer, kuyruk boş kalır; kuyruğun dolması için LLM gerekir.
 - **DRY_RUN varsayılan.** Supabase anahtarı yoksa her komut `data/out/*.jsonl`'e yazar; CI'da artifact olur. Böylece hat, veritabanı kurulmadan test edilir.
 
 ## Toplama yöntemi seçimi (seed sırasında)

@@ -17,6 +17,7 @@ from .terms import Matcher
 
 log = logging.getLogger(__name__)
 PROMPT_VERSION = "classify_v1"
+TRIAGE_VERSION = "triage_v1"
 
 
 @dataclass
@@ -78,13 +79,47 @@ class Classifier:
 
     def _call(self, system: str, user: str) -> str:
         if self.provider == "anthropic":
-            r = self._client.messages.create(model=self.model, max_tokens=600, system=system,
+            r = self._client.messages.create(model=self.model, max_tokens=4000, system=system,
                                              messages=[{"role": "user", "content": user}])
             return r.content[0].text
         r = self._client.chat.completions.create(model=self.model, messages=[
             {"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"})
         return r.choices[0].message.content
+
+    def triage(self, batch: list[tuple[Item, dict]]) -> list[dict]:
+        """Toplu ön eleme: yalnız başlık + kaynak bilgisi; dönen her öğe {"imp", "tr", "c"}.
+
+        LLM yoksa (provider=none) terim eşleşmesine göre kaba puan: Türkiye terimi varsa 3, yoksa 1.
+        Bu modda A kapsamı iç gündem değerlendirilemez; bilerek düşer.
+        """
+        if not batch:
+            return []
+        if self.provider == "none":
+            out = []
+            for it, src in batch:
+                hit = self.matcher.hit(f"{it.title} {it.excerpt or ''}", it.lang)
+                out.append({"imp": 3 if hit else 1, "tr": hit, "c": [src["country_id"]], "model": "terms"})
+            return out
+        lines = [{"i": n, "baslik": it.title[:300], "kaynak": src["name"], "ulke": src["country_id"], "kapsam": src["tier"]}
+                 for n, (it, src) in enumerate(batch)]
+        system = (PROMPTS / f"{TRIAGE_VERSION}.md").read_text(encoding="utf-8")
+        try:
+            raw = _parse(self._call(system, json.dumps(lines, ensure_ascii=False)))
+            by_i = {int(x["i"]): x for x in raw.get("items", []) if "i" in x}
+        except Exception as e:
+            log.warning("triage hatası (%d başlık): %s; terim filtresine düşülüyor", len(batch), e)
+            by_i = {}
+        out = []
+        for n, (it, src) in enumerate(batch):
+            x = by_i.get(n)
+            if x is None:  # model atladıysa güvenli taraf: terim eşleşmesi
+                hit = self.matcher.hit(it.title, it.lang)
+                out.append({"imp": 3 if hit else 1, "tr": hit, "c": [src["country_id"]], "model": "terms-fallback"})
+            else:
+                out.append({"imp": int(x.get("imp", 1)), "tr": bool(x.get("tr")), "c": x.get("c") or [src["country_id"]],
+                            "model": self.model})
+        return out
 
     def classify(self, item: Item, src: Source) -> Classification:
         hit = self.matcher.hit(f"{item.title} {item.excerpt or ''}", item.lang)

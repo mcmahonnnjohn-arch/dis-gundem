@@ -2,7 +2,7 @@ name: pipeline
 
 on:
   schedule:
-    - cron: "17 * * * *"        # saatlik toplama (UTC)
+    - cron: "17 */3 * * *"      # 3 saatte bir toplama (UTC); think tank kaynakları kendi haftalık aralığıyla
     - cron: "41 3 * * 1"        # haftalık ölçüm + budama raporu (Pazartesi 06:41 İstanbul)
   workflow_dispatch:
     inputs:
@@ -17,6 +17,11 @@ env:
   LLM_MODEL: ${{ vars.LLM_MODEL }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  # Önem hunisi eşikleri (Settings → Variables ile değiştirilebilir)
+  IMPORTANCE_STORE_MIN: ${{ vars.IMPORTANCE_STORE_MIN || '3' }}
+  IMPORTANCE_QUEUE_MIN: ${{ vars.IMPORTANCE_QUEUE_MIN || '4' }}
+  QUEUE_PER_COUNTRY_DAILY: ${{ vars.QUEUE_PER_COUNTRY_DAILY || '4' }}
+  QUEUE_TOTAL_DAILY: ${{ vars.QUEUE_TOTAL_DAILY || '30' }}
 
 jobs:
   run:
