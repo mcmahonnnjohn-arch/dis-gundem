@@ -19,6 +19,9 @@ ne zaman taranacağını, `Tarama odağı` neyin alınacağını söyler.
 5. Çıktıyı `data/premium/YYYY-MM-DD.json` olarak kaydet (biçim: `data/premium/README.md`) ve
    `disgundem chrome-import data/premium/YYYY-MM-DD.json` çalıştır.
 
+## Kota
+Chrome kayıtları sunucu taramasından ayrı kota kullanır (ülke başına günde 8, toplam 40); sunucu ne kadar haber getirirse getirsin Chrome seçkisi dışarıda kalmaz.
+
 ## Sınırlar
 - Giriş, CAPTCHA veya ödeme duvarı aşılmaz; editörün oturumunda açılmayan sayfa atlanır ve not edilir.
 - Aynı başlık sunucudaki gnews yedeğinden de gelmiş olabilir; tekilleştirme başlık hash'iyle eler.
