@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -e ./pipeline
+      - run: pip install -e "./pipeline[llm]"
       - name: DRY_RUN kararı (secrets yoksa dry-run; hat yine çalışır, çıktılar artifact olur)
         run: |
           if [ -z "$SUPABASE_URL" ]; then echo "DRY_RUN=1" >> $GITHUB_ENV; else echo "DRY_RUN=0" >> $GITHUB_ENV; fi
