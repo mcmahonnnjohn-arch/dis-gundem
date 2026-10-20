@@ -693,5 +693,138 @@
   "turkey_related": false,
   "importance": 4,
   "economic_analysis": false
+ },
+ {
+  "source_id": "K170",
+  "url": "https://www.ft.com/content/1f23e859-5e70-4d99-8f9b-56de3d0ae43e",
+  "title": "Iranian hardliners say the time for nuclear weapons has come",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "FT'ye göre ABD–İsrail savaşının yıkımı ve nükleer silahları yasaklayan fetvanın sahibi Hamaney'in öldürülmesinin ardından İran'da sertlik yanlıları zenginleştirme programının silaha dönüştürülmesini açıkça savunmaya başladı. Tahran'ın nükleer doktrininde kırılma ihtimali bölgesel denge için en kritik başlıklardan biri.",
+  "countries": [
+   "ir",
+   "il",
+   "us"
+  ],
+  "themes": [
+   "guvenlik",
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 4,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K170",
+  "url": "https://www.ft.com/content/f591211b-497f-4b20-a0ab-7c37d5422761",
+  "title": "Egypt's Sisi sets out plan for military to train his successors",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "Sisi, görev süresinin bittiği 2030'da çekileceğini ve anayasa değişikliğine gitmeyeceğini söyledi; ancak cumhurbaşkanı adaylarının Mısır Askeri Akademisi'nde 30 ay eğitileceği yeni bir halef süreci önerdi. Plan, ordunun devletteki rolünü daha da pekiştiriyor.",
+  "countries": [
+   "eg"
+  ],
+  "themes": [
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 4,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K170",
+  "url": "https://www.ft.com/content/cfa976d5-e320-4ee8-8c86-84733471a4a1",
+  "title": "Iran war tilts balance of global oil power towards Americas",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "FT analizi, Hürmüz kesintisinin alıcıları güvenilir arz arayışına ittiğini ve Kanada'dan Brezilya'ya Amerika kıtasında rekor petrol-gaz üretimi ve yatırım dalgası yarattığını anlatıyor. Kıta, düşük maliyetli Orta Doğu arzının yerini tam tutamasa da Körfez'e karşı kalıcı bir denge unsuru haline geliyor.",
+  "countries": [
+   "kuresel",
+   "ir",
+   "sa",
+   "us"
+  ],
+  "themes": [
+   "enerji",
+   "ekonomi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": true,
+  "note": "Körfez üreticilerinin pazar payı ve Türkiye'nin enerji tedarik çeşitlendirmesi açısından okunabilir; haberde Türkiye geçmiyor."
+ },
+ {
+  "source_id": "K171",
+  "url": "https://www.bloomberg.com/news/articles/2026-10-18/ukraine-talks-with-turkey-india-egypt-over-grain-corridor",
+  "title": "Ukraine Talks with Turkey, India, Egypt Over Grain Corridor",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "Zelenski, Ağustos'tan beri duran Karadeniz tahıl sevkiyatlarını yeniden açmak için Türkiye, Mısır ve Hindistan ile görüştüğünü söyledi. Üç ülke, kendi bayraklarını taşıyan gemilerin hem Ukrayna hem Rusya limanlarına girerek gıda taşıyabileceği güvenli seyrüsefer önerdi. Türkiye'nin 2022 tahıl anlaşmasındaki arabulucu rolünün yeniden gündeme gelmesi demek.",
+  "countries": [
+   "ua",
+   "tr",
+   "ru",
+   "eg",
+   "in"
+  ],
+  "themes": [
+   "diplomasi",
+   "ekonomi"
+  ],
+  "dossiers": [
+   "karadeniz"
+  ],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "olumlu",
+  "note": "Bloomberg röportajı; öneri Zelenski'nin aktarımıyla. Rusya'nın tutumu belirtilmemiş."
+ },
+ {
+  "source_id": "K171",
+  "url": "https://www.bloomberg.com/news/features/2026-10-19/turkey-is-europe-s-plastic-dumpsite-giving-it-up-will-be-hard",
+  "title": "Turkey Is Europe's Plastic Dumpsite. Giving It Up Will Be Hard",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Bloomberg'e göre İngiltere ve AB geçen yıl en çok plastik atığı, gelecek ay COP31'e ev sahipliği yapacak Türkiye'ye gönderdi: yaklaşık 650 bin ton. Adana çevresindeki geri dönüşüm tesislerinin kıyı ve deniz kirliliğiyle ilişkilendirildiği yazıda, ticaretin iki taraf için de bırakılamayacak kadar elverişli olduğu savunuluyor.",
+  "countries": [
+   "tr",
+   "eu",
+   "gb"
+  ],
+  "themes": [
+   "ekonomi",
+   "turkiye-bakis"
+  ],
+  "dossiers": [
+   "ab-turkiye"
+  ],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": true,
+  "frame": "olumsuz",
+  "note": "COP31 öncesi Türkiye'nin çevre karnesini sorgulayan uzun inceleme; aynı konu Bloomberg Green bülteninde de işlendi."
+ },
+ {
+  "source_id": "K171",
+  "url": "https://www.bloomberg.com/news/articles/2026-10-20/asian-refiners-in-dispute-with-saudis-over-2027-oil-contracts",
+  "title": "Asia Refiners in Dispute With Saudis Over 2027 Oil Contracts",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Asyalı rafineriler, Suudi Arabistan ile 2027 ham petrol sözleşmelerinin koşulları konusunda anlaşmazlık yaşıyor. Hürmüz krizi ve Husi saldırılarıyla arz güvenliği sorgulanırken Riyad'ın en büyük müşterileriyle pazarlık gücü sınanıyor.",
+  "countries": [
+   "sa"
+  ],
+  "themes": [
+   "enerji",
+   "ekonomi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
  }
 ]
