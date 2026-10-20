@@ -85,7 +85,8 @@ class Classifier:
         if self.provider == "anthropic":
             r = self._client.messages.create(model=self.model, max_tokens=4000, system=system,
                                              messages=[{"role": "user", "content": user}])
-            return r.content[0].text
+            # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
+            return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
         r = self._client.chat.completions.create(model=self.model, messages=[
             {"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"})

@@ -35,3 +35,14 @@ def test_classifier_falls_back_when_llm_package_missing(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", fake)
     c = Classifier(Settings(llm_provider="anthropic", anthropic_key="x"))
     assert c.provider == "none" and c.model == "terms"
+
+
+def test_anthropic_call_skips_thinking_blocks():
+    from types import SimpleNamespace as NS
+    from disgundem.classify import Classifier
+    from disgundem.config import Settings
+    c = Classifier(Settings())
+    c.provider, c.model = "anthropic", "m"
+    resp = NS(content=[NS(type="thinking", thinking="..."), NS(type="text", text='{"items": []}')])
+    c._client = NS(messages=NS(create=lambda **k: resp))
+    assert c._call("s", "u") == '{"items": []}'

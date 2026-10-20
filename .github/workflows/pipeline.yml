@@ -26,6 +26,7 @@ env:
   QUEUE_PER_COUNTRY_DAILY: ${{ vars.QUEUE_PER_COUNTRY_DAILY || '4' }}
   QUEUE_TOTAL_DAILY: ${{ vars.QUEUE_TOTAL_DAILY || '30' }}
   ECON_QUEUE_MIN: ${{ vars.ECON_QUEUE_MIN || '3' }}
+  MAX_ITEMS_PER_SOURCE: ${{ vars.MAX_ITEMS_PER_SOURCE || '30' }}
 
 jobs:
   run:

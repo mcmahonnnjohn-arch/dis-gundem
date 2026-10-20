@@ -116,3 +116,14 @@ def test_turkey_primary_has_no_country_quota_but_total_cap_applies():
     tr_items = [[{"imp": 4, "eko": False, "c": ["tr", "az"]}] for _ in range(4)]
     q, p = select_for_queue(tr_items, g)
     assert len(q) == 3 and len(p) == 1
+
+
+def test_prefilter_caps_items_per_source_newest_first():
+    from datetime import datetime, timedelta, timezone
+    from disgundem.fetch import Item
+    from disgundem.funnel import Gates, prefilter
+    from disgundem.terms import Matcher
+    now = datetime(2026, 10, 20, 12, tzinfo=timezone.utc)
+    items = [Item(source_id="K1", url=f"u{i}", title=f"t{i}", published_at=now - timedelta(minutes=i)) for i in range(50)]
+    out = prefilter(items, {"tier": "A"}, Matcher(), Gates(max_items_per_source=30), now=now)
+    assert len(out) == 30 and out[0].url == "u0" and out[-1].url == "u29"
