@@ -50,13 +50,25 @@ def _allowed(client: httpx.Client, url: str, ua: str) -> bool:
 
 
 _WORD = re.compile(r"[^\W\d_]{4,}", re.U)
+_SEMITIC = re.compile(r"^[\u0590-\u05FF\u0600-\u06FF]")
 
 
 def _title_terms(title: str) -> list[str]:
     """Başlıktaki ayırt edici kelimeler (yayın adı eki atılır: 'Başlık - Reuters')."""
     t = re.split(r"\s[-–|]\s(?=[^-–|]{2,40}$)", title or "")[0]
-    # Çekimli dillerde (Yunanca, Rusça, Türkçe) ek değişir: ilk 5 harf kök yerine geçer
-    return list(dict.fromkeys(w.lower()[:5] for w in _WORD.findall(t)))
+    # Çekimli dillerde (Yunanca, Rusça, Türkçe) ek değişir: ilk 5 harf kök yerine geçer.
+    # İbranice/Arapça/Farsça başlıkta tek harfli ön ekler (ה ו ב ל מ ש כ / و ب ل ف ك) ve "ال" kökü gizler:
+    # bunlar atılıp ilk 4 harf alınır (İbranice teaser başlığı doğru metni reddettirmişti).
+    out = []
+    for w in _WORD.findall(t):
+        w = w.lower()
+        if _SEMITIC.match(w):
+            w = re.sub(r"^(ال|وال|بال|لل)", "", w)
+            w = re.sub(r"^[הובלמשכوبلفك]{1,2}(?=\w{3,})", "", w)
+            out.append(w[:4])
+        else:
+            out.append(w[:5])
+    return list(dict.fromkeys(x for x in out if len(x) >= 3))
 
 
 def relevance(title: str, text: str) -> float:

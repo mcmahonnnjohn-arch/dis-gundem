@@ -61,3 +61,18 @@ def test_cmd_eval_flow_never_stores_text(monkeypatch, tmp_path):
     row = saved[0]
     assert row["ozet"]["dogruluk"] == 5 and row["ozet"]["olmali_oran"] == 1.0
     assert "GİZLİ" not in json.dumps(row, ensure_ascii=False)
+
+
+def test_olay_testi_pairs_and_skips_ambiguous():
+    cases = [{"no": 1, "baslik": "a", "olay": "x"}, {"no": 2, "baslik": "b", "olay": "x"},
+             {"no": 3, "baslik": "c", "olay": "x"}, {"no": 4, "baslik": "d"},
+             {"no": 5, "baslik": "e", "olay_belirsiz": True}]
+
+    class C:
+        provider, model, summary_model = "anthropic", "h", "s"
+        def _call(self, system, user, model=None, cache=False):
+            return json.dumps({"gruplar": [[0, 1], [2, 3], [4]]})   # 1-2 doğru; 3-4 yanlış; tekli atılır
+
+    r = ev.olay_testi(C(), cases)
+    assert r["kesinlik"] == 0.5 and r["duyarlilik"] == round(1 / 3, 3)
+    assert ["3", "4"] in r["yanlis_birlesen"] and ["1", "3"] in r["kacan"]
