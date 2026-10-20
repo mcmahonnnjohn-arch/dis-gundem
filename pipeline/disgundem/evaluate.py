@@ -26,7 +26,7 @@ from .fetch.article import fetch_text
 log = logging.getLogger(__name__)
 
 SET_PATH = ROOT / "data" / "test_seti" / "ozet_test_seti.jsonl"
-JUDGE_VERSION = "hakem_v1"
+JUDGE_VERSION = "hakem_v2"   # v2: hakem makale metnini de görür (v1 yalnız kısa olgularla metindeki doğru bilgiyi cezalandırıyordu)
 PROCESS = re.compile(r"başlığa göre|başlıktan anlaşıl|lead|ayrıntı verilmiyor|belirtilmiyor|doğrulanam|"
                      r"dikkatle okunmalı|kaynağın aktardığına göre|tam metin", re.I)
 SENT_SPLIT = re.compile(r"(?<=[.!?…])\s+(?=[A-ZÇĞİÖŞÜ0-9\"'«“(])")
@@ -62,9 +62,9 @@ def rule_scores(case: dict, summary: str | None) -> dict:
     }
 
 
-def judge(clf: Classifier, case: dict, summary: str) -> dict:
+def judge(clf: Classifier, case: dict, summary: str, text: str | None = None) -> dict:
     system = (PROMPTS / f"{JUDGE_VERSION}.md").read_text(encoding="utf-8")
-    user = json.dumps({"baslik": case["baslik"], "kaynak_olgulari": case.get("kaynak_olgulari") or [],
+    user = json.dumps({"baslik": case["baslik"], "metin": text or "", "kaynak_olgulari": case.get("kaynak_olgulari") or [],
                        "referans_ozet": case["referans_ozet"], "aday_ozet": summary}, ensure_ascii=False)
     try:
         raw = _parse(clf._call(system, user, model=clf.summary_model, cache=True))
@@ -111,11 +111,11 @@ def run_case(clf: Classifier, client, s, case: dict, use_judge: bool = True) -> 
     text, st = fetch_text(client, case["url"], s.user_agent) if (client and case.get("url", "").startswith("http")) \
         else (None, "yok")
     c = clf.classify(item, src, text=text, audit=s.audit)
-    del text
     summary = c.summary_tr
+    verdict = judge(clf, case, summary, text) if (use_judge and summary) else None
+    del text   # metin yalnız bu iki çağrıda kullanıldı; sonuca girmez
     return CaseResult(no=case["no"], lang=case.get("lang", ""), metin=st, ozet=summary, uyarilar=c.warnings,
-                      kurallar=rule_scores(case, summary),
-                      hakem=judge(clf, case, summary) if (use_judge and summary) else None)
+                      kurallar=rule_scores(case, summary), hakem=verdict)
 
 
 def aggregate(results: list[CaseResult]) -> dict:
