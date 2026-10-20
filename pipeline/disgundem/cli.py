@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from . import config
 from .classify import TRIAGE_VERSION, Classifier
 from .fetch import Item
+from .fetch.article import fetch_text
 from .fetch.rss import fetch_feed, make_client
 from .fetch.gnews import fetch_gnews
 from .fetch.scrape import fetch_listing
@@ -214,27 +215,50 @@ def cmd_premium_import(s, args):
 
 
 def cmd_classify(s, args):
-    """Kuyruğa girmiş başlıklara özet, tema, dosya, çerçeve ekler. Elemeyi geçmeyenlere hiç LLM harcanmaz."""
+    """Kuyruğa girmiş başlıklara özet, tema, dosya, çerçeve ekler. Elemeyi geçmeyenlere hiç LLM harcanmaz.
+
+    Makale metni (ARTICLE_TEXT=1) yalnız bu çağrı sırasında bellekte tutulur; DB'ye, dosyaya, loga yazılmaz.
+    `--yeniden`: sunucu kökenli kuyruk haberlerini yeni prompt/modelle baştan özetler, eski özeti saklar.
+    """
     store = Store(s)
     srcs = {x.id: x for x in load_sources()}
     clf = Classifier(s)
-    rows = store.unsummarized(limit=args.limit)
-    print(f"classify: kuyrukta özetsiz {len(rows)} kayıt, sağlayıcı={clf.provider} model={clf.model}")
-    out = []
-    for a in rows:
-        src = srcs.get(a["source_id"])
-        if not src:
-            continue
-        item = Item(source_id=a["source_id"], url=a["url"], title=a["title"], lang=a.get("lang"), excerpt=a.get("excerpt"))
-        c = clf.classify(item, src)
-        out.append({"id": a["id"], "source_id": a["source_id"], "url": a["url"], "title": a["title"],
-                    "frame": c.frame, "summary_tr": c.summary_tr, "local_view_note": c.local_view_note,
-                    "status": a["status"],
-                    "classification": {"model": c.model, "prompt": c.prompt_version, "confidence": c.confidence,
-                                       "raw": c.raw, "countries": c.countries, "themes": c.themes, "dossiers": c.dossiers}})
-        store.set_article_links(a["id"], c.countries, c.themes, c.dossiers)
+    rows = store.queued_server(limit=args.limit) if args.yeniden else store.unsummarized(limit=args.limit)
+    print(f"classify: {len(rows)} kayıt ({'yeniden' if args.yeniden else 'özetsiz'}), sağlayıcı={clf.provider} "
+          f"eleme={clf.model} özet={clf.summary_model} metin={'açık' if s.article_text else 'kapalı'} "
+          f"denetim={'açık' if s.audit else 'kapalı'}")
+    client = make_client(s) if s.article_text and clf.provider != "none" else None
+    out, stats = [], {"metin_ok": 0, "metin_yok": 0, "denetim": 0, "duzeltildi": 0}
+    try:
+        for a in rows:
+            src = srcs.get(a["source_id"])
+            if not src:
+                continue
+            item = Item(source_id=a["source_id"], url=a["url"], title=a["title"], lang=a.get("lang"),
+                        excerpt=a.get("excerpt"))
+            text, text_status = (fetch_text(client, a["url"], s.user_agent) if client else (None, "kapali"))
+            stats["metin_ok" if text else "metin_yok"] += 1
+            c = clf.classify(item, src, text=text, audit=s.audit)
+            del text   # metin bu noktadan sonra hiçbir yere gitmez
+            if c.audit and c.audit.get("gecti") is False:
+                stats["denetim"] += 1
+                stats["duzeltildi"] += bool(c.audit.get("ilk_ozet"))
+            meta = {"model": c.model, "prompt": c.prompt_version, "confidence": c.confidence, "raw": c.raw,
+                    "countries": c.countries, "themes": c.themes, "dossiers": c.dossiers,
+                    "metin": text_status, "uyarilar": c.warnings, "denetim": c.audit}
+            if args.yeniden and a.get("summary_tr"):
+                prev = a.get("classification") or {}
+                meta["onceki"] = {"summary_tr": a["summary_tr"], "prompt": prev.get("prompt"), "model": prev.get("model")}
+            out.append({"id": a["id"], "source_id": a["source_id"], "url": a["url"], "title": a["title"],
+                        "frame": c.frame, "summary_tr": c.summary_tr, "local_view_note": c.local_view_note,
+                        "status": a["status"], "uyarilar": c.warnings, "classification": meta})
+            store.set_article_links(a["id"], c.countries, c.themes, c.dossiers)
+    finally:
+        if client:
+            client.close()
     store.upsert_articles(out)
-    print(f"özetlenen: {len(out)}")
+    print(f"özetlenen: {len(out)} · metin okundu {stats['metin_ok']}, okunamadı {stats['metin_yok']} · "
+          f"denetimde sorun {stats['denetim']} (düzeltilen {stats['duzeltildi']})")
 
 
 def cmd_measure(s, args):
@@ -306,6 +330,7 @@ def main(argv=None):
     g.add_argument("file")
     c = sub.add_parser("classify", help="toplananları sınıflandır, özetle, kuyruğa al")
     c.add_argument("--limit", type=int, default=200)
+    c.add_argument("--yeniden", action="store_true", help="sunucu kökenli kuyruk haberlerini baştan özetle")
     m = sub.add_parser("measure", help="kayan pencere hacmi hesapla")
     m.add_argument("--days", type=int, default=30)
     m.add_argument("--report", action="store_true")
