@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 from .config import PROMPTS, Settings
 from .fetch import Item
-from .sources import Source
+from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countries, clean_ids
 from .terms import Matcher
 
 log = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ class Classifier:
                 out.append({"imp": 3 if hit else 1, "tr": hit, "eko": False, "c": [src["country_id"]], "model": "terms-fallback"})
             else:
                 out.append({"imp": int(x.get("imp", 1)), "tr": bool(x.get("tr")), "eko": bool(x.get("eko")),
-                            "c": x.get("c") or [src["country_id"]],
+                            "c": clean_countries(x.get("c"), src["country_id"]),
                             "model": self.model})
         return out
 
@@ -144,11 +144,11 @@ class Classifier:
         imp = raw.get("importance")
         return Classification(
             turkey_related=bool(raw.get("turkey_related", hit)),
-            countries=[c for c in raw.get("countries", []) if isinstance(c, str)] or [src.country_id],
+            countries=clean_countries(raw.get("countries"), src.country_id),
             importance=int(imp) if isinstance(imp, (int, float)) else None,
-            themes=raw.get("themes", []) or [],
-            dossiers=raw.get("dossiers", []) or [],
-            frame=raw.get("frame"),
+            themes=clean_ids(raw.get("themes"), KNOWN_THEMES),
+            dossiers=clean_ids(raw.get("dossiers"), KNOWN_DOSSIERS),
+            frame=raw.get("frame") if raw.get("frame") in FRAMES else None,
             summary_tr=raw.get("summary_tr"),
             local_view_note=raw.get("local_view_note"),
             confidence=float(raw.get("confidence", 0.5)),

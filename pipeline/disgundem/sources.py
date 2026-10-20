@@ -160,6 +160,38 @@ def _langs(s: str) -> list[str]:
     return [p for p in parts if re.fullmatch(r"[a-z]{2,3}", p)]
 
 
+KNOWN_COUNTRIES = {v[0] for v in COUNTRIES.values()}
+
+
+def clean_countries(codes, fallback: str | None = None) -> list[str]:
+    """LLM ya da oturum dosyasından gelen ülke kodlarını sözlükteki kodlara indirger (sıra korunur: ilk kod birincil).
+    Sözlükte olmayan kod (ör. LLM'in 'jo', 'ye' döndürmesi) atılır; hiç kalmazsa kaynağın ülkesine düşülür.
+    clusters.primary_country ve article_countries yabancı anahtarları bilinmeyen kodu reddeder."""
+    out: list[str] = []
+    for c in codes or []:
+        c = str(c).strip().lower()
+        if c in KNOWN_COUNTRIES and c not in out:
+            out.append(c)
+    if not out and fallback:
+        out = [fallback]
+    return out
+
+
+KNOWN_THEMES = {t[0] for t in THEMES}
+KNOWN_DOSSIERS = {d[0] for d in DOSSIERS}
+FRAMES = {"olumlu", "olumsuz", "notr", "karisik"}
+
+
+def clean_ids(values, known: set[str]) -> list[str]:
+    """Tema/dosya kodlarını sözlüğe indirger (bilinmeyenler atılır; yabancı anahtar hatasını önler)."""
+    out: list[str] = []
+    for v in values or []:
+        v = str(v).strip().lower()
+        if v in known and v not in out:
+            out.append(v)
+    return out
+
+
 def load_sources(path: Path = CSV_PATH) -> list[Source]:
     out: list[Source] = []
     with open(path, encoding="utf-8", newline="") as f:

@@ -25,6 +25,7 @@ from dateutil import parser as dtparse
 from .rss import canonical
 
 from ..config import DATA
+from ..sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, clean_countries, clean_ids
 
 CHROME_CSV = DATA / "chrome_kaynaklari.csv"
 
@@ -97,12 +98,14 @@ def load_session(path: str | Path):
             "id": aid, "source_id": rec["source_id"], "url": canonical(rec["url"]), "title": rec["title"].strip(),
             "lang": rec.get("lang") or (CHROME[rec["source_id"]]["Dil"].split("/")[0] or "en"), "published_at": pub, "fetched_at": datetime.now(timezone.utc), "excerpt": None,
             "is_turkey_related": bool(rec.get("turkey_related", True)),
-            "importance": rec.get("importance"), "frame": rec.get("frame"),
+            "importance": rec.get("importance"), "frame": rec.get("frame") if rec.get("frame") in FRAMES else None,
             "summary_tr": rec["summary_tr"].strip(), "local_view_note": rec.get("note"),
-            "classification": {"model": "editor-chrome", "prompt": f"chrome-session:{CHROME[rec['source_id']]['Katman']}", "countries": rec.get("countries", []),
+            "classification": {"model": "editor-chrome", "prompt": f"chrome-session:{CHROME[rec['source_id']]['Katman']}",
+                               "countries": clean_countries(rec.get("countries"), "tr"),
                                "themes": rec.get("themes", []), "dossiers": rec.get("dossiers", []),
                                "eko": bool(rec.get("economic_analysis"))},
             "status": "queued",
         })
-        links.append((aid, rec.get("countries", []), rec.get("themes", []), rec.get("dossiers", [])))
+        links.append((aid, clean_countries(rec.get("countries"), "tr"), clean_ids(rec.get("themes"), KNOWN_THEMES),
+                      clean_ids(rec.get("dossiers"), KNOWN_DOSSIERS)))
     return rows, links, rejected
