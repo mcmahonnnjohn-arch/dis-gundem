@@ -13,7 +13,7 @@ ne zaman taranacağını, `Tarama odağı` neyin alınacağını söyler.
    3'ler havuza (ülke sayfası, analiz ham maddesi), 4–5'ler editör kuyruğuna gider; 2 ve altı yazılmaz. Puan tablodaki satıra dayanmalı;
    "Türkiye ile ilgili" sütununda 5 yalnız Türkiye'yi doğrudan hedef alan kriz içindir.
    Ekonomi, enerji, finans, ticaret, yatırım, yaptırım veya altyapı üzerine **analiz/rapor** ise `economic_analysis: true` işaretle;
-   bu kayıtlar 3'ten kuyruğa girer. Rutin ekonomik haber (atama, fiyat, tek anlaşma duyurusu) işaretlenmez. Puanı işaret yüzünden yükseltme.
+   bu kayıtlar 3'ten kuyruğa girer. `countries` listesinde **ilk kod haberin asıl ülkesi** olmalı (kota yalnız onu sayar). Rutin ekonomik haber (atama, fiyat, tek anlaşma duyurusu) işaretlenmez. Puanı işaret yüzünden yükseltme.
 4. Her kayıt için yalnız başlık, link, tarih ve **kendi cümlelerimizle** 2–3 cümle özet yaz; gövde kopyalanmaz,
    alıntı 15 kelimeyi aşmaz, özet 600 karakteri aşmaz.
 5. Çıktıyı `data/premium/YYYY-MM-DD.json` olarak kaydet (biçim: `data/premium/README.md`) ve

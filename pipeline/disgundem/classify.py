@@ -17,7 +17,7 @@ from .terms import Matcher
 
 log = logging.getLogger(__name__)
 PROMPT_VERSION = "classify_v1"
-TRIAGE_VERSION = "triage_v2"  # v2: ekonomik analiz işareti (eko)
+TRIAGE_VERSION = "triage_v3"  # v2: eko işareti; v3: birincil ülke ilk sırada, ikili gerilim satırı
 
 
 @dataclass

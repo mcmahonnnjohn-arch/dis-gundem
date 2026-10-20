@@ -106,6 +106,15 @@ def cluster(scored: list[dict], threshold: float = 0.45, window_h: int = 48) -> 
 
 
 # ---------------------------------------------------------------- 6. kuyruk tavanı
+def primary_country(grp: list[dict]) -> str:
+    """Kümenin birincil ülkesi: en önemli öğenin ülke listesindeki ilk kod (sınıflandırma asıl ülkeyi başa yazar).
+    Ülke kotası yalnız bunu sayar; ikincil anılan ülkeler kotayı tüketmez. 'tr' ise ülke kotası uygulanmaz
+    (Türkiye merceği sitenin çekirdeği), yalnız günlük toplam tavan geçerlidir."""
+    top = max(grp, key=lambda x: x["imp"])
+    return (top.get("c") or ["tr"])[0]
+
+
+
 def select_for_queue(groups: list[list[dict]], g: Gates, already_today: dict[str, int] | None = None,
                      total_today: int = 0) -> tuple[list[list[dict]], list[list[dict]]]:
     """Önemi en yüksek kümelerden başlayarak ülke ve günlük tavana kadar seçer.
@@ -116,16 +125,17 @@ def select_for_queue(groups: list[list[dict]], g: Gates, already_today: dict[str
     ranked = sorted(groups, key=lambda grp: (-max(x["imp"] for x in grp), -len(grp)))
     for grp in ranked:
         imp = max(x["imp"] for x in grp)
-        countries = {c for x in grp for c in x["c"]} - {"tr"} or {"tr"}
+        primary = primary_country(grp)
         threshold = g.econ_queue_min if any(x.get("eko") for x in grp) else g.queue_min
         if imp < threshold:
             pool.append(grp)
             continue
-        if imp < 5 and (total >= g.total_daily or any(per_c[c] >= g.per_country_daily for c in countries)):
+        country_full = primary != "tr" and per_c[primary] >= g.per_country_daily
+        if imp < 5 and (total >= g.total_daily or country_full):
             pool.append(grp)   # 5'ler tavanı deler: savaş/rejim değişikliği kaçırılmaz
             continue
         queue.append(grp)
         total += 1
-        for c in countries:
-            per_c[c] += 1
+        if primary != "tr":
+            per_c[primary] += 1
     return queue, pool

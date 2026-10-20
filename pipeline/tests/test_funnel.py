@@ -97,3 +97,22 @@ def test_economic_analysis_ranks_behind_real_fours():
     news4 = [{"imp": 4, "eko": False, "c": ["sy"]}]
     q, p = select_for_queue([eko3, news4], g)
     assert q == [news4] and p == [eko3]
+
+
+def test_quota_counts_only_primary_country():
+    from disgundem.funnel import Gates, select_for_queue
+    g = Gates(store_min=3, queue_min=4, econ_queue_min=3, per_country_daily=1, total_daily=30)
+    saudi = [{"imp": 4, "eko": False, "c": ["sa"]}]
+    tr_with_sa = [{"imp": 3, "eko": True, "c": ["tr", "sa"]}]     # asıl konu Türkiye; sa ikincil
+    iq_with_sy = [{"imp": 3, "eko": True, "c": ["iq", "sy"]}]
+    syria = [{"imp": 4, "eko": False, "c": ["sy"]}]
+    q, p = select_for_queue([saudi, syria, tr_with_sa, iq_with_sy], g)
+    assert p == [] and len(q) == 4
+
+
+def test_turkey_primary_has_no_country_quota_but_total_cap_applies():
+    from disgundem.funnel import Gates, select_for_queue
+    g = Gates(store_min=3, queue_min=4, econ_queue_min=3, per_country_daily=1, total_daily=3)
+    tr_items = [[{"imp": 4, "eko": False, "c": ["tr", "az"]}] for _ in range(4)]
+    q, p = select_for_queue(tr_items, g)
+    assert len(q) == 3 and len(p) == 1
