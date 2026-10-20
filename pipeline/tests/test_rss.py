@@ -48,3 +48,35 @@ def test_undated_feed_message():
     nodate = RSS.replace(b"<pubDate>Mon, 19 Oct 2026 10:00:00 GMT</pubDate>", b"")
     with pytest.raises(ValueError, match="tarih yok"):
         fetch_feed(_client(lambda r: httpx.Response(200, content=nodate)), "K1", "https://ex.com/feed")
+
+
+def test_scrape_retries_with_browser_headers():
+    from disgundem.fetch.scrape import fetch_listing
+    html = b'<html><body><a href="/news/1">Turkey and Egypt sign a long enough headline here</a></body></html>'
+    def h(req):
+        if req.headers["user-agent"] != BROWSER_HEADERS["User-Agent"]:
+            return httpx.Response(403)
+        return httpx.Response(200, content=html, headers={"content-type": "text/html"})
+    items = fetch_listing(_client(h), "K1", "https://ex.com/")
+    assert len(items) == 1 and items[0].url.startswith("https://ex.com/news/1")
+
+
+def test_collect_fallback_zero_is_not_error(monkeypatch):
+    from disgundem import cli
+    def boom(*a, **k): raise httpx.HTTPStatusError("403", request=None, response=None)
+    monkeypatch.setattr(cli, "fetch_listing", boom)
+    monkeypatch.setattr(cli, "fetch_gnews", lambda *a, **k: [])
+    src = {"id": "K1", "method": "scrape", "url": "https://ex.com", "tier": "B", "langs": ["en"]}
+    items, via = cli._collect(None, None, src)
+    assert items == [] and via == "gnews-yedek-0"
+
+
+def test_collect_fallback_error_raises_original(monkeypatch):
+    from disgundem import cli
+    def boom(*a, **k): raise ValueError("birincil")
+    def gboom(*a, **k): raise RuntimeError("gnews")
+    monkeypatch.setattr(cli, "fetch_feed", boom)
+    monkeypatch.setattr(cli, "fetch_gnews", gboom)
+    src = {"id": "K1", "method": "rss", "feed_url": "f", "url": "https://ex.com", "tier": "A", "langs": ["en"]}
+    with pytest.raises(ValueError, match="birincil"):
+        cli._collect(None, None, src)
