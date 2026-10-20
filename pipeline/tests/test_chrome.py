@@ -27,7 +27,7 @@ def test_import_accepts_blocked_rejects_others(tmp_path):
 def test_route_matches_server_funnel():
     from disgundem.fetch.premium import route
     from disgundem.funnel import Gates
-    g = Gates(store_min=3, queue_min=4, per_country_daily=1, total_daily=30)
+    g = Gates(store_min=3, queue_min=4, chrome_per_country_daily=1, chrome_total_daily=30)
     mk = lambda imp, c: {"importance": imp, "classification": {"countries": c}, "status": "queued"}
     rows = [mk(2, ["sy"]), mk(3, ["sy"]), mk(4, ["sy"]), mk(4, ["sy"]), mk(5, ["sy"])]
     kept, below = route(rows, g)
@@ -67,7 +67,7 @@ def test_import_skips_existing(monkeypatch, tmp_path, capsys):
     class FakeStore:
         def __init__(self, s): self.arts, self.clusters = [], []
         def existing_article_keys(self, ids): return {(a["source_id"], a["url"]) for a in STORE.arts}
-        def queue_today(self): return {}, 0
+        def queue_today(self, origin="server"): return {}, 0
         def insert_cluster(self, row): STORE.clusters.append(row)
         def upsert_articles(self, rows): STORE.arts.extend(rows)
         def set_article_links(self, *a): pass
@@ -82,3 +82,14 @@ def test_import_skips_existing(monkeypatch, tmp_path, capsys):
     cli.cmd_premium_import(None, SimpleNamespace(file=str(p)))
     assert len(STORE.arts) == 1 and len(STORE.clusters) == 1
     assert "1 zaten içeride" in capsys.readouterr().out
+
+
+def test_chrome_uses_own_quota_not_server_quota():
+    """Sunucu kotası dolu olsa da Chrome kaydı kendi kotasıyla kuyruğa girer; küme origin='chrome' yazılır."""
+    from disgundem.fetch.premium import route
+    from disgundem.funnel import Gates
+    g = Gates(store_min=3, queue_min=4, per_country_daily=0, total_daily=0,          # sunucu kotası sıfır
+              chrome_per_country_daily=2, chrome_total_daily=5)
+    rows = [{"importance": 4, "classification": {"countries": ["az", "tr"]}, "status": "queued"}]
+    kept, _ = route(rows, g, per_today={}, total_today=0)
+    assert kept[0]["status"] == "queued"

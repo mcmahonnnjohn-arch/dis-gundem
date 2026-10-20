@@ -71,7 +71,7 @@ def route(rows: list[dict], gates, per_today: dict[str, int] | None = None, tota
     below = [r for r in rows if r["importance"] < gates.store_min]
     groups = [[{"imp": r["importance"], "eko": r["classification"].get("eko", False),
                 "c": r["classification"]["countries"] or ["tr"], "row": r}] for r in kept]
-    queue, pool = select_for_queue(groups, gates, per_today, total_today)
+    queue, pool = select_for_queue(groups, gates.for_chrome(), per_today, total_today)
     for grp, status in [(g, "queued") for g in queue] + [(g, "pool") for g in pool]:
         grp[0]["row"]["status"] = status
     return kept, below

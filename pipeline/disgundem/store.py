@@ -160,12 +160,14 @@ class Store:
     def mark_seen(self, rows: list[dict]) -> None:
         self._upsert("seen_items", rows, "source_id,url_hash")
 
-    def queue_today(self) -> tuple[dict[str, int], int]:
+    def queue_today(self, origin: str = "server") -> tuple[dict[str, int], int]:
+        """Bugün kuyruğa giren küme sayıları — yalnız verilen köken için (server | chrome; ayrı kotalar).
+        Ülke kotası 'tr' dışı birincil ülkeleri sayar; toplam, 'tr' dahil tüm kümeleri sayar."""
         if self.client is None:
             return {}, 0
-        r = self.client.table("queue_today").select("*").execute()
-        per = {x["country_id"]: x["n"] for x in r.data}
-        return per, sum(per.values())
+        r = self.client.table("queue_today").select("*").eq("origin", origin).execute()
+        per = {x["country_id"]: x["n"] for x in r.data if x["country_id"] and x["country_id"] != "tr"}
+        return per, sum(x["n"] for x in r.data)
 
     def insert_cluster(self, row: dict) -> str:
         if self.client is None:

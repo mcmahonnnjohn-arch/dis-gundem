@@ -41,6 +41,13 @@ class Gates:
     # Ekonomik analizler (eko=True) kuyruğa daha düşük eşikle girer (20 Ekim editör kararı). Önem puanı değişmez;
     # sıralamada gerçek 4'lerin arkasında kalırlar, ülke/gün tavanı aynen uygulanır.
     econ_queue_min: int = field(default_factory=lambda: _env_int("ECON_QUEUE_MIN", 3))
+    # Chrome oturumu (editör seçkisi) ayrı ve daha geniş kota kullanır; sunucunun kotasını tüketmez (20 Ekim kararı).
+    chrome_per_country_daily: int = field(default_factory=lambda: _env_int("CHROME_QUEUE_PER_COUNTRY_DAILY", 8))
+    chrome_total_daily: int = field(default_factory=lambda: _env_int("CHROME_QUEUE_TOTAL_DAILY", 40))
+
+    def for_chrome(self) -> "Gates":
+        from dataclasses import replace
+        return replace(self, per_country_daily=self.chrome_per_country_daily, total_daily=self.chrome_total_daily)
     per_country_daily: int = field(default_factory=lambda: _env_int("QUEUE_PER_COUNTRY_DAILY", 4))
     total_daily: int = field(default_factory=lambda: _env_int("QUEUE_TOTAL_DAILY", 30))
     max_age_days: int = field(default_factory=lambda: _env_int("MAX_ITEM_AGE_DAYS", 3))

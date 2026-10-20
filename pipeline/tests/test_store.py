@@ -44,3 +44,19 @@ def test_existing_urls_does_not_put_urls_in_query():
     long_urls = ["https://a/1", "https://news.google.com/rss/articles/" + "x" * 600]
     assert st.existing_urls("K1", long_urls) == {"https://a/1"}
     assert ("eq", ("source_id", "K1")) in calls
+
+
+def test_queue_today_counts_tr_in_total_and_filters_origin():
+    seen = {}
+
+    class Q:
+        data = [{"origin": "server", "country_id": "tr", "n": 3}, {"origin": "server", "country_id": "sy", "n": 2},
+                {"origin": "server", "country_id": None, "n": 1}]
+        def select(self, *a): return self
+        def eq(self, k, v): seen[k] = v; return self
+        def execute(self): return self
+
+    st = Store.__new__(Store)
+    st.client = type("C", (), {"table": lambda self, n: Q()})()
+    per, total = st.queue_today("server")
+    assert seen == {"origin": "server"} and per == {"sy": 2} and total == 6

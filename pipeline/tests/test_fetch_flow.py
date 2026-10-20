@@ -24,7 +24,7 @@ def test_fetch_skips_stored_and_keeps_capped_unseen(monkeypatch, tmp_path):
         def touch_sources(self, ids): pass
         def log_run(self, row): pass
         def mark_seen(self, rows): rec.seen.extend(rows)
-        def queue_today(self): return {}, 0
+        def queue_today(self, origin="server"): return {}, 0
         def insert_cluster(self, row): return row["id"]
         def upsert_articles(self, rows): rec.articles.extend(rows)
 

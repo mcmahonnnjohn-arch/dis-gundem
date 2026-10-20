@@ -146,7 +146,7 @@ def cmd_fetch(s, args):
 
     # 5-6: kümele, tavan
     groups = cluster(keep)
-    per_today, total_today = store.queue_today()
+    per_today, total_today = store.queue_today("server")
     queue, pool = select_for_queue(groups, gates, per_today, total_today)
     now = datetime.now(timezone.utc)
     rows = []
@@ -156,6 +156,7 @@ def cmd_fetch(s, args):
         times = [x["item"].published_at for x in grp if x["item"].published_at] or [now]
         store.insert_cluster({"id": cid, "title_tr": None, "importance": max(x["imp"] for x in grp),
                               "article_count": len(grp), "countries": countries, "primary_country": primary_country(grp),
+                              "origin": "server",
                               "first_seen": min(times),
                               "last_seen": max(times), "status": status, "created_at": now})
         for x in grp:
@@ -188,7 +189,7 @@ def cmd_premium_import(s, args):
     have = store.existing_article_keys([r["source_id"] for r in rows])
     skipped = [r for r in rows if (r["source_id"], r["url"]) in have]
     rows = [r for r in rows if (r["source_id"], r["url"]) not in have]
-    per_today, total_today = store.queue_today()
+    per_today, total_today = store.queue_today("chrome")
     kept, below = route(rows, gates, per_today, total_today)
     now = datetime.now(timezone.utc)
     for r in kept:
@@ -196,7 +197,7 @@ def cmd_premium_import(s, args):
         t = r["published_at"] or now
         store.insert_cluster({"id": cid, "title_tr": None, "importance": r["importance"], "article_count": 1,
                               "countries": sorted(r["classification"]["countries"]),
-                              "primary_country": (r["classification"]["countries"] or ["tr"])[0],
+                              "primary_country": (r["classification"]["countries"] or ["tr"])[0], "origin": "chrome",
                               "first_seen": t, "last_seen": t,
                               "status": r["status"], "created_at": now})
         r["cluster_id"] = cid
