@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 PROMPT_VERSION = "classify_v2"   # v2: makale metni, sözlük, yayın kılavuzu kuralları, uyarılar
 AUDIT_VERSION = "denetim_v1"
 MODEL_WARNINGS = {"sozlukte_yok", "tek_kaynak", "dusuk_guven"}
+THINKING_OFF = {"type": "disabled"}
+# Bazı modeller (ör. Sonnet 5.5) düşünmeyi kapatmak için farklı değer ister; API hata mesajı bunu söyler.
+THINKING_OFF_ALT = {"type": "between_tools"}
 TRIAGE_VERSION = "triage_v3"  # v2: eko işareti; v3: birincil ülke ilk sırada, ikili gerilim satırı
 
 
@@ -75,6 +78,7 @@ class Classifier:
         self.matcher = matcher or Matcher()
         self.provider = s.llm_provider
         self._client = None
+        self._thinking: dict[str, dict] = {}   # model → kabul edilen "düşünme kapalı" değeri
         try:
             if self.provider == "anthropic" and s.anthropic_key:
                 import anthropic
@@ -101,9 +105,14 @@ class Classifier:
             # 40 başlıklık parti için yeterli çıktı payı. Özet/denetimde sistem promptu (kurallar + sözlük) her
             # çağrıda aynı: önbelleğe alınır.
             sys_arg = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}] if cache else system
-            r = self._client.messages.create(model=model, max_tokens=8000, system=sys_arg,
-                                             thinking={"type": "disabled"},
-                                             messages=[{"role": "user", "content": user}])
+            kw = dict(model=model, max_tokens=8000, system=sys_arg, messages=[{"role": "user", "content": user}])
+            try:
+                r = self._client.messages.create(thinking=self._thinking.get(model, THINKING_OFF), **kw)
+            except Exception as e:
+                if "between_tools" not in str(e) or self._thinking.get(model) == THINKING_OFF_ALT:
+                    raise
+                self._thinking[model] = THINKING_OFF_ALT
+                r = self._client.messages.create(thinking=THINKING_OFF_ALT, **kw)
             # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
             return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
         r = self._client.chat.completions.create(model=model, messages=[
