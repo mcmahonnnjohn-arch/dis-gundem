@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import asdict, is_dataclass
-from datetime import date, datetime, timezone
+from datetime import timedelta, date, datetime, timezone
 from pathlib import Path
 
 from .config import OUT, Settings
@@ -72,14 +72,16 @@ class Store:
         return r.data
 
     # ---- içerik
-    def existing_urls(self, source_id: str, urls: list[str]) -> set[str]:
+    def existing_urls(self, source_id: str, urls: list[str], days: int = 14) -> set[str]:
+        """Bu kaynaktan son `days` günde saklanmış URL'ler arasından `urls` içinde olanlar.
+        URL'ler sorguya konmaz: Google News yönlendirme adresleri yüzlerce karakter, liste GET sınırını aşıyordu."""
         if self.client is None or not urls:
             return set()
-        out: set[str] = set()
-        for i in range(0, len(urls), 40):   # uzun URL listeleri GET sorgu sınırını aşmasın
-            r = self.client.table("articles").select("url").eq("source_id", source_id).in_("url", urls[i:i + 40]).execute()
-            out |= {x["url"] for x in r.data}
-        return out
+        since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        r = (self.client.table("articles").select("url").eq("source_id", source_id)
+             .gte("fetched_at", since).limit(5000).execute())
+        have = {x["url"] for x in r.data}
+        return have & set(urls)
 
     def existing_article_keys(self, source_ids: list[str]) -> set[tuple[str, str]]:
         """(source_id, url) çiftleri zaten saklı olanlar — içe almayı tekrar çalıştırmaya karşı güvenli kılar."""
