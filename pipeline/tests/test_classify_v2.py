@@ -118,10 +118,11 @@ def test_audit_drops_unanchored_and_omission_notes():
     audit = {"gecti": False, "sorunlar": [
         {"tur": "desteksiz", "ozet_ifadesi": "kaynakta olmayan bir ifade", "aciklama": "x"},
         {"tur": "eksik", "ozet_ifadesi": "Güler", "aciklama": "AFP atfı özete alınmamış"},
-        {"tur": "unvan", "ozet_ifadesi": "", "aciklama": "sorun yok"}],
+        {"tur": "unvan", "ozet_ifadesi": "", "aciklama": "sorun yok"},
+        {"tur": "ad", "ozet_ifadesi": "Güler", "aciklama": "Sözlükle uyumlu; bu kalem hata değildir."}],
         "duzeltilmis_ozet": "Bambaşka özet."}
     c = _clf([first, audit]).classify(ITEM, SRC, text=BODY)
-    assert c.audit["gecti"] is True and c.audit["atilan"] == 3
+    assert c.audit["gecti"] is True and c.audit["atilan"] == 4
     assert "denetim" not in c.warnings and c.summary_tr.startswith("Güler")   # düzeltme uygulanmadı
 
 
