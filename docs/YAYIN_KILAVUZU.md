@@ -40,16 +40,17 @@ Türk basınında oturmuş ama birbirinden farklı tercihler var. Son sütun, AA
 | Konu | Seçenekler | Başlangıç önerisi (AA/TRT kullanımı) |
 |---|---|---|
 | Güney Kıbrıs yönetimi | GKRY · Kıbrıs Rum Yönetimi · Kıbrıs Rum Kesimi · "Kıbrıs Cumhuriyeti" (yalnız atıfla) | **"GKRY"** kısaltma; ilk geçişte "Güney Kıbrıs Rum Yönetimi (GKRY)" |
-| Hristodulidis'in unvanı | GKRY Lideri · Kıbrıs Rum Lider · Rum Kesimi Lideri | **"Kıbrıslı Rum lider"** (Dışişleri ve AA kullanımı doğrulanacak) |
+| Hristodulidis'in unvanı | GKRY Lideri · Rum lider · "Kıbrıs Cumhurbaşkanı" (yalnız atıfla) | **"GKRY Lideri"**, ikinci geçişte "Rum lider" (AA kullanımı) |
 | PKK | "terör örgütü PKK" · "PKK" | **İlk geçişte "terör örgütü PKK", sonra "PKK"**. Fesih süreci haberlerinde de bu biçim |
-| YPG / SDG | "YPG/SDG" · "SDG" · "PKK/YPG" | **İlk geçişte "PKK/YPG güdümlü SDG"**, sonra "SDG". Şam ile entegrasyon haberlerinde kaynak ne diyorsa o + bu açıklama |
+| YPG / SDG | "YPG/SDG" · "SDG" · "PKK/YPG" | SDG 25 Ağustos 2026'da feshini ve Suriye ordusuna katılımını açıkladı. **Geçmiş zamanla "PKK/YPG güdümlü eski SDG"**; bugünkü yapılar için kaynağın adlandırması atıfla |
 | Kuzey Irak Kürt yönetimi | IKBY · Kürt Bölgesel Yönetimi | **"IKBY"**, ilk geçişte açık hali |
 | Husiler | Husiler · Ensarullah | **"Husiler"** |
 | Hizbullah, Hamas | çıplak ad · nitelemeli | **Çıplak ad** (kaynak nitelemesi atfedilerek aktarılabilir) |
 | İsrail'in Golan/Güney Suriye varlığı | işgal · varlık · konuşlanma | **Suriye topraklarında BM kararlarına göre "işgal"**; kaynak başka terim kullanıyorsa atıfla |
 | Körfez | Basra Körfezi · Fars Körfezi · Arap Körfezi | **"Basra Körfezi"**, kısaca "Körfez" |
 | Ukrayna başkenti | Kiev · Kyiv | **"Kiev"** (AA) |
-| ABD Savunma/Savaş Bakanlığı | Savunma Bakanı · Savaş Bakanı | Sözlük doğrulamasından sonra karar (AA kullanımı kontrol ediliyor) |
+| ABD Savunma/Savaş Bakanlığı | Savunma Bakanı · Savaş Bakanı | **"ABD Savunma Bakanı"** (AA hâlâ böyle yazıyor; resmi ad değişikliği gerekirse not edilir) |
+| AA ile Dışişleri yazımı ayrıştığında | AA · Dışişleri Bakanlığı | **AA** (ör. "Ulusal Birlik Hükümeti", "Akile Salih"; Dışişleri "Milli Birlik Hükümeti", "Agila Salih" yazıyor) |
 | İran yönetimi | İran yönetimi · Tahran · "rejim" | **"İran yönetimi" / "Tahran"**; "rejim" yalnız atıfla |
 | Ege adaları, kıta sahanlığı | Türk tezi terimleri · nötr | **Türk tezi terimleri** (ör. "gayri askerî statüdeki adalar"); Yunan tezi atıfla aktarılır |
 
