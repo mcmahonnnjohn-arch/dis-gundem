@@ -17,9 +17,11 @@ from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countri
 from .terms import Matcher
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "classify_v3"   # v2: makale metni, sözlük, kılavuz, uyarılar; v3: kesin 3 cümle / 600 kr
-AUDIT_VERSION = "denetim_v2"     # v2: yalnız yanıltıcı hatalar, her sorun özetten birebir ifadeye dayanır
+PROMPT_VERSION = "classify_v4"   # v2: metin, sözlük, kılavuz; v3: 3 cümle/600 kr; v4: süreç cümlesi örnekleri, "Türkiye" kuralı netleşti
+AUDIT_VERSION = "denetim_v3"     # v2: yalnız yanıltıcı hatalar + birebir ifade; v3: "Türkiye" yanlış alarmı, kendini iptal eden maddeler
 AUDIT_TYPES = {"desteksiz", "ad", "unvan", "sayi", "atif", "uslup", "adlandirma"}
+# Denetçinin "hata değil" diye kapattığı maddeler (v2 canlı çalışmasında 38 maddenin 5'i) sayılmaz.
+SELF_CANCEL = re.compile(r"sorun yok|hata değil|hata değildir|bu bir hata değil|doğrudur\.?$|kabul edilebilir", re.I)
 MAX_SUMMARY = 600
 MAX_SENTENCES = 3
 MODEL_WARNINGS = {"sozlukte_yok", "tek_kaynak", "dusuk_guven"}
@@ -194,7 +196,8 @@ class Classifier:
         sorunlar, atilan = [], 0
         for x in raw.get("sorunlar") or []:
             ok = (isinstance(x, dict) and x.get("tur") in AUDIT_TYPES
-                  and len(_norm(x.get("ozet_ifadesi"))) >= 3 and _norm(x.get("ozet_ifadesi")) in summ)
+                  and len(_norm(x.get("ozet_ifadesi"))) >= 3 and _norm(x.get("ozet_ifadesi")) in summ
+                  and not SELF_CANCEL.search(x.get("aciklama") or ""))
             if ok:
                 sorunlar.append(x)
             else:
