@@ -147,5 +147,551 @@
   "turkey_related": false,
   "importance": 3,
   "economic_analysis": true
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/liveblog_entry/iran-guards-say-their-mines-halted-two-tankers-crossing-strait-of-hormuz/",
+  "title": "Iran Guards say their mines halted two tankers crossing Strait of Hormuz",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Devrim Muhafızları, Hürmüz Boğazı'nı Tahran'ın 'yasadışı' saydığı rotadan geçmeye çalışan iki petrol tankerinin, deniz kuvvetlerinin döşediği mayınlarla tutuşup durdurulduğunu açıkladı. Haberle birlikte ABD petrol fiyatı yüzde 5'in üzerinde yükseldi. 17 Ekim'deki benzer olayın ardından Körfez'de seyrüsefer krizi derinleşiyor.",
+  "countries": [
+   "ir",
+   "sa",
+   "us"
+  ],
+  "themes": [
+   "guvenlik",
+   "enerji"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 5,
+  "economic_analysis": false,
+  "note": "AFP kaynaklı canlı blog kaydı; DMO açıklamasını aktarıyor, bağımsız doğrulama yok."
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/hegseth-reportedly-met-with-netanyahu-during-secret-visit-to-israel/",
+  "title": "Hegseth reportedly met with Netanyahu during secret visit to Israel",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Axios'a göre ABD Savunma Bakanı Hegseth duyurulmamış bir ziyaretle İsrail'e gelip Netanyahu ile ABD savaş uçaklarının konuşlu olduğu Ovda üssünde görüştü. Hegseth bölgeye gittiğini doğruladı ama yer vermedi. Ziyaret, İran ile yeniden çatışma ihtimalinin konuşulduğu ve İsrail seçimine bir hafta kala gerçekleşti.",
+  "countries": [
+   "il",
+   "us",
+   "ir"
+  ],
+  "themes": [
+   "guvenlik",
+   "diplomasi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 4,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/blue-and-whites-benny-gantz-pulls-out-of-race-sealing-precipitous-political-fall",
+  "title": "Blue and White's Benny Gantz pulls out of race",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Bir dönem başbakanlığa en yakın isim sayılan eski genelkurmay başkanı Benny Gantz, partisi Mavi-Beyaz'ın 27 Ekim seçimine girmeyeceğini açıkladı. Muhalefet bloğundaki parçalanmanın bir göstergesi; oyların Netanyahu karşıtı diğer listelere nasıl dağılacağı belirleyici olacak.",
+  "countries": [
+   "il"
+  ],
+  "themes": [
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/turkish-israeli-woman-mobbed-by-protesters-at-istanbul-mall-who-call-her-a-terrorist/",
+  "title": "Turkish-Israeli woman mobbed by protesters at Istanbul mall who call her a 'terrorist'",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "İstanbul'da bir AVM'de, konumu sosyal medyada paylaşılan Türkiye doğumlu İsrailli bir kadın İsrail karşıtı eylemcilerin hedefi oldu; kalabalık onu 'terörist' diye suçlayıp yolunu kesmeye çalıştı. Olay İsrail basınında Türkiye'deki İsrail karşıtlığının toplumsal düzeye yayıldığının örneği olarak işlendi.",
+  "countries": [
+   "tr",
+   "il"
+  ],
+  "themes": [
+   "turkiye-bakis"
+  ],
+  "dossiers": [],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": false,
+  "frame": "olumsuz",
+  "note": "İsrail basını olayı Türkiye'deki düşmanlığın göstergesi olarak çerçeveliyor; Report.az da aynı olayı haber yaptı."
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/a-renewed-iran-war-is-only-a-matter-of-time-israeli-experts-warn",
+  "title": "A renewed Iran war is only a matter of time, Israeli experts warn",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "JTA kaynaklı analiz, Washington ile Tahran arasındaki tehditlerin tırmandığı ortamda İsrailli uzmanların yeni bir İran savaşını kaçınılmaz gördüğünü aktarıyor. Trump'ın Netanyahu'ya seçim desteğini de olası yeni bir İran harekâtı için liderlik gerekçesiyle açıkladığına dikkat çekiliyor.",
+  "countries": [
+   "il",
+   "ir",
+   "us"
+  ],
+  "themes": [
+   "guvenlik"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K019",
+  "url": "https://www.timesofisrael.com/trump-offers-warrior-netanyahu-complete-and-total-endorsement-for-reelection",
+  "title": "Trump offers 'warrior' Netanyahu 'complete and total endorsement' for reelection",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "Trump, 27 Ekim seçimine dokuz gün kala Netanyahu'nun yeniden seçilmesini açıkça destekledi ve başka bir adayın yanlış tercih olacağını söyledi. ABD başkanının bir müttefik ülke seçimine doğrudan müdahalesi İsrail'de ve ABD'de tartışma yarattı.",
+  "countries": [
+   "il",
+   "us"
+  ],
+  "themes": [
+   "ic-gundem",
+   "diplomasi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K020",
+  "url": "https://www.haaretz.com/gaza/2026-10-19/ty-article/un-food-agency-to-cut-aid-to-500-000-gazans-amid-funding-shortfall/000001a1-530d-d25a-a7ff-775d536f0000",
+  "title": "UN Food Agency to Cut Aid to 500,000 Gazans Amid Funding Shortfall",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Dünya Gıda Programı fon açığı nedeniyle Gazze'de 500 bin kişiye yardımı kesiyor. Kurum yerinden edilmiş ailelerin yine zor bir kışla karşılaşacağı uyarısında bulundu.",
+  "countries": [
+   "il"
+  ],
+  "themes": [
+   "goc"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K020",
+  "url": "https://www.haaretz.com/israel-news/2026-10-19/ty-article/.premium/court-blocks-state-funding-for-organization-seeking-to-judaize-east-jerusalem/000001a1-54d6-dc59-a7ad-f4d7038b0000",
+  "title": "Court Blocks State Funding for Organization Seeking to Judaize East Jerusalem",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Mahkeme, yerleşimci örgüt Ateret Cohanim'in Doğu Kudüs Silvan'da kurmak istediği miras merkezine devlet fonu aktarılmasını durdurdu. Gerekçe, mülkün sahibi vakfın yoksullara yardım amacıyla örgütün Doğu Kudüs'ü Yahudileştirme hedefinin bağdaşmaması.",
+  "countries": [
+   "il"
+  ],
+  "themes": [
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K020",
+  "url": "https://www.haaretz.com/middle-east-news/2026-10-19/ty-article/.premium/irans-military-ambitions-are-colliding-with-a-deepening-education-crisis/000001a1-5451-d793-afe7-fc55e1e30000",
+  "title": "Iran's Military Ambitions Are Colliding With a Deepening Education Crisis",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Analiz, öğretmen açığı, artan okul maliyetleri ve mezun işsizliğinin İran'ın askeri hedefleriyle bunları sürdürecek kaynaklar arasındaki açığı büyüttüğünü savunuyor. Yaptırım ve abluka altındaki ekonominin uzun vadeli kapasitesine dair bir okuma.",
+  "countries": [
+   "ir"
+  ],
+  "themes": [
+   "ekonomi",
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": true
+ },
+ {
+  "source_id": "K037",
+  "url": "https://en.philenews.com/politics/christodoulides-erhurman-meeting-initiatives-holguin-trilateral-9-november-live/",
+  "title": "Christodoulides, Erhurman agree two initiatives and to meet next week",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Hristodulidis ile Kıbrıs Türk lideri Tufan Erhürman BM gözetiminde görüştü; çevre ve kültürel eserlerin iadesi konusunda iki girişimde anlaştılar, gelecek hafta yeniden buluşacaklar. BM Genel Sekreteri'nin kişisel temsilcisi Holguin 29 Ekim'de adaya gelecek, 9 Kasım'da üçlü görüşme yapılacak. Rum tarafı yeni bir geçiş noktası önerisine de yanıt bekliyor.",
+  "countries": [
+   "cy",
+   "kktc",
+   "tr"
+  ],
+  "themes": [
+   "diplomasi"
+  ],
+  "dossiers": [
+   "dogu-akdeniz"
+  ],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "notr"
+ },
+ {
+  "source_id": "K037",
+  "url": "https://en.philenews.com/local/cyprus-israel-shipyards-rafael-150-million-naval-vessels-deal-calcalist/",
+  "title": "Cyprus close to €150m deal for Israeli naval vessels, report says",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Calcalist'e göre GKRY, Israel Shipyards ve Rafael ile Rafael silah sistemleriyle donatılmış savaş gemileri için yaklaşık 150 milyon euroluk devletler arası bir anlaşmanın son aşamasında; imzanın haftalar içinde atılması bekleniyor. GKRY'nin daha önce İsrail'den Barak MX hava savunma sistemi aldığı, Yunanistan'ın da Rafael ve IAI sistemlerini 3 milyar euroluk 'Aşil Kalkanı'na kattığı hatırlatılıyor.",
+  "countries": [
+   "cy",
+   "il",
+   "gr",
+   "tr"
+  ],
+  "themes": [
+   "guvenlik"
+  ],
+  "dossiers": [
+   "dogu-akdeniz"
+  ],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "notr",
+  "note": "Haber Türkiye'yi doğrudan anmıyor; aynı sitede Barak MX'e dair Türk endişesi haberine bağlantı var. GKRY–İsrail–Yunanistan savunma eksenine bir halka daha."
+ },
+ {
+  "source_id": "K037",
+  "url": "https://en.philenews.com/insider/cyprus-greece-electricity-interconnector-delayed-2031-cost/",
+  "title": "Cyprus-Greece power link delayed a year, cost to exceed €1.9bn",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "GKRY Enerji Düzenleme Kurumu, Kıbrıs–Yunanistan elektrik ara bağlantısının (GSI) 2031'e ertelendiğini ve maliyetin 1,9 milyar euroyu aşacağını açıkladı. Deniz tabanı etütlerinin yüzde 40'ı sürüyor; proje jeopolitik risk nedeniyle sonlanırsa zarar iki ülke arasında paylaşılacak.",
+  "countries": [
+   "cy",
+   "gr"
+  ],
+  "themes": [
+   "enerji",
+   "ekonomi"
+  ],
+  "dossiers": [
+   "dogu-akdeniz"
+  ],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false,
+  "note": "Türkiye'nin etüt gemilerine itirazları haberde anılmıyor; 'jeopolitik risk' ifadesi dolaylı."
+ },
+ {
+  "source_id": "K037",
+  "url": "https://en.philenews.com/local/limassol-abduction-second-arrest-third-suspect-wanted/",
+  "title": "Second man arrested over Turkish Cypriot's Limassol abduction as third suspect sought",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Leymosun'da bir Kıbrıslı Türk'ün kaçırılması soruşturmasında ikinci şüpheli tutuklandı, üçüncü kişi aranıyor. Olay iki toplum arasındaki güvenlik algısı açısından izleniyor.",
+  "countries": [
+   "cy",
+   "kktc"
+  ],
+  "themes": [
+   "ic-gundem"
+  ],
+  "dossiers": [],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": false,
+  "frame": "notr"
+ },
+ {
+  "source_id": "K068",
+  "url": "https://report.az/en/media/azerbaijan-press-council-calls-for-responsible-coverage-in-turkish-media",
+  "title": "Azerbaijan Press Council calls for responsible coverage in Turkish media",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Azerbaycan Basın Konseyi, bazı Türk medya kuruluşlarının ve sosyal medya hesaplarının, okullarda tek tip kıyafet kararını 'başörtüsü yasağı' ve İslami değerlerin bastırılması gibi sunduğunu söyleyerek bunu Azerbaycan'a yönelik dezenformasyon kampanyası olarak nitelendirdi. Açıklama 'tek millet iki devlet' ilkesinin iç işlere müdahaleye gerekçe yapılamayacağını vurguladı ve Türk medyasından bilgiyi doğrulamasını istedi.",
+  "countries": [
+   "az",
+   "tr"
+  ],
+  "themes": [
+   "turkiye-bakis",
+   "diplomasi"
+  ],
+  "dossiers": [
+   "turk-devletleri"
+  ],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": false,
+  "frame": "olumsuz",
+  "note": "Türkiye–Azerbaycan arasında nadir görülen kamuoyu gerilimi; Azerbaycan Başsavcılığı'nın Türkiye'deki kişilere dair arama kararlarıyla aynı tartışmanın parçası."
+ },
+ {
+  "source_id": "K068",
+  "url": "https://report.az/en/region/withdrawal-from-eaeu-may-cause-decline-in-armenia-s-remittances-from-russia-by-over-half",
+  "title": "Withdrawal from EAEU may cause decline in Armenia's remittances from Russia by over half",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Rus hükümetinin sitesinde yayımlanan bir değerlendirmeye göre Ermenistan Avrasya Ekonomik Birliği'ndeki katılımını askıya alırsa Rusya'dan gelen işçi dövizleri yarıdan fazla düşebilir, gümrük yükleri de belirgin şekilde artar. Moskova'nın Erivan'ın Batı'ya yönelişine ekonomik maliyet hatırlatması olarak okunabilir.",
+  "countries": [
+   "am",
+   "ru"
+  ],
+  "themes": [
+   "ekonomi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": true,
+  "note": "Azerbaycan ajansı, Rus hükümeti belgesini aktarıyor."
+ },
+ {
+  "source_id": "K070",
+  "url": "https://azertag.az/en/xeber/seven_more_persons_placed_on_international_wanted_list_over_public_calls_against_the_state_and_dissemination_of_materials_containing_religious_hatred-4469808",
+  "title": "Seven more persons placed on international wanted list over public calls against the state",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Azerbaycan Başsavcılığı, Türkiye'de faaliyet gösterdiği belirtilen yedi kişiyi daha, sosyal medyada anayasal düzenin zorla değiştirilmesi ve dinî nefreti kışkırtma çağrıları gerekçesiyle uluslararası arama listesine aldı. Soruşturma 16 Ekim'de açıldı; tartışma okul kıyafeti kararı etrafında alevlenmişti.",
+  "countries": [
+   "az",
+   "tr"
+  ],
+  "themes": [
+   "guvenlik",
+   "diplomasi"
+  ],
+  "dossiers": [
+   "turk-devletleri"
+  ],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "karisik",
+  "note": "Devlet ajansı; Türk devletini değil Türkiye'deki kişileri hedef alıyor. Basın Konseyi açıklamasıyla birlikte okunmalı."
+ },
+ {
+  "source_id": "K070",
+  "url": "https://azertag.az/en/xeber/president_ilham_aliyev_received_turkiyes_minister_of_foreign_affairs_video-4464228",
+  "title": "President Ilham Aliyev received Türkiye's Minister of Foreign Affairs",
+  "published_at": "2026-10-15",
+  "lang": "en",
+  "summary_tr": "Aliyev, Dışişleri Bakanı Hakan Fidan'ı kabul etti; görüşmede iki ülke ilişkilerindeki son gelişmeler ele alındı. Ziyaret, Bakü'deki CICA zirvesi haftasına ve Türk–Azerbaycan medya gerginliğinin başladığı günlere denk geliyor.",
+  "countries": [
+   "az",
+   "tr"
+  ],
+  "themes": [
+   "diplomasi"
+  ],
+  "dossiers": [
+   "turk-devletleri"
+  ],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "olumlu"
+ },
+ {
+  "source_id": "K095",
+  "url": "https://suspilne.media/1432245-zelenskij-pribuv-do-norvegii-ocikuetsa-zustric-z-vitkoffom/",
+  "title": "Зеленський прибув до Норвегії; очікується зустріч з Віткоффом",
+  "published_at": "2026-10-20",
+  "lang": "uk",
+  "summary_tr": "Zelenski Norveç'te ABD özel temsilcisi Steve Witkoff ile Rusya'nın savaşını sona erdirmeye yönelik görüşmeler yapacak; heyette Budanov, Umerov, Arakhamia ve Kıslıtsya var. Finlandiya Cumhurbaşkanı Stubb ve Norveç Başbakanı Støre ile üçlü toplantı da planlandı.",
+  "countries": [
+   "ua",
+   "us",
+   "ru"
+  ],
+  "themes": [
+   "diplomasi"
+  ],
+  "dossiers": [
+   "karadeniz"
+  ],
+  "turkey_related": false,
+  "importance": 4,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K095",
+  "url": "https://suspilne.media/1432271-ssa-ne-navmisno-vidmovlaut-ukraini-v-raketah-perehopluvacah-rubio/",
+  "title": "США не навмисно відмовляють Україні в ракетах-перехоплювачах — Рубіо",
+  "published_at": "2026-10-20",
+  "lang": "uk",
+  "summary_tr": "Rubio, Ukrayna'ya önleyici füze tedarikinde politika değişikliği olmadığını, PURL programının sürdüğünü ve Trump'ın böyle bir değişiklik emri vermediğini söyledi. Açıklama, sevkiyatların yavaşladığına dair haberlere yanıt niteliğinde.",
+  "countries": [
+   "ua",
+   "us"
+  ],
+  "themes": [
+   "guvenlik"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K095",
+  "url": "https://suspilne.media/1334014-pat-pricin-comu-zustric-zelenskogo-j-madara-e-znakovou/",
+  "title": "П'ять причин, чому зустріч Зеленського й Мадяра є знаковою",
+  "published_at": "2026-10-16",
+  "lang": "uk",
+  "summary_tr": "Analiz, Zelenski ile Macaristan Başbakanı Péter Magyar görüşmesini, Orbán dönemindeki uzun krizin ardından Ukrayna–Macaristan ilişkilerinde en üst düzeyde yeniden açılım olarak değerlendiriyor; AB üyelik süreci için önemli bir engelin kalkabileceğine işaret ediyor.",
+  "countries": [
+   "ua",
+   "eu"
+  ],
+  "themes": [
+   "diplomasi"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": false
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/turkey-sends-mecca-defense-pact-saudi-arabia-pakistan-parliament-ratification",
+  "title": "Turkey sends Mecca defense pact with Saudi Arabia, Pakistan to parliament for ratification",
+  "published_at": "2026-10-20",
+  "lang": "en",
+  "summary_tr": "Ankara, Suudi Arabistan ve Pakistan ile imzalanan Mekke savunma paktını onay için TBMM'ye gönderdi. Husi saldırıları yoğunlaşırken Türkiye Riyad'a askeri destek seçeneklerini tartışıyor; ancak olası bir Türk konuşlanmasının sınırlı kalması bekleniyor.",
+  "countries": [
+   "tr",
+   "sa",
+   "pk"
+  ],
+  "themes": [
+   "guvenlik",
+   "diplomasi"
+  ],
+  "dossiers": [],
+  "turkey_related": true,
+  "importance": 4,
+  "economic_analysis": false,
+  "frame": "notr"
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/turkey-turns-iran-contain-houthis-saudi-defense-commitments-grow",
+  "title": "Turkey turns to Iran to contain Houthis as Saudi defense commitments grow",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "Analiz, Ankara'nın Suudi Arabistan–Husi çatışmasını İran üzerinden sınırlamaya çalıştığını, ancak Tahran'ın Husi baskısının sürmesinden çıkar görebileceğini savunuyor. Türkiye'nin Riyad'a verdiği savunma taahhütleri arttıkça arabuluculuk alanı daralıyor.",
+  "countries": [
+   "tr",
+   "ir",
+   "sa"
+  ],
+  "themes": [
+   "diplomasi",
+   "bolgesel-rekabet"
+  ],
+  "dossiers": [],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": false,
+  "frame": "notr"
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/turkeys-defense-industry-set-hit-20b-new-contracts-2026",
+  "title": "Turkey's defense industry set to hit $20B in new contracts in 2026",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Türk savunma sanayisinin 2026'da 20 milyar dolarlık yeni sözleşmeye ulaşması bekleniyor. Analiz, sektörün Ankara için bir dış politika aracına dönüştüğünü ve Suudi Arabistan başta olmak üzere askeri ortaklıkları derinleştirdiğini vurguluyor.",
+  "countries": [
+   "tr",
+   "sa"
+  ],
+  "themes": [
+   "ekonomi",
+   "guvenlik"
+  ],
+  "dossiers": [
+   "savunma-ihracati"
+  ],
+  "turkey_related": true,
+  "importance": 3,
+  "economic_analysis": true,
+  "frame": "olumlu"
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/how-hormuz-crisis-reshaping-economic-ties-between-iraq-and-syria",
+  "title": "How Hormuz crisis is reshaping economic ties between Iraq and Syria",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "Hürmüz krizi, Irak ile Suriye arasında ticaret ve enerji işbirliğini hızlandırıyor; Irak alternatif ihracat güzergâhı ararken Suriye transit rolüne aday. Analiz, güvenlik riskleri, ekonomik zayıflık ve köklü güvensizlik nedeniyle ortaklığın kalıcılığını sorguluyor.",
+  "countries": [
+   "iq",
+   "sy"
+  ],
+  "themes": [
+   "ekonomi",
+   "enerji"
+  ],
+  "dossiers": [
+   "yeniden-insa"
+  ],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": true
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/irans-oil-lifeline-runs-dry-can-it-outlast-trumps-economic-siege",
+  "title": "As Iran's oil lifeline runs dry, can it outlast Trump's economic siege?",
+  "published_at": "2026-10-18",
+  "lang": "en",
+  "summary_tr": "ABD deniz ablukasının erişemediği yerlerde depolanan son İran ham petrolü Ekim'de sıfıra indi. Analiz, artan ekonomik sıkıntı altında Tahran'ın baskıya ne kadar dayanabileceğini tartışıyor; Hürmüz'deki mayın saldırılarıyla birlikte okunmalı.",
+  "countries": [
+   "ir",
+   "us"
+  ],
+  "themes": [
+   "ekonomi",
+   "enerji"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 3,
+  "economic_analysis": true
+ },
+ {
+  "source_id": "K065",
+  "url": "https://www.al-monitor.com/originals/2026/10/saudi-arabia-postpones-davos-desert-until-2027-amid-houthi-attacks",
+  "title": "Saudi Arabia postpones 'Davos in the Desert' until 2027 amid Houthi attacks",
+  "published_at": "2026-10-19",
+  "lang": "en",
+  "summary_tr": "Suudi Arabistan, dünyanın büyük şirket yöneticilerini Riyad'da buluşturan Gelecek Yatırım Girişimi'ni (FII) Husi saldırıları nedeniyle 2027'ye erteledi. Savaşın krallığın yatırım ve etkinlik takvimine verdiği zararın en görünür örneği.",
+  "countries": [
+   "sa"
+  ],
+  "themes": [
+   "ekonomi",
+   "guvenlik"
+  ],
+  "dossiers": [],
+  "turkey_related": false,
+  "importance": 4,
+  "economic_analysis": false
  }
 ]
