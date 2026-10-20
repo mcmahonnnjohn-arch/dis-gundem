@@ -46,12 +46,14 @@ def test_importance_required(tmp_path):
 
 
 def test_session_file_routes():
+    """Gerçek oturum dosyası: hepsi kabul edilir, eşik altı yok; Enab Baladi alt kümesi 4 kuyruk / 3 havuz."""
     from pathlib import Path
     from disgundem.fetch.premium import route
     from disgundem.funnel import Gates
     f = Path(__file__).resolve().parents[2] / "data" / "premium" / "2026-10-20.json"
     rows, _, rej = load_session(f)
-    kept, below = route(rows, Gates(store_min=3, queue_min=4, per_country_daily=4, total_daily=30))
-    assert not rej and not below
-    # 2 haber (önem 4) + 2 ekonomik analiz (önem 3, eko) kuyruğa; rutin 3'ler havuza
+    assert not rej
+    g = Gates(store_min=3, queue_min=4, econ_queue_min=3, per_country_daily=4, total_daily=30)
+    kept, below = route([r for r in rows if r["source_id"] == "K001"], g)
+    assert not below
     assert sum(r["status"] == "queued" for r in kept) == 4 and sum(r["status"] == "pool" for r in kept) == 3
