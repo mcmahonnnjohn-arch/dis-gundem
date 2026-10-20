@@ -55,7 +55,23 @@ def _check(rec: dict) -> str | None:
             return f"alıntı {MAX_QUOTE_WORDS} kelimeyi aşıyor"
     if rec.get("body") or rec.get("text") or rec.get("content"):
         return "makale metni alanı kabul edilmez"
+    imp = rec.get("importance")
+    if not isinstance(imp, int) or not 1 <= imp <= 5:
+        return "importance 1-5 arası tam sayı olmalı (docs/KAPSAM_MODELI.md tablosu)"
     return None
+
+
+def route(rows: list[dict], gates, per_today: dict[str, int] | None = None, total_today: int = 0):
+    """Sunucudaki huninin aynısı: önem < store_min saklanmaz, 3 havuza, ≥ queue_min kuyruğa (ülke/gün tavanı; 5 deler).
+    Her Chrome kaydı kendi kümesidir. Dönen: (yönlendirilmiş satırlar, eşik altı satırlar)."""
+    from ..funnel import select_for_queue
+    kept = [r for r in rows if r["importance"] >= gates.store_min]
+    below = [r for r in rows if r["importance"] < gates.store_min]
+    groups = [[{"imp": r["importance"], "c": r["classification"]["countries"] or ["tr"], "row": r}] for r in kept]
+    queue, pool = select_for_queue(groups, gates, per_today, total_today)
+    for grp, status in [(g, "queued") for g in queue] + [(g, "pool") for g in pool]:
+        grp[0]["row"]["status"] = status
+    return kept, below
 
 
 def load_session(path: str | Path):

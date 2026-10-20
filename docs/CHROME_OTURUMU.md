@@ -9,7 +9,9 @@ ne zaman taranacağını, `Tarama odağı` neyin alınacağını söyler.
    - **A kademesi** (Suriye, İsrail, GKRY, Azerbaycan, Ukrayna…): kritik iç gündem + Türkiye ile ilgili her şey.
    - **B kademesi ve think tank'ler**: yalnız Türkiye geçen başlıklar; site içi aramada "Turkey", "Türkiye", "Erdoğan" kullan.
    - **Premium**: Türkiye ve kapsam ülkeleri; analizler öncelikli.
-3. Son taramadan bu yana yayımlananları al; önemsizleri atla (önem ölçeği `docs/KAPSAM_MODELI.md`, 1–5; 3 altı alınmaz).
+3. Son taramadan bu yana yayımlananları al ve her birine `docs/KAPSAM_MODELI.md` tablosuyla 1–5 önem ver. 3 ve üstü alınır:
+   3'ler havuza (ülke sayfası, analiz ham maddesi), 4–5'ler editör kuyruğuna gider; 2 ve altı yazılmaz. Puan tablodaki satıra dayanmalı;
+   "Türkiye ile ilgili" sütununda 5 yalnız Türkiye'yi doğrudan hedef alan kriz içindir.
 4. Her kayıt için yalnız başlık, link, tarih ve **kendi cümlelerimizle** 2–3 cümle özet yaz; gövde kopyalanmaz,
    alıntı 15 kelimeyi aşmaz, özet 600 karakteri aşmaz.
 5. Çıktıyı `data/premium/YYYY-MM-DD.json` olarak kaydet (biçim: `data/premium/README.md`) ve

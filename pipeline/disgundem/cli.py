@@ -155,20 +155,33 @@ def cmd_fetch(s, args):
 
 
 def cmd_premium_import(s, args):
-    """Claude in Chrome premium tarama oturumunun çıktısını (JSON) kuyruğa alır.
+    """Claude in Chrome oturumunun çıktısını (JSON) sunucudaki huniyle aynı kapılardan geçirir.
 
-    Dosya biçimi: [{"source_id":"K170","url":"...","title":"...","published_at":"2026-10-19",
-                   "summary_tr":"kendi cümlelerimizle 2-3 cümle","countries":["sy"],"themes":["enerji"],
-                   "dossiers":[], "frame":"notr", "note":"..."}]
+    Dosya biçimi: data/premium/README.md. `importance` zorunlu (1-5, docs/KAPSAM_MODELI.md tablosu):
+    store_min altı saklanmaz, 3 havuza, ≥ queue_min kuyruğa (ülke/gün tavanı; 5 tavanı deler).
     Makale metni, uzun alıntı kabul edilmez: summary_tr 600 karakteri aşarsa kayıt reddedilir.
     """
-    from .fetch.premium import load_session
+    from .fetch.premium import load_session, route
     store = Store(s)
+    gates = Gates()
     rows, links, rejected = load_session(args.file)
-    store.upsert_articles(rows)
+    per_today, total_today = store.queue_today()
+    kept, below = route(rows, gates, per_today, total_today)
+    now = datetime.now(timezone.utc)
+    for r in kept:
+        cid = str(uuid.uuid4())
+        t = r["published_at"] or now
+        store.insert_cluster({"id": cid, "title_tr": None, "importance": r["importance"], "article_count": 1,
+                              "countries": sorted(r["classification"]["countries"]), "first_seen": t, "last_seen": t,
+                              "status": r["status"], "created_at": now})
+        r["cluster_id"] = cid
+    store.upsert_articles(kept)
+    kept_ids = {r["id"] for r in kept}
     for aid, c, t, d in links:
-        store.set_article_links(aid, c, t, d)
-    print(f"premium-import: {len(rows)} kayıt kuyruğa, {len(rejected)} reddedildi")
+        if aid in kept_ids:
+            store.set_article_links(aid, c, t, d)
+    q = sum(1 for r in kept if r["status"] == "queued")
+    print(f"chrome-import: {q} kuyruğa, {len(kept) - q} havuza, {len(below)} eşik altı, {len(rejected)} reddedildi")
     for r in rejected:
         print("  reddedildi:", r)
 
