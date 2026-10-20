@@ -253,7 +253,9 @@ def cmd_classify(s, args):
                     "metin": text_status, "uyarilar": c.warnings, "denetim": c.audit}
             if args.yeniden and a.get("summary_tr"):
                 prev = a.get("classification") or {}
-                meta["onceki"] = {"summary_tr": a["summary_tr"], "prompt": prev.get("prompt"), "model": prev.get("model")}
+                # Karşılaştırma ilk (v1) özete karşı yapılır: önceki zaten saklıysa korunur.
+                meta["onceki"] = prev.get("onceki") or {"summary_tr": a["summary_tr"], "prompt": prev.get("prompt"),
+                                                        "model": prev.get("model")}
             out.append({"id": a["id"], "source_id": a["source_id"], "url": a["url"], "title": a["title"],
                         "frame": c.frame, "summary_tr": c.summary_tr, "local_view_note": c.local_view_note,
                         "status": a["status"], "uyarilar": c.warnings, "classification": meta})
