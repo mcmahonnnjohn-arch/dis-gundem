@@ -1,0 +1,21 @@
+ID,Kaynak,Katman,Kapsam,Ülke,Başlangıç URL,Dil,Sıklık,Tarama odağı
+K170,Financial Times,premium,P,Küresel,https://www.ft.com,en,günlük,Türkiye + kapsam ülkeleri; analiz ve haber
+K171,Bloomberg,premium,P,Küresel,https://www.bloomberg.com,en,günlük,Türkiye + kapsam ülkeleri; analiz ve haber
+K172,Wall Street Journal,premium,P,Küresel,https://www.wsj.com,en,günlük,Türkiye + kapsam ülkeleri; analiz ve haber
+K173,The Economist,premium,P,Küresel,https://www.economist.com,en,günlük,Türkiye + kapsam ülkeleri; analiz ve haber
+K174,Foreign Affairs,premium,P,Küresel,https://www.foreignaffairs.com,en,haftalık,Türkiye + kapsam ülkeleri; analiz
+K175,Foreign Policy,premium,P,Küresel,https://foreignpolicy.com,en,haftalık,Türkiye + kapsam ülkeleri; analiz
+K001,Enab Baladi,engelli-rss,A,Suriye,https://www.enabbaladi.net,ar/en,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K019,Times of Israel,engelli-rss,A,İsrail,https://www.timesofisrael.com,en,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K020,Haaretz,engelli-rss,A,İsrail,https://www.haaretz.com,en,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K037,In-Cyprus (Phileleftheros İngilizce servisi),engelli-rss,A,GKRY,https://in-cyprus.philenews.com,en,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K068,Report.az,engelli-rss,A,Azerbaycan,https://report.az,az/en/ru,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K070,AZERTAC,engelli-rss,A,Azerbaycan,https://azertag.az,az/en/tr,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K095,Suspilne,engelli-rss,A,Ukrayna,https://suspilne.media,uk/en,günlük,A kademesi: kritik iç gündem + Türkiye ile ilgili her şey
+K065,Al-Monitor,engelli-rss,R,MENA,https://www.al-monitor.com,en,günlük,Bölgesel: Türkiye ve kapsam ülkeleri
+K139,Indian Express,engelli-rss,B,Hindistan,https://indianexpress.com,en,haftalık,B kademesi: yalnız Türkiye geçen başlıklar (site içi arama)
+K154,Sudan Tribune,engelli-rss,B,Sudan,https://sudantribune.com,en/ar,haftalık,B kademesi: yalnız Türkiye geçen başlıklar (site içi arama)
+K124,Atlantic Council — Turkey Program,engelli-rss,B,ABD,https://www.atlanticcouncil.org/programs/atlantic-council-turkey-program/,en,haftalık,Think tank: yalnız Türkiye ile ilgili yayınlar (analiz girdisi)
+K129,Hudson Institute,engelli-rss,B,ABD,https://www.hudson.org,en,haftalık,Think tank: yalnız Türkiye ile ilgili yayınlar (analiz girdisi)
+K230,Clingendael,engelli-rss,B,Hollanda,https://www.clingendael.org,en/nl,haftalık,Think tank: yalnız Türkiye ile ilgili yayınlar (analiz girdisi)
+K245,Middle East Forum,engelli-rss,B,ABD,https://www.meforum.org,en,haftalık,Think tank: yalnız Türkiye ile ilgili yayınlar (analiz girdisi)

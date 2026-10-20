@@ -1,6 +1,9 @@
-"""Premium kaynaklar (FT, Bloomberg, WSJ, Economist, Foreign Affairs, Foreign Policy).
+"""Claude in Chrome oturumu kaynakları: premium (FT, Bloomberg, WSJ, Economist, FA, FP) + RSS'i sunucuya kapalı (403)
+kaynaklar. Liste `data/chrome_kaynaklari.csv`.
 
-Sunucu tarafında toplanmaz. Editör, Claude in Chrome oturumunda (kendi abonelikleriyle) günlük/haftalık tarama yapar;
+Premium sunucu tarafında hiç toplanmaz; engelli-RSS kaynakları sunucuda gnews yedeğiyle de izlenir, Chrome oturumu
+doğrudan yayıncı sayfasından tamamlar (aynı başlık tekilleştirmede elenir). Editör, Claude in Chrome oturumunda
+(kendi tarayıcısı ve abonelikleriyle) günlük/haftalık tarama yapar;
 oturumun çıktısı bu modülün beklediği JSON biçiminde `data/premium/YYYY-MM-DD.json` olarak kaydedilir ve
 `disgundem premium-import <dosya>` ile kuyruğa girer.
 
@@ -10,6 +13,7 @@ Telif kuralları (docs/HEDEF.md) burada zorlanır:
 """
 from __future__ import annotations
 
+import csv
 import json
 import re
 import uuid
@@ -20,15 +24,27 @@ from dateutil import parser as dtparse
 
 from .rss import canonical
 
-PREMIUM_IDS = {"K170", "K171", "K172", "K173", "K174", "K175"}
+from ..config import DATA
+
+CHROME_CSV = DATA / "chrome_kaynaklari.csv"
+
+
+def chrome_sources(path: Path = CHROME_CSV) -> dict[str, dict]:
+    with open(path, encoding="utf-8", newline="") as f:
+        return {r["ID"]: r for r in csv.DictReader(f)}
+
+
+CHROME = chrome_sources()
+CHROME_IDS = set(CHROME)
+PREMIUM_IDS = {i for i, r in CHROME.items() if r["Katman"] == "premium"}
 MAX_SUMMARY = 600
 MAX_QUOTE_WORDS = 15
 QUOTE = re.compile(r'["“”«»]([^"“”«»]{20,})["“”«»]')
 
 
 def _check(rec: dict) -> str | None:
-    if rec.get("source_id") not in PREMIUM_IDS:
-        return f"source_id premium değil: {rec.get('source_id')}"
+    if rec.get("source_id") not in CHROME_IDS:
+        return f"source_id Chrome listesinde değil: {rec.get('source_id')}"
     for k in ("url", "title", "summary_tr"):
         if not rec.get(k):
             return f"eksik alan: {k}"
@@ -61,11 +77,11 @@ def load_session(path: str | Path):
         aid = str(uuid.uuid4())
         rows.append({
             "id": aid, "source_id": rec["source_id"], "url": canonical(rec["url"]), "title": rec["title"].strip(),
-            "lang": "en", "published_at": pub, "fetched_at": datetime.now(timezone.utc), "excerpt": None,
+            "lang": rec.get("lang") or (CHROME[rec["source_id"]]["Dil"].split("/")[0] or "en"), "published_at": pub, "fetched_at": datetime.now(timezone.utc), "excerpt": None,
             "is_turkey_related": bool(rec.get("turkey_related", True)),
             "importance": rec.get("importance"), "frame": rec.get("frame"),
             "summary_tr": rec["summary_tr"].strip(), "local_view_note": rec.get("note"),
-            "classification": {"model": "editor-chrome", "prompt": "premium-session", "countries": rec.get("countries", []),
+            "classification": {"model": "editor-chrome", "prompt": f"chrome-session:{CHROME[rec['source_id']]['Katman']}", "countries": rec.get("countries", []),
                                "themes": rec.get("themes", []), "dossiers": rec.get("dossiers", [])},
             "status": "queued",
         })
