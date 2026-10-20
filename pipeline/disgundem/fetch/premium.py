@@ -62,12 +62,14 @@ def _check(rec: dict) -> str | None:
 
 
 def route(rows: list[dict], gates, per_today: dict[str, int] | None = None, total_today: int = 0):
-    """Sunucudaki huninin aynısı: önem < store_min saklanmaz, 3 havuza, ≥ queue_min kuyruğa (ülke/gün tavanı; 5 deler).
+    """Sunucudaki huninin aynısı: önem < store_min saklanmaz, 3 havuza, ≥ queue_min kuyruğa (ülke/gün tavanı; 5 deler);
+    economic_analysis=true kayıtlar econ_queue_min (varsayılan 3) ile kuyruğa girer.
     Her Chrome kaydı kendi kümesidir. Dönen: (yönlendirilmiş satırlar, eşik altı satırlar)."""
     from ..funnel import select_for_queue
     kept = [r for r in rows if r["importance"] >= gates.store_min]
     below = [r for r in rows if r["importance"] < gates.store_min]
-    groups = [[{"imp": r["importance"], "c": r["classification"]["countries"] or ["tr"], "row": r}] for r in kept]
+    groups = [[{"imp": r["importance"], "eko": r["classification"].get("eko", False),
+                "c": r["classification"]["countries"] or ["tr"], "row": r}] for r in kept]
     queue, pool = select_for_queue(groups, gates, per_today, total_today)
     for grp, status in [(g, "queued") for g in queue] + [(g, "pool") for g in pool]:
         grp[0]["row"]["status"] = status
@@ -98,7 +100,8 @@ def load_session(path: str | Path):
             "importance": rec.get("importance"), "frame": rec.get("frame"),
             "summary_tr": rec["summary_tr"].strip(), "local_view_note": rec.get("note"),
             "classification": {"model": "editor-chrome", "prompt": f"chrome-session:{CHROME[rec['source_id']]['Katman']}", "countries": rec.get("countries", []),
-                               "themes": rec.get("themes", []), "dossiers": rec.get("dossiers", [])},
+                               "themes": rec.get("themes", []), "dossiers": rec.get("dossiers", []),
+                               "eko": bool(rec.get("economic_analysis"))},
             "status": "queued",
         })
         links.append((aid, rec.get("countries", []), rec.get("themes", []), rec.get("dossiers", [])))

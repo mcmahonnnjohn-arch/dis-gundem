@@ -19,7 +19,8 @@
   "turkey_related": true,
   "frame": "notr",
   "importance": 4,
-  "note": "Enab Baladi haberi SANA'ya dayanıyor; Reyhanlı bağlantısını Türk makamlarının suçlaması olarak aktarıyor. İade talebinden söz edilmiyor."
+  "note": "Enab Baladi haberi SANA'ya dayanıyor; Reyhanlı bağlantısını Türk makamlarının suçlaması olarak aktarıyor. İade talebinden söz edilmiyor.",
+  "economic_analysis": false
  },
  {
   "source_id": "K001",
@@ -39,7 +40,8 @@
   "dossiers": [],
   "turkey_related": false,
   "importance": 4,
-  "note": "Yerel muhabir gözlemi + Suriye Dışişleri açıklaması."
+  "note": "Yerel muhabir gözlemi + Suriye Dışişleri açıklaması.",
+  "economic_analysis": false
  },
  {
   "source_id": "K001",
@@ -63,7 +65,8 @@
   "turkey_related": true,
   "frame": "notr",
   "importance": 3,
-  "note": "Türk girişimini fırsat olarak sunuyor, teknik engeli öne çıkarıyor."
+  "note": "Türk girişimini fırsat olarak sunuyor, teknik engeli öne çıkarıyor.",
+  "economic_analysis": true
  },
  {
   "source_id": "K001",
@@ -81,7 +84,8 @@
   "dossiers": [],
   "turkey_related": false,
   "importance": 3,
-  "note": "Enab Baladi muhabiri duruşmada bulundu."
+  "note": "Enab Baladi muhabiri duruşmada bulundu.",
+  "economic_analysis": false
  },
  {
   "source_id": "K001",
@@ -102,7 +106,8 @@
    "yeniden-insa"
   ],
   "turkey_related": false,
-  "importance": 3
+  "importance": 3,
+  "economic_analysis": false
  },
  {
   "source_id": "K001",
@@ -120,7 +125,8 @@
   ],
   "dossiers": [],
   "turkey_related": false,
-  "importance": 3
+  "importance": 3,
+  "economic_analysis": false
  },
  {
   "source_id": "K001",
@@ -139,6 +145,7 @@
    "yeniden-insa"
   ],
   "turkey_related": false,
-  "importance": 3
+  "importance": 3,
+  "economic_analysis": true
  }
 ]

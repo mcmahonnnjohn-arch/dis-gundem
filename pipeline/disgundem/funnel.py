@@ -38,6 +38,9 @@ def _env_int(name: str, default: int) -> int:
 class Gates:
     store_min: int = field(default_factory=lambda: _env_int("IMPORTANCE_STORE_MIN", 3))
     queue_min: int = field(default_factory=lambda: _env_int("IMPORTANCE_QUEUE_MIN", 4))
+    # Ekonomik analizler (eko=True) kuyruğa daha düşük eşikle girer (20 Ekim editör kararı). Önem puanı değişmez;
+    # sıralamada gerçek 4'lerin arkasında kalırlar, ülke/gün tavanı aynen uygulanır.
+    econ_queue_min: int = field(default_factory=lambda: _env_int("ECON_QUEUE_MIN", 3))
     per_country_daily: int = field(default_factory=lambda: _env_int("QUEUE_PER_COUNTRY_DAILY", 4))
     total_daily: int = field(default_factory=lambda: _env_int("QUEUE_TOTAL_DAILY", 30))
     max_age_days: int = field(default_factory=lambda: _env_int("MAX_ITEM_AGE_DAYS", 3))
@@ -114,7 +117,8 @@ def select_for_queue(groups: list[list[dict]], g: Gates, already_today: dict[str
     for grp in ranked:
         imp = max(x["imp"] for x in grp)
         countries = {c for x in grp for c in x["c"]} - {"tr"} or {"tr"}
-        if imp < g.queue_min:
+        threshold = g.econ_queue_min if any(x.get("eko") for x in grp) else g.queue_min
+        if imp < threshold:
             pool.append(grp)
             continue
         if imp < 5 and (total >= g.total_daily or any(per_c[c] >= g.per_country_daily for c in countries)):

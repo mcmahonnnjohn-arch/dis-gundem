@@ -25,7 +25,7 @@ Her bölge için yerel think tank'ler ve Türk think tank'leri (ORSAM, SETA, EDA
 Levant & Irak · Doğu Akdeniz · Körfez & İran · Kafkasya · Karadeniz & Rusya · Avrupa · Kuzey Amerika · Asya · Afrika. **Orta Asya ve Balkanlar bu sürümde yok**, ikinci fazda eklenir (`HEDEF.md`'deki ülke listesinde yer alırlar).
 
 ## Önem ölçeği ve huni (20 Ekim 2026'dan itibaren tüm başlıklara uygulanır)
-Önem artık yalnız A iç gündemine değil, her başlığa tek ölçekle verilir (`pipeline/prompts/triage_v1.md`):
+Önem artık yalnız A iç gündemine değil, her başlığa tek ölçekle verilir (`pipeline/prompts/triage_v2.md`):
 
 | Puan | A kapsamı iç gündem | Türkiye ile ilgili (tüm kapsamlar) |
 |---|---|---|
@@ -36,6 +36,8 @@ Levant & Irak · Doğu Akdeniz · Körfez & İran · Kafkasya · Karadeniz & Rus
 | 1 | Magazin, spor, kültür, yerel | Türkiye adı tesadüfi |
 
 **Huni:** önem < 3 hiç saklanmaz (yalnız tekrar kontrolü için hash'i tutulur) · 3 saklanır ama kuyruğa girmez ("havuz": ülke sayfası ve analiz hammaddesi) · ≥ 4 editör kuyruğuna girer · aynı olayı anlatan başlıklar tek küme olarak bir kez görünür · ülke başına günde 4, toplam günde 30 küme tavanı; önem 5 tavanı deler. B/R/T kaynaklarında Türkiye terimi geçmeyen başlık LLM'e hiç gönderilmez. Eşikler `IMPORTANCE_*` / `QUEUE_*` değişkenleriyle ayarlanır.
+
+**Ekonomik analiz önceliği (20 Ekim editör kararı):** ekonomi, enerji, finans, ticaret, yatırım, yaptırım veya altyapı üzerine *analiz/rapor* (rutin ekonomik haber değil) `eko` işareti alır ve kuyruğa önem **3**'ten girer (`ECON_QUEUE_MIN`, varsayılan 3). Önem puanı değişmez; sıralamada gerçek 4'lerin arkasında kalır, ülke/gün tavanı aynen uygulanır — yani kuyruk doluysa haber 4'leri önce girer.
 
 ## Tema matrisi
 | Tema | Kapsam | Ağır olduğu ülkeler |
