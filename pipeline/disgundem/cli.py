@@ -261,7 +261,8 @@ def main(argv=None):
     f.add_argument("--source", nargs="*", help="yalnız bu ID'ler")
     f.add_argument("--method", choices=["rss", "gnews", "scrape"])
     f.add_argument("--all", action="store_true", help="tarama aralığını yok say, tüm çekirdeği tara")
-    g = sub.add_parser("premium-import", help="Claude in Chrome premium tarama çıktısını (JSON) kuyruğa al")
+    g = sub.add_parser("premium-import", aliases=["chrome-import"],
+                       help="Claude in Chrome oturumu çıktısını (JSON; premium + engelli-RSS) kuyruğa al")
     g.add_argument("file")
     c = sub.add_parser("classify", help="toplananları sınıflandır, özetle, kuyruğa al")
     c.add_argument("--limit", type=int, default=200)
@@ -272,7 +273,7 @@ def main(argv=None):
     k.add_argument("--core", action="store_true")
     args = p.parse_args(argv)
     s = config.load()
-    {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "classify": cmd_classify,
+    {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 
