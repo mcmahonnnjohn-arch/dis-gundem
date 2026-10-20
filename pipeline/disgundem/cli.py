@@ -34,24 +34,38 @@ def cmd_seed(s, args):
 
 
 def _collect(client, matcher, src: dict) -> tuple[list[Item], str]:
-    """Kaynağın yöntemine göre topla. RSS kırıksa Google News `site:` yedeğine düş; dönen ikinci değer kullanılan yol."""
+    """Kaynağın yöntemine göre topla; dönen ikinci değer kullanılan yol.
+
+    RSS ya da liste sayfası kırıksa (403 vb.) Google News `site:` yedeğine düşülür. Yedek çalışıp sonuç
+    döndürmezse bu hata değildir: B kaynaklarında son 7 günde Türkiye geçmemiş olabilir ("gnews-yedek-0").
+    Yedeğin kendisi de hata verirse özgün hata yükseltilir."""
     lang = (src.get("langs") or [None])[0]
     site = src.get("local_url") or src["url"]
+
+    def fallback(err: Exception) -> tuple[list[Item], str]:
+        try:
+            items = fetch_gnews(client, matcher, src["id"], site, lang or "en", turkey_only=(src["tier"] != "A"))
+        except Exception:
+            raise err
+        for i in items:
+            i.extra["primary_error"] = f"{type(err).__name__}: {str(err)[:120]}"
+        if not items:
+            log.info("%s birincil yol kırık (%s: %s), gnews yedeği 0 sonuç", src["id"], type(err).__name__, str(err)[:80])
+        return items, "gnews-yedek" if items else "gnews-yedek-0"
+
     if src["method"] == "rss" and src.get("feed_url"):
         try:
             items = fetch_feed(client, src["id"], src["feed_url"], lang)
             return items, "rss+ua" if any(i.extra.get("browser_ua") for i in items) else "rss"
         except Exception as e:
-            items = fetch_gnews(client, matcher, src["id"], site, lang or "en", turkey_only=(src["tier"] != "A"))
-            if items:
-                for i in items:
-                    i.extra["rss_error"] = f"{type(e).__name__}: {str(e)[:120]}"
-                return items, "gnews-yedek"
-            raise
+            return fallback(e)
     if src["method"] == "gnews":
         return fetch_gnews(client, matcher, src["id"], site, lang or "en", turkey_only=(src["tier"] != "A")), "gnews"
     if src["method"] == "scrape":
-        return fetch_listing(client, src["id"], site, lang), "scrape"
+        try:
+            return fetch_listing(client, src["id"], site, lang), "scrape"
+        except Exception as e:
+            return fallback(e)
     return [], "manual"  # premium: Chrome oturumu + premium-import
 
 
@@ -60,7 +74,7 @@ def _fetch_one(s, matcher, src: dict) -> tuple[dict, list[Item], str | None]:
     try:
         items, via = _collect(client, matcher, src)
         if via == "gnews-yedek":
-            log.warning("%s RSS kırık, gnews yedeği kullanıldı: %s", src["id"], items[0].extra.get("rss_error"))
+            log.warning("%s birincil yol kırık, gnews yedeği kullanıldı: %s", src["id"], items[0].extra.get("primary_error"))
         return src, items, None
     except Exception as e:
         return src, [], f"{type(e).__name__}: {e}"

@@ -12,7 +12,7 @@ import httpx
 from selectolax.lexbor import LexborHTMLParser as HTMLParser
 
 from . import Item
-from .rss import canonical
+from .rss import BROWSER_HEADERS, RETRY_STATUS, canonical
 
 SELECTORS: dict[str, str] = {
     # "K122": "div.collection-result a",   # örnek: state.gov press briefings
@@ -22,6 +22,8 @@ SELECTORS: dict[str, str] = {
 def fetch_listing(client: httpx.Client, source_id: str, page_url: str, lang: str | None = None,
                   min_len: int = 25, limit: int = 60) -> list[Item]:
     r = client.get(page_url, headers={"Accept": "text/html"})
+    if r.status_code in RETRY_STATUS or r.is_redirect:   # RSS'teki gibi: bot UA reddedilirse tarayıcı başlığıyla bir kez
+        r = client.get(page_url, headers={**BROWSER_HEADERS, "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"})
     r.raise_for_status()
     tree = HTMLParser(r.text)
     host = urlsplit(page_url).netloc.lower()
