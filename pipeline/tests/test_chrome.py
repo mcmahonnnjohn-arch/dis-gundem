@@ -53,4 +53,5 @@ def test_session_file_routes():
     rows, _, rej = load_session(f)
     kept, below = route(rows, Gates(store_min=3, queue_min=4, per_country_daily=4, total_daily=30))
     assert not rej and not below
-    assert sum(r["status"] == "queued" for r in kept) == 2 and sum(r["status"] == "pool" for r in kept) == 5
+    # 2 haber (önem 4) + 2 ekonomik analiz (önem 3, eko) kuyruğa; rutin 3'ler havuza
+    assert sum(r["status"] == "queued" for r in kept) == 4 and sum(r["status"] == "pool" for r in kept) == 3

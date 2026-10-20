@@ -17,7 +17,7 @@ from .terms import Matcher
 
 log = logging.getLogger(__name__)
 PROMPT_VERSION = "classify_v1"
-TRIAGE_VERSION = "triage_v1"
+TRIAGE_VERSION = "triage_v2"  # v2: ekonomik analiz işareti (eko)
 
 
 @dataclass
@@ -88,7 +88,7 @@ class Classifier:
         return r.choices[0].message.content
 
     def triage(self, batch: list[tuple[Item, dict]]) -> list[dict]:
-        """Toplu ön eleme: yalnız başlık + kaynak bilgisi; dönen her öğe {"imp", "tr", "c"}.
+        """Toplu ön eleme: yalnız başlık + kaynak bilgisi; dönen her öğe {"imp", "tr", "eko", "c"}.
 
         LLM yoksa (provider=none) terim eşleşmesine göre kaba puan: Türkiye terimi varsa 3, yoksa 1.
         Bu modda A kapsamı iç gündem değerlendirilemez; bilerek düşer.
@@ -99,7 +99,7 @@ class Classifier:
             out = []
             for it, src in batch:
                 hit = self.matcher.hit(f"{it.title} {it.excerpt or ''}", it.lang)
-                out.append({"imp": 3 if hit else 1, "tr": hit, "c": [src["country_id"]], "model": "terms"})
+                out.append({"imp": 3 if hit else 1, "tr": hit, "eko": False, "c": [src["country_id"]], "model": "terms"})
             return out
         lines = [{"i": n, "baslik": it.title[:300], "kaynak": src["name"], "ulke": src["country_id"], "kapsam": src["tier"]}
                  for n, (it, src) in enumerate(batch)]
@@ -115,9 +115,10 @@ class Classifier:
             x = by_i.get(n)
             if x is None:  # model atladıysa güvenli taraf: terim eşleşmesi
                 hit = self.matcher.hit(it.title, it.lang)
-                out.append({"imp": 3 if hit else 1, "tr": hit, "c": [src["country_id"]], "model": "terms-fallback"})
+                out.append({"imp": 3 if hit else 1, "tr": hit, "eko": False, "c": [src["country_id"]], "model": "terms-fallback"})
             else:
-                out.append({"imp": int(x.get("imp", 1)), "tr": bool(x.get("tr")), "c": x.get("c") or [src["country_id"]],
+                out.append({"imp": int(x.get("imp", 1)), "tr": bool(x.get("tr")), "eko": bool(x.get("eko")),
+                            "c": x.get("c") or [src["country_id"]],
                             "model": self.model})
         return out
 

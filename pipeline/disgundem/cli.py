@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 
 from . import config
-from .classify import Classifier
+from .classify import TRIAGE_VERSION, Classifier
 from .fetch import Item
 from .fetch.rss import fetch_feed, make_client
 from .fetch.gnews import fetch_gnews
@@ -112,7 +112,8 @@ def cmd_fetch(s, args):
     for k in range(0, len(candidates), gates.batch_size):
         batch = candidates[k:k + gates.batch_size]
         for (it, src), t in zip(batch, clf.triage(batch)):
-            scored.append({"item": it, "src": src, "imp": t["imp"], "tr": t["tr"], "c": t["c"], "model": t["model"]})
+            scored.append({"item": it, "src": src, "imp": t["imp"], "tr": t["tr"], "eko": t.get("eko", False),
+                           "c": t["c"], "model": t["model"]})
     stats["triaged"] = len(scored)
 
     # 4: saklama eşiği — altı yalnız hash olarak
@@ -143,7 +144,7 @@ def cmd_fetch(s, args):
             rows.append({"id": str(uuid.uuid4()), "source_id": it.source_id, "url": it.url, "title": it.title,
                          "lang": it.lang, "published_at": it.published_at, "excerpt": it.excerpt,
                          "is_turkey_related": x["tr"], "importance": x["imp"], "cluster_id": cid, "status": status,
-                         "triage": {"model": x["model"], "prompt": "triage_v1", "countries": x["c"],
+                         "triage": {"model": x["model"], "prompt": TRIAGE_VERSION, "countries": x["c"], "eko": x["eko"],
                                     "fetch": it.extra or None}})
         stats["queued_clusters" if status == "queued" else "pool"] += 1
     store.upsert_articles(rows)

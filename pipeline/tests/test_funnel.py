@@ -79,3 +79,21 @@ def test_end_to_end_dry_run(monkeypatch, tmp_path):
     assert stats["stored"] == 2          # yalnız Türkiye geçen iki başlık (terim modu)
     lines = (tmp_path / "articles.jsonl").read_text().splitlines()
     assert all(json.loads(l)["importance"] == 3 for l in lines)
+
+
+def test_economic_analysis_lower_queue_threshold():
+    from disgundem.funnel import Gates, select_for_queue
+    g = Gates(store_min=3, queue_min=4, econ_queue_min=3, per_country_daily=4, total_daily=30)
+    eko3 = [{"imp": 3, "eko": True, "c": ["sy"]}]
+    plain3 = [{"imp": 3, "eko": False, "c": ["sy"]}]
+    q, p = select_for_queue([eko3, plain3], g)
+    assert q == [eko3] and p == [plain3]
+
+
+def test_economic_analysis_ranks_behind_real_fours():
+    from disgundem.funnel import Gates, select_for_queue
+    g = Gates(store_min=3, queue_min=4, econ_queue_min=3, per_country_daily=1, total_daily=30)
+    eko3 = [{"imp": 3, "eko": True, "c": ["sy"]}]
+    news4 = [{"imp": 4, "eko": False, "c": ["sy"]}]
+    q, p = select_for_queue([eko3, news4], g)
+    assert q == [news4] and p == [eko3]
