@@ -19,7 +19,9 @@ alter table clusters add column if not exists importance smallint;
 alter table articles add column if not exists triage jsonb;   -- ön eleme çıktısı (model, prompt, ham puan)
 
 -- Kuyruk artık küme bazlı: her olay bir kez görünür.
-create or replace view editorial_queue as
+-- Sütun yapısı 0001'dekinden farklı; `create or replace` sütun düşüremediği için önce kaldırılır.
+drop view if exists editorial_queue;
+create view editorial_queue as
 select c.id as cluster_id, c.importance, c.title_tr, c.article_count, c.countries, c.first_seen, c.last_seen,
        (select json_agg(json_build_object('id', a.id, 'title', a.title, 'url', a.url, 'source', s.name,
                                           'reliability', s.reliability, 'perspective_only', s.perspective_only,
