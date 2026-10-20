@@ -44,6 +44,9 @@ class Gates:
     per_country_daily: int = field(default_factory=lambda: _env_int("QUEUE_PER_COUNTRY_DAILY", 4))
     total_daily: int = field(default_factory=lambda: _env_int("QUEUE_TOTAL_DAILY", 30))
     max_age_days: int = field(default_factory=lambda: _env_int("MAX_ITEM_AGE_DAYS", 3))
+    # Çalışma başına kaynak başına en yeni N başlık LLM'e gider (maliyet tavanı; IranWire gibi 800 kayıtlık akışlar).
+    # Kalanlar görülmemiş sayılır, sonraki çalışmalarda sıraları gelir.
+    max_items_per_source: int = field(default_factory=lambda: _env_int("MAX_ITEMS_PER_SOURCE", 30))
     batch_size: int = 40
 
 
@@ -71,7 +74,8 @@ def prefilter(items: list[Item], src: dict, matcher: Matcher, g: Gates, now: dat
         if src["tier"] != "A" and not matcher.hit(f"{it.title} {it.excerpt or ''}", it.lang):
             continue  # A dışında Türkiye geçmeyen başlık LLM'e bile gitmez
         out.append(it)
-    return out
+    out.sort(key=lambda it: it.published_at or now, reverse=True)
+    return out[:g.max_items_per_source]
 
 
 # ---------------------------------------------------------------- 5. kümeleme (başlık benzerliği)
