@@ -114,6 +114,15 @@ class Store:
              .order("importance", desc=True).limit(limit).execute())
         return r.data
 
+    def queued_server(self, limit: int = 200) -> list[dict]:
+        """Kuyruktaki sunucu kökenli kayıtlar (Chrome oturumu özetleri tam metinden elle yazıldı; dokunulmaz)."""
+        if self.client is None:
+            return []
+        chrome = {r["id"] for r in self.client.table("clusters").select("id").eq("origin", "chrome").execute().data}
+        r = (self.client.table("articles").select("*").eq("status", "queued")
+             .order("importance", desc=True).limit(limit + len(chrome)).execute())
+        return [x for x in r.data if x.get("cluster_id") not in chrome][:limit]
+
     def due_sources(self) -> list[dict]:
         """Çekirdek kaynaklardan tarama aralığı dolmuş olanlar (think tank haftalık, diğerleri saatlik)."""
         rows = self.active_sources()

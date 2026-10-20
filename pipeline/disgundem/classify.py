@@ -10,13 +10,16 @@ import logging
 import re
 from dataclasses import dataclass, field
 
+from . import glossary
 from .config import PROMPTS, Settings
 from .fetch import Item
 from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countries, clean_ids
 from .terms import Matcher
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "classify_v1"
+PROMPT_VERSION = "classify_v2"   # v2: makale metni, sözlük, yayın kılavuzu kuralları, uyarılar
+AUDIT_VERSION = "denetim_v1"
+MODEL_WARNINGS = {"sozlukte_yok", "tek_kaynak", "dusuk_guven"}
 TRIAGE_VERSION = "triage_v3"  # v2: eko işareti; v3: birincil ülke ilk sırada, ikili gerilim satırı
 
 
@@ -32,19 +35,26 @@ class Classification:
     local_view_note: str | None = None
     confidence: float = 0.0
     publishable: bool = False
+    warnings: list[str] = field(default_factory=list)
+    audit: dict | None = None
     raw: dict = field(default_factory=dict)
     model: str = "terms"
     prompt_version: str = PROMPT_VERSION
 
 
+def _with_glossary(name: str) -> str:
+    return (PROMPTS / f"{name}.md").read_text(encoding="utf-8").replace("{SOZLUK}", glossary.block() or "(boş)")
+
+
 def _system_prompt() -> str:
-    return (PROMPTS / f"{PROMPT_VERSION}.md").read_text(encoding="utf-8")
+    return _with_glossary(PROMPT_VERSION)
 
 
-def _user_prompt(item: Item, src: Source) -> str:
+def _user_prompt(item: Item, src: Source, text: str | None = None) -> str:
     return json.dumps({
         "baslik": item.title,
         "lead": item.excerpt or "",
+        "metin": text or "",
         "kaynak": src.name,
         "kaynak_ulke": src.country_id,
         "kaynak_kapsam": src.tier,
@@ -70,27 +80,33 @@ class Classifier:
                 import anthropic
                 self._client = anthropic.Anthropic(api_key=s.anthropic_key)
                 self.model = s.llm_model or "claude-haiku-5-5"
+                self.summary_model = s.summary_model or "claude-sonnet-5-5"
                 return
             if self.provider == "openai" and s.openai_key:
                 import openai
                 self._client = openai.OpenAI(api_key=s.openai_key)
                 self.model = s.llm_model or "gpt-5-mini"
+                self.summary_model = s.summary_model or self.model
                 return
         except ImportError as e:  # paket kurulu değilse hat durmaz; terim filtresine düşer
             log.error("LLM paketi yok (%s); `pip install -e './pipeline[llm]'` gerekli. Terim filtresi kullanılıyor.", e)
         self.provider = "none"
         self.model = "terms"
+        self.summary_model = "terms"
 
-    def _call(self, system: str, user: str) -> str:
+    def _call(self, system: str, user: str, model: str | None = None, cache: bool = False) -> str:
+        model = model or self.model
         if self.provider == "anthropic":
             # Eleme/sınıflandırma kısa, yapılandırılmış JSON: düşünme kapalı (bütçeyi yiyip yanıtı kesiyordu),
-            # 40 başlıklık parti için yeterli çıktı payı.
-            r = self._client.messages.create(model=self.model, max_tokens=8000, system=system,
+            # 40 başlıklık parti için yeterli çıktı payı. Özet/denetimde sistem promptu (kurallar + sözlük) her
+            # çağrıda aynı: önbelleğe alınır.
+            sys_arg = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}] if cache else system
+            r = self._client.messages.create(model=model, max_tokens=8000, system=sys_arg,
                                              thinking={"type": "disabled"},
                                              messages=[{"role": "user", "content": user}])
             # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
             return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
-        r = self._client.chat.completions.create(model=self.model, messages=[
+        r = self._client.chat.completions.create(model=model, messages=[
             {"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"})
         return r.choices[0].message.content
@@ -130,18 +146,53 @@ class Classifier:
                             "model": self.model})
         return out
 
-    def classify(self, item: Item, src: Source) -> Classification:
+    def audit(self, item: Item, text: str | None, summary: str) -> dict:
+        """Özeti kaynağa karşı denetler: {"gecti", "sorunlar", "duzeltilmis_ozet"}. Hata olursa gecti=None."""
+        user = json.dumps({"kaynak": {"baslik": item.title, "lead": item.excerpt or "", "metin": text or ""},
+                           "ozet": summary}, ensure_ascii=False)
+        try:
+            raw = _parse(self._call(_with_glossary(AUDIT_VERSION), user, model=self.summary_model, cache=True))
+        except Exception as e:
+            log.warning("%s denetim hatası: %s", item.url, e)
+            return {"gecti": None, "sorunlar": [], "duzeltilmis_ozet": None, "hata": str(e)[:200]}
+        sorunlar = [x for x in raw.get("sorunlar") or [] if isinstance(x, dict)]
+        fixed = raw.get("duzeltilmis_ozet")
+        return {"gecti": bool(raw.get("gecti")) and not sorunlar, "sorunlar": sorunlar,
+                "duzeltilmis_ozet": fixed if isinstance(fixed, str) and fixed.strip() else None}
+
+    def classify(self, item: Item, src: Source, text: str | None = None, audit: bool = True) -> Classification:
+        """Kuyruk haberi için sınıflandırma + Türkçe özet. `text` makale metnidir; yalnız bu çağrıda kullanılır."""
         hit = self.matcher.hit(f"{item.title} {item.excerpt or ''}", item.lang)
         if self.provider == "none":
             return Classification(turkey_related=hit, countries=[src.country_id], publishable=hit,
                                   confidence=0.3 if hit else 0.1)
         try:
-            raw = _parse(self._call(_system_prompt(), _user_prompt(item, src)))
+            raw = _parse(self._call(_system_prompt(), _user_prompt(item, src, text),
+                                    model=self.summary_model, cache=True))
         except Exception as e:  # LLM hatası hattı durdurmaz; terim sonucu ile devam
             log.warning("%s sınıflandırma hatası: %s", item.url, e)
             return Classification(turkey_related=hit, countries=[src.country_id], publishable=False,
                                   confidence=0.0, raw={"error": str(e)})
         imp = raw.get("importance")
+        conf = float(raw.get("confidence", 0.5))
+        summary = raw.get("summary_tr")
+        warnings = [w for w in raw.get("uyarilar") or [] if w in MODEL_WARNINGS]
+        if raw.get("sozlukte_olmayanlar") and "sozlukte_yok" not in warnings:
+            warnings.append("sozlukte_yok")
+        if not text:
+            warnings.append("metin_yok")
+        if conf < 0.6 and "dusuk_guven" not in warnings:
+            warnings.append("dusuk_guven")
+        audit_res = None
+        if audit and summary:
+            audit_res = self.audit(item, text, summary)
+            if audit_res["gecti"] is False:
+                warnings.append("denetim")
+                if audit_res["duzeltilmis_ozet"]:
+                    audit_res["ilk_ozet"] = summary
+                    summary = audit_res["duzeltilmis_ozet"]
+        if summary and len(summary) > 600:   # telif ve kılavuz sınırı; kesik özet editörde görünür
+            summary = summary[:597].rsplit(" ", 1)[0] + "…"
         return Classification(
             turkey_related=bool(raw.get("turkey_related", hit)),
             countries=clean_countries(raw.get("countries"), src.country_id),
@@ -149,9 +200,10 @@ class Classifier:
             themes=clean_ids(raw.get("themes"), KNOWN_THEMES),
             dossiers=clean_ids(raw.get("dossiers"), KNOWN_DOSSIERS),
             frame=raw.get("frame") if raw.get("frame") in FRAMES else None,
-            summary_tr=raw.get("summary_tr"),
+            summary_tr=summary,
             local_view_note=raw.get("local_view_note"),
-            confidence=float(raw.get("confidence", 0.5)),
+            confidence=conf,
             publishable=bool(raw.get("publishable", False)),
-            raw=raw, model=self.model,
+            warnings=sorted(set(warnings)), audit=audit_res,
+            raw=raw, model=self.summary_model,
         )

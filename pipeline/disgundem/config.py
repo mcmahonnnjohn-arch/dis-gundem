@@ -27,7 +27,10 @@ class Settings:
     supabase_url: str = ""
     supabase_key: str = ""
     llm_provider: str = "none"
-    llm_model: str = ""
+    llm_model: str = ""            # eleme (triage) modeli; boşsa sağlayıcı varsayılanı (Haiku)
+    summary_model: str = ""        # kuyruk özeti + denetim modeli; boşsa Sonnet
+    audit: bool = True             # özetten sonra kaynağa karşı denetim çağrısı
+    article_text: bool = True      # özetlemede makale metnini oku (saklanmaz; kılavuz §7)
     anthropic_key: str = ""
     openai_key: str = ""
     dry_run: bool = True
@@ -49,6 +52,9 @@ def load() -> Settings:
         supabase_key=env("SUPABASE_SERVICE_KEY", ""),
         llm_provider=env("LLM_PROVIDER", "none").lower(),
         llm_model=env("LLM_MODEL", ""),
+        summary_model=env("SUMMARY_MODEL", ""),
+        audit=env("AUDIT", "1") not in ("0", "false", "False"),
+        article_text=env("ARTICLE_TEXT", "1") not in ("0", "false", "False"),
         anthropic_key=env("ANTHROPIC_API_KEY", ""),
         openai_key=env("OPENAI_API_KEY", ""),
         dry_run=env("DRY_RUN", "1") not in ("0", "false", "False"),

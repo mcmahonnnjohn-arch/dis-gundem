@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "seed | fetch | classify | measure | check-feeds | chrome-import"
+        description: "seed | fetch | classify | classify-yeniden | measure | check-feeds | chrome-import"
         default: "check-feeds"
       file:
         description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
@@ -21,6 +21,10 @@ env:
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
   LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'none' }}
   LLM_MODEL: ${{ vars.LLM_MODEL }}
+  # Kuyruk özeti + denetim (Yayın Kılavuzu v1.0); makale metni okunur, saklanmaz
+  SUMMARY_MODEL: ${{ vars.SUMMARY_MODEL }}
+  AUDIT: ${{ vars.AUDIT || '1' }}
+  ARTICLE_TEXT: ${{ vars.ARTICLE_TEXT || '1' }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   # Önem hunisi eşikleri (Settings → Variables ile değiştirilebilir)
@@ -66,6 +70,9 @@ jobs:
       - name: classify
         if: steps.pick.outputs.job == 'classify'
         run: disgundem classify --limit 500
+      - name: classify-yeniden
+        if: steps.pick.outputs.job == 'classify-yeniden'
+        run: disgundem classify --yeniden --limit 200
       - name: measure
         if: steps.pick.outputs.job == 'measure'
         run: disgundem measure --days 30 --report
