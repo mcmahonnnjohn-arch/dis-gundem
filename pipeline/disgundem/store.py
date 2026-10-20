@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import asdict, is_dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from .config import OUT, Settings
@@ -89,12 +89,73 @@ class Store:
             self.client.table("article_dossiers").upsert(
                 [{"article_id": article_id, "dossier_id": d} for d in dossiers], on_conflict="article_id,dossier_id").execute()
 
-    def unclassified(self, limit: int = 200) -> list[dict]:
+    def unsummarized(self, limit: int = 200) -> list[dict]:
+        """Kuyruktaki ve özeti olmayan kayıtlar; havuzdakiler (önem 3) editör çekince özetlenir."""
         if self.client is None:
             return []
-        r = (self.client.table("articles").select("*").eq("status", "fetched")
-             .order("published_at", desc=True).limit(limit).execute())
+        r = (self.client.table("articles").select("*").eq("status", "queued").is_("summary_tr", "null")
+             .order("importance", desc=True).limit(limit).execute())
         return r.data
+
+    def due_sources(self) -> list[dict]:
+        """Çekirdek kaynaklardan tarama aralığı dolmuş olanlar (think tank haftalık, diğerleri saatlik)."""
+        rows = self.active_sources()
+        if self.client is None:
+            return rows
+        now = datetime.now(timezone.utc)
+        out = []
+        for r in rows:
+            last = r.get("last_fetched_at")
+            iv = r.get("scan_interval") or "1 hour"
+            hours = 24 * 7 if "week" in str(iv) or "7 day" in str(iv) else 1
+            if not last or (now - datetime.fromisoformat(str(last).replace("Z", "+00:00"))).total_seconds() >= hours * 3600 - 300:
+                out.append(r)
+        return out
+
+    def touch_sources(self, ids: list[str]) -> None:
+        if self.client is None or not ids:
+            return
+        self.client.table("sources").update({"last_fetched_at": datetime.now(timezone.utc).isoformat()}).in_("id", ids).execute()
+
+    # ---- huni
+    def seen(self, pairs: list[tuple[str, str, str]]) -> set[tuple[str, str]]:
+        """(source_id, url_hash, title_hash) listesinden daha önce görülenleri döndürür.
+        Başlık hash'i kaynaklar arası da eşleşir (aynı ajans metni birden çok sitede)."""
+        if self.client is None or not pairs:
+            return set()
+        out: set[tuple[str, str]] = set()
+        by_src: dict[str, list[str]] = {}
+        for sid, uh, _ in pairs:
+            by_src.setdefault(sid, []).append(uh)
+        for sid, hashes in by_src.items():
+            for i in range(0, len(hashes), 200):
+                r = (self.client.table("seen_items").select("source_id,url_hash")
+                     .eq("source_id", sid).in_("url_hash", hashes[i:i + 200]).execute())
+                out |= {(x["source_id"], x["url_hash"]) for x in r.data}
+        th = list({t for _, _, t in pairs})
+        seen_titles: set[str] = set()
+        for i in range(0, len(th), 200):
+            r = self.client.table("seen_items").select("title_hash").in_("title_hash", th[i:i + 200]).execute()
+            seen_titles |= {x["title_hash"] for x in r.data}
+        out |= {(sid, uh) for sid, uh, t in pairs if t in seen_titles}
+        return out
+
+    def mark_seen(self, rows: list[dict]) -> None:
+        self._upsert("seen_items", rows, "source_id,url_hash")
+
+    def queue_today(self) -> tuple[dict[str, int], int]:
+        if self.client is None:
+            return {}, 0
+        r = self.client.table("queue_today").select("*").execute()
+        per = {x["country_id"]: x["n"] for x in r.data}
+        return per, sum(per.values())
+
+    def insert_cluster(self, row: dict) -> str:
+        if self.client is None:
+            self._dump("clusters", [row])
+            return row["id"]
+        self.client.table("clusters").insert(row).execute()
+        return row["id"]
 
     def log_run(self, row: dict) -> None:
         self._upsert("fetch_runs", [row], "id")

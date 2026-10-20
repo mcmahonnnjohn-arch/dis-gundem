@@ -24,9 +24,18 @@ Her bölge için yerel think tank'ler ve Türk think tank'leri (ORSAM, SETA, EDA
 ## Bölgeler (site navigasyonu)
 Levant & Irak · Doğu Akdeniz · Körfez & İran · Kafkasya · Karadeniz & Rusya · Avrupa · Kuzey Amerika · Asya · Afrika. **Orta Asya ve Balkanlar bu sürümde yok**, ikinci fazda eklenir (`HEDEF.md`'deki ülke listesinde yer alırlar).
 
-## İç gündem "önem" ölçütü (yalnızca A kapsamı)
-5 = rejim/iktidar değişimi, savaş-barış kararı, büyük saldırı · 4 = seçim sonucu, hükümet krizi, büyük ekonomik şok, Türkiye'yi doğrudan ilgilendiren karar · 3 = kabine değişikliği, önemli yargı kararı, enerji/altyapı anlaşması · 2 = rutin siyaset · 1 = magazin/yerel.
-**Eşik: ≥3 yayınlanır, ≥4 ana sayfaya çıkar.** LLM puanlaması editör onay kuyruğundan önce çalışır.
+## Önem ölçeği ve huni (20 Ekim 2026'dan itibaren tüm başlıklara uygulanır)
+Önem artık yalnız A iç gündemine değil, her başlığa tek ölçekle verilir (`pipeline/prompts/triage_v1.md`):
+
+| Puan | A kapsamı iç gündem | Türkiye ile ilgili (tüm kapsamlar) |
+|---|---|---|
+| 5 | Savaş/ateşkes/barış kararı, rejim veya iktidar değişikliği, büyük saldırı | Türkiye'yi doğrudan hedef alan kriz |
+| 4 | Seçim sonucu, hükümet krizi, büyük ekonomik şok | Somut karar, anlaşma, üst düzey ziyaret, askeri hamle, büyük ihale |
+| 3 | Kabine değişikliği, önemli yargı kararı, enerji/altyapı anlaşması | Kayda değer yorum veya analiz |
+| 2 | Rutin siyaset, açıklama tekrarı | Türkiye'nin geçerken anıldığı haber |
+| 1 | Magazin, spor, kültür, yerel | Türkiye adı tesadüfi |
+
+**Huni:** önem < 3 hiç saklanmaz (yalnız tekrar kontrolü için hash'i tutulur) · 3 saklanır ama kuyruğa girmez ("havuz": ülke sayfası ve analiz hammaddesi) · ≥ 4 editör kuyruğuna girer · aynı olayı anlatan başlıklar tek küme olarak bir kez görünür · ülke başına günde 4, toplam günde 30 küme tavanı; önem 5 tavanı deler. B/R/T kaynaklarında Türkiye terimi geçmeyen başlık LLM'e hiç gönderilmez. Eşikler `IMPORTANCE_*` / `QUEUE_*` değişkenleriyle ayarlanır.
 
 ## Tema matrisi
 | Tema | Kapsam | Ağır olduğu ülkeler |
