@@ -65,17 +65,21 @@ class Classifier:
         self.matcher = matcher or Matcher()
         self.provider = s.llm_provider
         self._client = None
-        if self.provider == "anthropic" and s.anthropic_key:
-            import anthropic
-            self._client = anthropic.Anthropic(api_key=s.anthropic_key)
-            self.model = s.llm_model or "claude-haiku-5-5"
-        elif self.provider == "openai" and s.openai_key:
-            import openai
-            self._client = openai.OpenAI(api_key=s.openai_key)
-            self.model = s.llm_model or "gpt-5-mini"
-        else:
-            self.provider = "none"
-            self.model = "terms"
+        try:
+            if self.provider == "anthropic" and s.anthropic_key:
+                import anthropic
+                self._client = anthropic.Anthropic(api_key=s.anthropic_key)
+                self.model = s.llm_model or "claude-haiku-5-5"
+                return
+            if self.provider == "openai" and s.openai_key:
+                import openai
+                self._client = openai.OpenAI(api_key=s.openai_key)
+                self.model = s.llm_model or "gpt-5-mini"
+                return
+        except ImportError as e:  # paket kurulu değilse hat durmaz; terim filtresine düşer
+            log.error("LLM paketi yok (%s); `pip install -e './pipeline[llm]'` gerekli. Terim filtresi kullanılıyor.", e)
+        self.provider = "none"
+        self.model = "terms"
 
     def _call(self, system: str, user: str) -> str:
         if self.provider == "anthropic":

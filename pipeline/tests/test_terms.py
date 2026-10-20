@@ -21,3 +21,17 @@ def test_gnews_editions():
     m = Matcher()
     urls = m.gnews_query("ar")
     assert any("gl=SA" in u for u in urls) and any("gl=EG" in u for u in urls)
+
+
+def test_classifier_falls_back_when_llm_package_missing(monkeypatch):
+    import builtins
+    from disgundem.classify import Classifier
+    from disgundem.config import Settings
+    real = builtins.__import__
+    def fake(name, *a, **k):
+        if name == "anthropic":
+            raise ImportError("anthropic yok")
+        return real(name, *a, **k)
+    monkeypatch.setattr(builtins, "__import__", fake)
+    c = Classifier(Settings(llm_provider="anthropic", anthropic_key="x"))
+    assert c.provider == "none" and c.model == "terms"
