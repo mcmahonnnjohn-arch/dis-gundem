@@ -229,3 +229,17 @@ def test_relevance_inflected_languages():
                      "Η Βουλή των Αντιπροσώπων της Λιβύης ενέκρινε ομόφωνα το τουρκολιβυκού μνημονίου") > 0.6
     assert relevance("Украинские дроны атаковали Тамбовскую область",
                      "Беспилотники ВСУ атаковали Тамбовскую область, украинские дроны") > 0.6
+
+
+def test_amp_fallback_when_body_is_client_rendered():
+    from disgundem.fetch import article as A
+    A._robots.clear()
+    body = "Erdogan submitted the Makkah defense agreement to parliament for ratification today. " * 8
+    def h(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if req.url.path == "/n/1":
+            return httpx.Response(200, text='<html><head><link rel="amphtml" href="/amp/n/1"></head><body><div id=app></div></body></html>')
+        return httpx.Response(200, text=f"<html><body><article><p>{body}</p></article></body></html>")
+    text, st = fetch_text(_client(h), "https://ex.com/n/1", "Bot", "Erdogan Submits Makkah Defense Agreement")
+    assert st == "ok" and text.startswith("Erdogan")

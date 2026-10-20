@@ -18,7 +18,7 @@ from .terms import Matcher
 
 log = logging.getLogger(__name__)
 PROMPT_VERSION = "classify_v5"   # v2: metin, sözlük, kılavuz; v3: 3 cümle/600 kr; v4: süreç örnekleri, "Türkiye"; v5: çok haberli sayfada yalnız başlığın konusu
-AUDIT_VERSION = "denetim_v3"     # v2: yalnız yanıltıcı hatalar + birebir ifade; v3: "Türkiye" yanlış alarmı, kendini iptal eden maddeler
+AUDIT_VERSION = "denetim_v4"     # v2: yalnız yanıltıcı hatalar + birebir ifade; v3: "Türkiye" yanlış alarmı, kendini iptal eden maddeler; v4: kısaltma açıklamaları desteksiz sayılmaz
 AUDIT_TYPES = {"desteksiz", "ad", "unvan", "sayi", "atif", "uslup", "adlandirma"}
 # Denetçinin "hata değil" diye kapattığı maddeler (v2 canlı çalışmasında 38 maddenin 5'i) sayılmaz.
 SELF_CANCEL = re.compile(r"sorun yok|hata değil|hata değildir|bu bir hata değil|doğrudur\.?$|kabul edilebilir", re.I)

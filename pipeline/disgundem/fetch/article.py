@@ -141,6 +141,17 @@ def fetch_text(client: httpx.Client, url: str, ua: str, title: str = "") -> tupl
             return None, f"http-{r.status_code}"
         text = extract(r.text, title)
         if not text:
+            # Sayfa gövdeyi istemci tarafında yüklüyorsa yayıncının AMP sürümü çoğu zaman düz metin taşır
+            amp = HTMLParser(r.text).css_first('link[rel="amphtml"]')
+            href = amp.attributes.get("href") if amp else None
+            if href:
+                from urllib.parse import urljoin
+                href = urljoin(str(r.url), href)
+                if _allowed(client, href, ua):
+                    ra = client.get(href, headers={"Accept": "text/html"})
+                    if ra.status_code < 400:
+                        text = extract(ra.text, title)
+        if not text:
             return None, "bos"
         if title and relevance(title, text) < MIN_RELEVANCE:
             return None, "uyumsuz"

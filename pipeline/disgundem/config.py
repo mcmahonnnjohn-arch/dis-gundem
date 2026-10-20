@@ -31,6 +31,7 @@ class Settings:
     summary_model: str = ""        # kuyruk özeti + denetim modeli; boşsa Sonnet
     audit: bool = True             # özetten sonra kaynağa karşı denetim çağrısı
     article_text: bool = True      # özetlemede makale metnini oku (saklanmaz; kılavuz §7)
+    drop_no_text: bool = True      # metni hiç okunamamış kuyruk kümesi havuza düşer (21 Ekim editör kararı)
     anthropic_key: str = ""
     openai_key: str = ""
     dry_run: bool = True
@@ -55,6 +56,7 @@ def load() -> Settings:
         summary_model=env("SUMMARY_MODEL", ""),
         audit=env("AUDIT", "1") not in ("0", "false", "False"),
         article_text=env("ARTICLE_TEXT", "1") not in ("0", "false", "False"),
+        drop_no_text=env("DROP_NO_TEXT", "1") not in ("0", "false", "False"),
         anthropic_key=env("ANTHROPIC_API_KEY", ""),
         openai_key=env("OPENAI_API_KEY", ""),
         dry_run=env("DRY_RUN", "1") not in ("0", "false", "False"),
