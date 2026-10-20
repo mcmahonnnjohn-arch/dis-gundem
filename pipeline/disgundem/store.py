@@ -40,6 +40,11 @@ class Store:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False, default=_json) + "\n")
 
+    @staticmethod
+    def _clean(rows: list[dict]) -> list[dict]:
+        """datetime/date gibi alanları Supabase'e gitmeden JSON'a uygun hale getirir (DRY_RUN dökümüyle aynı kural)."""
+        return json.loads(json.dumps(rows, ensure_ascii=False, default=_json))
+
     def _upsert(self, table: str, rows: list[dict], on_conflict: str) -> None:
         if not rows:
             return
@@ -47,7 +52,7 @@ class Store:
             self._dump(table, rows)
             return
         for i in range(0, len(rows), 500):
-            self.client.table(table).upsert(rows[i:i + 500], on_conflict=on_conflict).execute()
+            self.client.table(table).upsert(self._clean(rows[i:i + 500]), on_conflict=on_conflict).execute()
 
     # ---- sözlükler ve kaynaklar
     def upsert_dictionaries(self, d: dict[str, list[dict]]) -> None:
@@ -161,7 +166,7 @@ class Store:
         if self.client is None:
             self._dump("clusters", [row])
             return row["id"]
-        self.client.table("clusters").insert(row).execute()
+        self.client.table("clusters").insert(self._clean([row])[0]).execute()
         return row["id"]
 
     def log_run(self, row: dict) -> None:
