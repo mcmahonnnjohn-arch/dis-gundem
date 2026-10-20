@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import asdict, is_dataclass
-from datetime import timedelta, date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from .config import OUT, Settings
@@ -122,6 +122,52 @@ class Store:
         r = (self.client.table("articles").select("*").eq("status", "queued")
              .order("importance", desc=True).limit(limit + len(chrome)).execute())
         return [x for x in r.data if x.get("cluster_id") not in chrome][:limit]
+
+    # --- olay birleştirme (olay.py) ---
+    def recent_clusters(self, hours: int = 48) -> tuple[list[dict], list[dict]]:
+        """Son `hours` saatte açılmış kuyruk/havuz kümeleri ve üye makaleleri."""
+        if self.client is None:
+            return [], []
+        since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+        cl = (self.client.table("clusters").select("id,status,origin,importance,first_seen,primary_country,countries,"
+                                                  "article_count,title_tr,summary_tr")
+              .in_("status", ["queued", "pool"]).gte("created_at", since).execute().data)
+        ids = [c["id"] for c in cl]
+        arts: list[dict] = []
+        for i in range(0, len(ids), 100):
+            arts += (self.client.table("articles").select("id,cluster_id,source_id,title,lang,status,summary_tr,"
+                                                         "local_view_note,classification,uyarilar,published_at")
+                     .in_("cluster_id", ids[i:i + 100]).execute().data)
+        return cl, arts
+
+    def merge_clusters(self, target: dict, others: list[dict], members: list[dict]) -> None:
+        """`others` kümelerinin makalelerini `target`a taşır; diğerleri 'rejected' + merged_into olur."""
+        if self.client is None:
+            self._dump("merges", [{"target": target["id"], "others": [o["id"] for o in others]}])
+            return
+        oids = [o["id"] for o in others]
+        upd = {"cluster_id": target["id"]}
+        if target["status"] == "queued":
+            upd["status"] = "queued"   # kuyruktaki olaya katılan havuz haberi de özetlensin
+        self.client.table("articles").update(upd).in_("cluster_id", oids).execute()
+        self.client.table("clusters").update({"status": "rejected", "merged_into": target["id"]}).in_("id", oids).execute()
+        allc = [target, *others]
+        self.client.table("clusters").update({
+            "importance": max((c.get("importance") or 0) for c in allc) or None,
+            "article_count": len(members),
+            "countries": sorted({x for c in allc for x in (c.get("countries") or [])}),
+        }).eq("id", target["id"]).execute()
+
+    def update_cluster(self, cid: str, fields: dict) -> None:
+        if self.client is None:
+            self._dump("cluster_updates", [{"id": cid, **fields}])
+            return
+        self.client.table("clusters").update(self._clean([fields])[0]).eq("id", cid).execute()
+
+    def set_articles_status(self, ids: list[str], status: str) -> None:
+        if self.client is None or not ids:
+            return
+        self.client.table("articles").update({"status": status}).in_("id", ids).execute()
 
     def insert_eval_run(self, row: dict) -> None:
         """Test seti ölçüm sonucu (özetler ve puanlar; makale metni yok)."""

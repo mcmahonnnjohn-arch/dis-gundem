@@ -236,7 +236,7 @@ def cmd_classify(s, args):
                 continue
             item = Item(source_id=a["source_id"], url=a["url"], title=a["title"], lang=a.get("lang"),
                         excerpt=a.get("excerpt"))
-            text, text_status = (fetch_text(client, a["url"], s.user_agent) if client else (None, "kapali"))
+            text, text_status = (fetch_text(client, a["url"], s.user_agent, a["title"]) if client else (None, "kapali"))
             stats["metin_ok" if text else "metin_yok"] += 1
             c = clf.classify(item, src, text=text, audit=s.audit)
             del text   # metin bu noktadan sonra hiçbir yere gitmez
@@ -268,6 +268,74 @@ def cmd_classify(s, args):
           f"denetimde sorun {stats['denetim']} (düzeltilen {stats['duzeltildi']}) · LLM hatası {stats['hata']}")
     if rows and stats["hata"] == len(rows):
         sys.exit("classify: tüm LLM çağrıları hata verdi")
+
+
+def cmd_birlestir(s, args):
+    """Aynı olayın kümelerini birleştirir (olay.py). fetch/chrome-import'tan sonra, classify'dan önce çalışır."""
+    from . import olay
+    store = Store(s)
+    clf = Classifier(s)
+    clusters, arts = store.recent_clusters(hours=args.saat)
+    by_c: dict[str, list[dict]] = {}
+    for a in arts:
+        by_c.setdefault(a["cluster_id"], []).append(a)
+    items = [{"k": c["id"], "t": [a["title"][:200] for a in by_c.get(c["id"], [])],
+              "u": c.get("primary_country"), "z": str(c.get("first_seen") or "")[:10]}
+             for c in clusters if by_c.get(c["id"])]
+    groups = olay.group_items(clf, items)
+    cmap = {c["id"]: c for c in clusters}
+    merged = 0
+    for g in groups:
+        cs = [cmap[x] for x in g]
+        target = olay.pick_target(cs)
+        others = [c for c in cs if c["id"] != target["id"]]
+        members = [a for c in cs for a in by_c.get(c["id"], [])]
+        store.merge_clusters(target, others, members)
+        merged += len(others)
+        print(f"  olay: {len(members)} haber → {target['id'][:8]} ({target['status']}) · "
+              + " | ".join(a["title"][:50] for a in members[:4]))
+    print(f"birlestir: {len(items)} küme, {len(groups)} olay grubu, {merged} küme birleşti")
+
+
+def cmd_olay(s, args):
+    """Çok haberli kümelere olay özeti + bakış farkı yazar; metni hiç okunamamış kuyruk kümelerini havuza düşürür."""
+    from . import olay
+    store = Store(s)
+    clf = Classifier(s)
+    clusters, arts = store.recent_clusters(hours=args.saat)
+    by_c: dict[str, list[dict]] = {}
+    for a in arts:
+        by_c.setdefault(a["cluster_id"], []).append(a)
+    srcs = {x.id: x for x in load_sources()}
+    yazildi = dusen = 0
+    for c in clusters:
+        members = by_c.get(c["id"], [])
+        if not members:
+            continue
+        # Metin politikası: değerlendirilmiş (classify_v2+) sunucu haberlerinin hiçbiri okunamadıysa kuyruktan çık
+        judged = [a for a in members if "metin" in (a.get("classification") or {})]
+        readable = [a for a in members if (a.get("classification") or {}).get("metin") == "ok"
+                    or (a.get("classification") or {}).get("prompt", "").startswith("chrome")]
+        if (s.drop_no_text and c["status"] == "queued" and c.get("origin") != "chrome"
+                and judged and len(judged) == len(members) and not readable):
+            store.update_cluster(c["id"], {"status": "pool"})
+            store.set_articles_status([a["id"] for a in members], "pool")
+            dusen += 1
+            print(f"  havuza: {members[0]['title'][:70]} (metin okunamadı)")
+            continue
+        done = [a for a in members if a.get("summary_tr")]
+        if len(done) < 2 or (c.get("summary_tr") and not args.yeniden):
+            continue
+        payload = [{"kaynak": getattr(srcs.get(a["source_id"]), "name", a["source_id"]),
+                    "ulke": getattr(srcs.get(a["source_id"]), "country_id", ""), "dil": a.get("lang"),
+                    "baslik": a["title"][:200], "ozet": a["summary_tr"], "bakis": a.get("local_view_note")}
+                   for a in done]
+        res = olay.summarize_event(clf, payload)
+        if res and res["ozet"]:
+            store.update_cluster(c["id"], {"title_tr": res["baslik"], "summary_tr": res["ozet"],
+                                           "bakis_farki": res["bakis_farki"], "article_count": len(members)})
+            yazildi += 1
+    print(f"olay: {yazildi} olay özeti yazıldı, {dusen} metinsiz küme havuza düştü")
 
 
 def cmd_eval(s, args):
@@ -372,6 +440,11 @@ def main(argv=None):
     c = sub.add_parser("classify", help="toplananları sınıflandır, özetle, kuyruğa al")
     c.add_argument("--limit", type=int, default=200)
     c.add_argument("--yeniden", action="store_true", help="sunucu kökenli kuyruk haberlerini baştan özetle")
+    b = sub.add_parser("birlestir", help="aynı olayın kümelerini birleştir (diller arası)")
+    b.add_argument("--saat", type=int, default=48)
+    o = sub.add_parser("olay", help="çok haberli kümelere olay özeti; metinsiz kuyruk kümesini havuza düşür")
+    o.add_argument("--saat", type=int, default=48)
+    o.add_argument("--yeniden", action="store_true", help="olay özeti olan kümeleri de yeniden yaz")
     e = sub.add_parser("eval", help="özet test setini çalıştır ve puanla")
     e.add_argument("--no", nargs="*", help="yalnız bu test numaraları")
     e.add_argument("--onayli", action="store_true", help="yalnız editör onaylı satırlar")
@@ -385,6 +458,7 @@ def main(argv=None):
     args = p.parse_args(argv)
     s = config.load()
     {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
+     "birlestir": cmd_birlestir, "olay": cmd_olay,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from urllib import robotparser
 from urllib.parse import urlsplit
 
@@ -48,7 +49,30 @@ def _allowed(client: httpx.Client, url: str, ua: str) -> bool:
     return True if rp is None else rp.can_fetch(ua, url)
 
 
-def _from_jsonld(tree: HTMLParser) -> str | None:
+_WORD = re.compile(r"[^\W\d_]{4,}", re.U)
+
+
+def _title_terms(title: str) -> list[str]:
+    """Başlıktaki ayırt edici kelimeler (yayın adı eki atılır: 'Başlık - Reuters')."""
+    t = re.split(r"\s[-–|]\s(?=[^-–|]{2,40}$)", title or "")[0]
+    # Çekimli dillerde (Yunanca, Rusça, Türkçe) ek değişir: ilk 5 harf kök yerine geçer
+    return list(dict.fromkeys(w.lower()[:5] for w in _WORD.findall(t)))
+
+
+def relevance(title: str, text: str) -> float:
+    """Başlık kelimelerinin metnin ilk bölümünde geçme oranı (alt dize; Arapça/Farsça ön ekleri yutar)."""
+    terms = _title_terms(title)
+    if not terms or not text:
+        return 1.0 if not terms else 0.0
+    low = text[:6000].lower()
+    return sum(w in low for w in terms) / len(terms)
+
+
+MIN_RELEVANCE = 0.34   # altında: metin başka bir habere ait (ör. 'ilgili haber' gövdesi) → kullanılmaz
+
+
+def _from_jsonld(tree: HTMLParser, title: str = "") -> str | None:
+    bodies = []
     for node in tree.css('script[type="application/ld+json"]'):
         try:
             data = json.loads(node.text() or "")
@@ -60,11 +84,14 @@ def _from_jsonld(tree: HTMLParser) -> str | None:
             if isinstance(d, dict):
                 body = d.get("articleBody")
                 if isinstance(body, str) and len(body) >= MIN_CHARS:
-                    return body
+                    bodies.append(body)
                 stack.extend(v for v in d.values() if isinstance(v, (dict, list)))
             elif isinstance(d, list):
                 stack.extend(d)
-    return None
+    if not bodies:
+        return None
+    # Sayfada birden çok makale gövdesi olabilir (ilgili haberler): başlığa en uygun olan
+    return max(bodies, key=lambda b: relevance(title, b)) if title else bodies[0]
 
 
 def _from_paragraphs(tree: HTMLParser) -> str | None:
@@ -85,9 +112,9 @@ def _from_paragraphs(tree: HTMLParser) -> str | None:
     return "\n".join(t for t in paras if len(t) >= 40) or None
 
 
-def extract(html: str) -> str | None:
+def extract(html: str, title: str = "") -> str | None:
     tree = HTMLParser(html)
-    text = _from_jsonld(tree) or _from_paragraphs(tree)
+    text = _from_jsonld(tree, title) or _from_paragraphs(tree)
     if not text:
         return None
     text = text.strip()
@@ -97,8 +124,11 @@ def extract(html: str) -> str | None:
     return text[:MAX_CHARS]
 
 
-def fetch_text(client: httpx.Client, url: str, ua: str) -> tuple[str | None, str]:
-    """(metin, durum) döndürür. durum: ok | atlandi | robots | http-<kod> | hata | bos."""
+def fetch_text(client: httpx.Client, url: str, ua: str, title: str = "") -> tuple[str | None, str]:
+    """(metin, durum) döndürür. durum: ok | atlandi | robots | http-<kod> | hata | bos | uyumsuz.
+
+    `title` verilirse metnin başlıktaki haberle uyumu denetlenir; uyumsuz metin özetlemeye gitmez
+    (taban ölçümünde bir sayfadan başka haberin gövdesi çekilmiş, hat yanlış haberi özetlemişti)."""
     if any(h in urlsplit(url).netloc for h in SKIP_HOSTS):
         return None, "atlandi"
     try:
@@ -109,8 +139,23 @@ def fetch_text(client: httpx.Client, url: str, ua: str) -> tuple[str | None, str
             r = client.get(url, headers={**BROWSER_HEADERS, "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8"})
         if r.status_code >= 400:
             return None, f"http-{r.status_code}"
-        text = extract(r.text)
-        return (text, "ok") if text else (None, "bos")
+        text = extract(r.text, title)
+        if not text:
+            # Sayfa gövdeyi istemci tarafında yüklüyorsa yayıncının AMP sürümü çoğu zaman düz metin taşır
+            amp = HTMLParser(r.text).css_first('link[rel="amphtml"]')
+            href = amp.attributes.get("href") if amp else None
+            if href:
+                from urllib.parse import urljoin
+                href = urljoin(str(r.url), href)
+                if _allowed(client, href, ua):
+                    ra = client.get(href, headers={"Accept": "text/html"})
+                    if ra.status_code < 400:
+                        text = extract(ra.text, title)
+        if not text:
+            return None, "bos"
+        if title and relevance(title, text) < MIN_RELEVANCE:
+            return None, "uyumsuz"
+        return text, "ok"
     except httpx.HTTPError as e:
         log.info("metin alınamadı %s: %s", url, type(e).__name__)
         return None, "hata"

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "seed | fetch | classify | classify-yeniden | eval | measure | check-feeds | chrome-import"
+        description: "seed | fetch | classify | classify-yeniden | olay | eval | measure | check-feeds | chrome-import"
         default: "check-feeds"
       file:
         description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
@@ -25,6 +25,7 @@ env:
   SUMMARY_MODEL: ${{ vars.SUMMARY_MODEL }}
   AUDIT: ${{ vars.AUDIT || '1' }}
   ARTICLE_TEXT: ${{ vars.ARTICLE_TEXT || '1' }}
+  DROP_NO_TEXT: ${{ vars.DROP_NO_TEXT || '1' }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   # Önem hunisi eşikleri (Settings → Variables ile değiştirilebilir)
@@ -66,10 +67,18 @@ jobs:
           SOURCES: ${{ inputs.sources }}
         run: |
           if [ -n "$SOURCES" ]; then disgundem fetch --source $SOURCES; else disgundem fetch; fi
+          disgundem birlestir
           disgundem classify --limit 300
+          disgundem olay
       - name: classify
         if: steps.pick.outputs.job == 'classify'
         run: disgundem classify --limit 500
+      - name: olay (birleştir + özet + olay)
+        if: steps.pick.outputs.job == 'olay'
+        run: |
+          disgundem birlestir --saat 72
+          disgundem classify --limit 300
+          disgundem olay --saat 72
       - name: classify-yeniden
         if: steps.pick.outputs.job == 'classify-yeniden'
         run: disgundem classify --yeniden --limit 200
@@ -92,6 +101,9 @@ jobs:
           if [ -n "$FILE" ]; then files="$FILE"; else files=$(ls data/premium/*.json 2>/dev/null | sort); fi
           [ -z "$files" ] && { echo "içe alınacak dosya yok"; exit 0; }
           for f in $files; do echo "== $f"; disgundem chrome-import "$f"; done
+          disgundem birlestir
+          disgundem classify --limit 300
+          disgundem olay
       - uses: actions/upload-artifact@v4
         if: always()
         with:

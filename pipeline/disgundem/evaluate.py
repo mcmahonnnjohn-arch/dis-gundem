@@ -108,7 +108,7 @@ def run_case(clf: Classifier, client, s, case: dict, use_judge: bool = True) -> 
                 lang=case.get("lang"), excerpt=case.get("lead") or None)
     src = _sources().get(case.get("source_id")) or SimpleNamespace(
         name=case.get("source_id", ""), country_id="", tier="A", langs=[case.get("lang") or ""], lean_note="")
-    text, st = fetch_text(client, case["url"], s.user_agent) if (client and case.get("url", "").startswith("http")) \
+    text, st = fetch_text(client, case["url"], s.user_agent, case["baslik"]) if (client and case.get("url", "").startswith("http")) \
         else (None, "yok")
     c = clf.classify(item, src, text=text, audit=s.audit)
     summary = c.summary_tr

@@ -26,13 +26,15 @@ class Entry:
     ulke: str
     not_: str
     durum: str
+    aciklama: str = ""
 
     def line(self) -> str:
         head = f"{self.tr}" + (f" — {self.unvan_tr}" if self.unvan_tr else "")
         alt = f" [özgün: {self.ozgun}]" if self.ozgun and self.ozgun != self.tr else ""
         flag = " (UNVAN DOĞRULANMADI: kaynakta yoksa unvan yazma)" if self.durum == "belirsiz" else ""
         note = f" · {self.not_}" if self.not_ else ""
-        return f"- {head}{alt}{flag}{note}"
+        desc = f" · AÇIKLAMA (ilk geçişte parantez içinde ver): {self.aciklama}" if self.aciklama else ""
+        return f"- {head}{alt}{flag}{desc}{note}"
 
 
 @lru_cache(maxsize=1)
@@ -40,7 +42,8 @@ def load() -> tuple[Entry, ...]:
     if not PATH.exists():
         return ()
     with PATH.open(encoding="utf-8") as f:
-        return tuple(Entry(r["id"], r["tur"], r["ozgun"], r["tr"], r["unvan_tr"], r["ulke"], r["not"], r["durum"])
+        return tuple(Entry(r["id"], r["tur"], r["ozgun"], r["tr"], r["unvan_tr"], r["ulke"], r["not"], r["durum"],
+                           r.get("kisa_aciklama") or "")
                      for r in csv.DictReader(f) if r.get("durum") != "eski")
 
 
