@@ -44,5 +44,7 @@ def test_anthropic_call_skips_thinking_blocks():
     c = Classifier(Settings())
     c.provider, c.model = "anthropic", "m"
     resp = NS(content=[NS(type="thinking", thinking="..."), NS(type="text", text='{"items": []}')])
-    c._client = NS(messages=NS(create=lambda **k: resp))
+    seen = {}
+    c._client = NS(messages=NS(create=lambda **k: (seen.update(k), resp)[1]))
     assert c._call("s", "u") == '{"items": []}'
+    assert seen["thinking"] == {"type": "disabled"} and seen["max_tokens"] >= 8000

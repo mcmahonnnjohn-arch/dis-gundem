@@ -12,6 +12,9 @@ on:
       file:
         description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
         default: ""
+      sources:
+        description: "fetch için yalnız bu kaynak ID'leri, boşlukla (ör. K001 K019); boşsa sırası gelenler"
+        default: ""
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -53,8 +56,10 @@ jobs:
         run: disgundem seed
       - name: fetch + classify
         if: steps.pick.outputs.job == 'fetch'
+        env:
+          SOURCES: ${{ inputs.sources }}
         run: |
-          disgundem fetch
+          if [ -n "$SOURCES" ]; then disgundem fetch --source $SOURCES; else disgundem fetch; fi
           disgundem classify --limit 300
       - name: classify
         if: steps.pick.outputs.job == 'classify'
