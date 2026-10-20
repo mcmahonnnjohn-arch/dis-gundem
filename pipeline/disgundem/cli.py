@@ -228,7 +228,7 @@ def cmd_classify(s, args):
           f"eleme={clf.model} özet={clf.summary_model} metin={'açık' if s.article_text else 'kapalı'} "
           f"denetim={'açık' if s.audit else 'kapalı'}")
     client = make_client(s) if s.article_text and clf.provider != "none" else None
-    out, stats = [], {"metin_ok": 0, "metin_yok": 0, "denetim": 0, "duzeltildi": 0}
+    out, stats = [], {"metin_ok": 0, "metin_yok": 0, "denetim": 0, "duzeltildi": 0, "hata": 0}
     try:
         for a in rows:
             src = srcs.get(a["source_id"])
@@ -240,6 +240,11 @@ def cmd_classify(s, args):
             stats["metin_ok" if text else "metin_yok"] += 1
             c = clf.classify(item, src, text=text, audit=s.audit)
             del text   # metin bu noktadan sonra hiçbir yere gitmez
+            if "error" in c.raw:   # LLM hatası: mevcut özetin üzerine boş yazılmaz, kayıt sonraki çalışmaya kalır
+                stats["hata"] += 1
+                if stats["hata"] == 1:
+                    print(f"LLM hatası: {c.raw['error'][:300]}")
+                continue
             if c.audit and c.audit.get("gecti") is False:
                 stats["denetim"] += 1
                 stats["duzeltildi"] += bool(c.audit.get("ilk_ozet"))
@@ -258,7 +263,9 @@ def cmd_classify(s, args):
             client.close()
     store.upsert_articles(out)
     print(f"özetlenen: {len(out)} · metin okundu {stats['metin_ok']}, okunamadı {stats['metin_yok']} · "
-          f"denetimde sorun {stats['denetim']} (düzeltilen {stats['duzeltildi']})")
+          f"denetimde sorun {stats['denetim']} (düzeltilen {stats['duzeltildi']}) · LLM hatası {stats['hata']}")
+    if rows and stats["hata"] == len(rows):
+        sys.exit("classify: tüm LLM çağrıları hata verdi")
 
 
 def cmd_measure(s, args):

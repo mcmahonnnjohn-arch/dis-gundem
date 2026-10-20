@@ -135,3 +135,43 @@ def test_cmd_classify_never_persists_article_text(monkeypatch):
     assert rec and "GİZLİ" not in json.dumps(rec, ensure_ascii=False)
     assert rec[0]["classification"]["onceki"]["summary_tr"] == "eski"
     assert rec[0]["classification"]["metin"] == "ok"
+
+
+def test_thinking_fallback_to_between_tools():
+    class Picky(FakeAnthropic):
+        def create(self, **kw):
+            if kw["thinking"] == {"type": "disabled"}:
+                raise RuntimeError('send "thinking": {"type": "between_tools"} instead')
+            return super().create(**kw)
+
+    clf = _clf([])
+    clf._client = Picky([{"items": []}, {"items": []}])
+    clf._call("s", "u", model="sonnet")
+    clf._call("s", "u", model="sonnet")
+    modes = [c["thinking"]["type"] for c in clf._client.calls]
+    assert modes == ["between_tools", "between_tools"]      # ikinci çağrıda doğrudan doğru değer
+
+
+def test_cmd_classify_skips_llm_errors(monkeypatch):
+    rec = []
+
+    class FakeStore:
+        def __init__(self, s): pass
+        def queued_server(self, limit): return [{"id": "a1", "source_id": "K262", "url": "u", "title": "t",
+                                                 "status": "queued", "summary_tr": "eski"}]
+        def set_article_links(self, *a): pass
+        def upsert_articles(self, rows): rec.extend(rows)
+
+    class ErrClf:
+        provider, model, summary_model = "anthropic", "h", "s"
+        def __init__(self, s): pass
+        def classify(self, item, src, text=None, audit=True):
+            return SimpleNamespace(raw={"error": "400"}, audit=None)
+
+    monkeypatch.setattr(cli, "Store", FakeStore)
+    monkeypatch.setattr(cli, "Classifier", ErrClf)
+    monkeypatch.setattr(cli, "load_sources", lambda: [SimpleNamespace(id="K262")])
+    import pytest
+    with pytest.raises(SystemExit):
+        cli.cmd_classify(Settings(article_text=False), SimpleNamespace(limit=10, yeniden=True))
+    assert rec == []                                         # eski özetin üzerine boş yazılmadı
