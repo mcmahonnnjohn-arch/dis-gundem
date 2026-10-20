@@ -58,9 +58,9 @@ Türk basınında oturmuş ama birbirinden farklı tercihler var. Son sütun ge�
 
 - **Arapça:** Türk basını geleneği. `al-` → "el-" (güneş harflerinde ses uyumu: "eş-Şeybani", "es-Sisi"); "Mohammed" → "Muhammed"; "q" → "k"; "kh" → "h"; "dh/th" → "z/s". Kısa adlarda harfi tarif sadeleştirilir: "Ahmed eş-Şara".
 - **Farsça:** "Mesud", "Abbas Arakçi"; "zh" → "j"; "kh" → "h".
-- **İbranice:** İngilizce yaygın biçim Türkçe ses uyumuyla: "Yisrael Katz", "Gideon Saar".
+- **İbranice:** İngilizce yaygın biçim Türkçe ses uyumuyla: "İsrail Katz" (AA), "Gideon Saar".
 - **Rusça/Ukraynaca:** AA biçimi ("Zelenskiy", "Umerov", "Kıslıtsya"); Ukraynalı kişilerde Ukraynaca okunuş esas.
-- **Yunanca:** AA biçimi ("Miçotakis", "Gerapetritis", "Hristodulidis").
+- **Yunanca:** AA biçimi ("Miçotakis", "Yerapetritis", "Hristodulidis").
 - Emin olunmayan çeviriyazı sözlüğe `belirsiz` olarak girer, editör onaylar.
 
 ## 6. Özet biçimi
