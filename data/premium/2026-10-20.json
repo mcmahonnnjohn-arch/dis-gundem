@@ -1,0 +1,47 @@
+[
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/syria-arrests-mihrac-ural-suspect-in-baniyas-massacre/",
+  "title": "Syria Arrests Mihrac Ural, Suspect in Baniyas Massacre", "published_at": "2026-10-15", "lang": "en",
+  "summary_tr": "Suriye Genel İstihbaratı, 2013 Baniyas katliamının baş şüphelisi Mihraç Ural'ı (Ali Kayali) sınırdan kaçmaya çalışırken yakaladı. Antakya doğumlu Ural, Esad rejimi saflarında savaşan 'İskenderun Sancağı Kurtuluş Cephesi' milislerinin lideriydi. Türkiye onu 53 kişinin öldüğü 2013 Reyhanlı bombalı saldırısının planlayıcılarından biri olarak suçluyor; bu nedenle iade ya da yargılama yeri sorusu Ankara–Şam gündemine girecek.",
+  "countries": ["sy", "tr"], "themes": ["guvenlik", "ic-gundem", "diplomasi"], "dossiers": [],
+  "turkey_related": true, "frame": "notr", "importance": 5,
+  "note": "Enab Baladi haberi SANA'ya dayanıyor; Reyhanlı bağlantısını Türk makamlarının suçlaması olarak aktarıyor. İade talebinden söz edilmiyor."},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/israel-intensifies-quneitra-incursions-syria-urges-action/",
+  "title": "Israel Intensifies Quneitra Incursions, Syria Urges Action", "published_at": "2026-10-19", "lang": "en",
+  "summary_tr": "İsrail güçleri 18 Ekim'de Kuneytra kırsalında birden fazla noktaya girdi; ev aramaları, tarım arazilerine ateş ve tepelere konuşlanma bildirildi. Suriye Dışişleri, Kuneytra ve Dera'daki artan baskınları kınayarak uluslararası toplumu İsrail'i uluslararası hukuka uymaya zorlamaya çağırdı. Güney Suriye'deki İsrail varlığı kalıcılaşma eğiliminde.",
+  "countries": ["sy", "il"], "themes": ["guvenlik", "diplomasi"], "dossiers": [],
+  "turkey_related": false, "importance": 4,
+  "note": "Yerel muhabir gözlemi + Suriye Dışişleri açıklaması."},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/cross-border-power-line-can-syria-become-a-transit-hub/",
+  "title": "Cross-Border Power Line: Can Syria Become a Transit Hub?", "published_at": "2026-10-16", "lang": "en",
+  "summary_tr": "Enerji Bakanı Alparslan Bayraktar'ın açıkladığı Türkiye–Suudi Arabistan–Ürdün–Suriye elektrik iletim hattı görüşmeleri, Suriye'ye bölgesel transit koridor rolü ihtimali açıyor. Analize göre en büyük engel, hasarlı Suriye şebekesinin rehabilite edilmeden komşu şebekelerle senkron bağlanamaması.",
+  "countries": ["sy", "tr", "sa"], "themes": ["enerji", "ekonomi"], "dossiers": ["yeniden-insa"],
+  "turkey_related": true, "frame": "notr", "importance": 4,
+  "note": "Türk girişimini fırsat olarak sunuyor, teknik engeli öne çıkarıyor."},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/death-and-prison-sentences-issued-over-syria-coast-violence/",
+  "title": "Death and Prison Sentences Issued Over Syria Coast Violence", "published_at": "2026-10-15", "lang": "en",
+  "summary_tr": "Halep Askeri Ceza Mahkemesi, Mart 2025 sahil şiddetiyle ilgili ikinci duruşmada idamdan 20 yıla kadar hapse uzanan cezalar ve beraatler verdi. Davalar, yeni yönetimin geçiş dönemi adaletini ne ölçüde işleteceğinin ilk somut testlerinden biri.",
+  "countries": ["sy"], "themes": ["ic-gundem"], "dossiers": [],
+  "turkey_related": false, "importance": 4,
+  "note": "Enab Baladi muhabiri duruşmada bulundu."},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/syria-appoints-new-petroleum-chief-and-sovereign-fund-chair/",
+  "title": "Syria Appoints New Petroleum Chief and Sovereign Fund Chair", "published_at": "2026-10-18", "lang": "en",
+  "summary_tr": "Şara, kirli benzin krizi sonrası eleştirilen Suriye Petrol Şirketi yöneticisini değiştirdi ve Suriye Egemenlik Fonu'na yeni yönetim kurulu başkanı atadı. Aynı günlerde Avustralya, fonun genel müdürüne yönelik yaptırım listelemesini yeniledi.",
+  "countries": ["sy"], "themes": ["ic-gundem", "enerji", "ekonomi"], "dossiers": ["yeniden-insa"],
+  "turkey_related": false, "importance": 3},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/al-sharaa-appoints-basel-abdul-hannan-industry-and-internal-trade-minister/",
+  "title": "Al-Sharaa Appoints Basel Abdul Hannan Industry and Internal Trade Minister", "published_at": "2026-10-19", "lang": "en",
+  "summary_tr": "Şara, Mart 2025'te tek çatı altında birleştirilen ekonomi bakanlığını yeniden ikiye böldü: Sanayi, İç Ticaret ve Tüketiciyi Koruma Bakanlığı'na Basel Abdülhannan atandı, Ekonomi ve Dış Ticaret ayrı kaldı. Kabine yapısında ekonomi yönetimini yeniden düzenleyen bir adım.",
+  "countries": ["sy"], "themes": ["ic-gundem", "ekonomi"], "dossiers": [],
+  "turkey_related": false, "importance": 3},
+
+ {"source_id": "K001", "url": "https://english.enabbaladi.net/archives/2026/10/syria-on-fatfs-grey-list-what-is-the-exit-strategy/",
+  "title": "Syria on FATF's Grey List: What Is the Exit Strategy?", "published_at": "2026-10-19", "lang": "en",
+  "summary_tr": "Analiz, Suriye'nin uluslararası finans sistemine dönüşünün yaptırımların kalkmasından çok bankalara duyulan güvene bağlı olduğunu savunuyor. Maliye ve Merkez Bankası, FATF gri listesinden çıkış için ABD Hazinesi ve J.P. Morgan, Citibank gibi bankalarla temaslarını sürdürüyor.",
+  "countries": ["sy"], "themes": ["ekonomi"], "dossiers": ["yeniden-insa"],
+  "turkey_related": false, "importance": 3}
+]
