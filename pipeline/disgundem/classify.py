@@ -17,7 +17,7 @@ from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countri
 from .terms import Matcher
 
 log = logging.getLogger(__name__)
-PROMPT_VERSION = "classify_v4"   # v2: metin, sözlük, kılavuz; v3: 3 cümle/600 kr; v4: süreç cümlesi örnekleri, "Türkiye" kuralı netleşti
+PROMPT_VERSION = "classify_v5"   # v2: metin, sözlük, kılavuz; v3: 3 cümle/600 kr; v4: süreç örnekleri, "Türkiye"; v5: çok haberli sayfada yalnız başlığın konusu
 AUDIT_VERSION = "denetim_v3"     # v2: yalnız yanıltıcı hatalar + birebir ifade; v3: "Türkiye" yanlış alarmı, kendini iptal eden maddeler
 AUDIT_TYPES = {"desteksiz", "ad", "unvan", "sayi", "atif", "uslup", "adlandirma"}
 # Denetçinin "hata değil" diye kapattığı maddeler (v2 canlı çalışmasında 38 maddenin 5'i) sayılmaz.

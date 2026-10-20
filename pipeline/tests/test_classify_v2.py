@@ -151,7 +151,7 @@ def test_cmd_classify_never_persists_article_text(monkeypatch):
     monkeypatch.setattr(cli, "Classifier", FakeClf)
     monkeypatch.setattr(cli, "load_sources", lambda: [SimpleNamespace(id="K262")])
     monkeypatch.setattr(cli, "make_client", lambda s: SimpleNamespace(close=lambda: None))
-    monkeypatch.setattr(cli, "fetch_text", lambda c, u, ua: ("GİZLİ METİN " * 50, "ok"))
+    monkeypatch.setattr(cli, "fetch_text", lambda c, u, ua, t="": ("GİZLİ METİN " * 50, "ok"))
     s = Settings(article_text=True, audit=True)
     cli.cmd_classify(s, SimpleNamespace(limit=10, yeniden=True))
     assert rec and "GİZLİ" not in json.dumps(rec, ensure_ascii=False)
@@ -197,3 +197,35 @@ def test_cmd_classify_skips_llm_errors(monkeypatch):
     with pytest.raises(SystemExit):
         cli.cmd_classify(Settings(article_text=False), SimpleNamespace(limit=10, yeniden=True))
     assert rec == []                                         # eski özetin üzerine boş yazılmadı
+
+
+def test_relevance_guard_rejects_other_story():
+    from disgundem.fetch.article import relevance
+    other = "The GCC Secretary-General said trade with the United Kingdom reached 70 billion dollars. " * 10
+    title = "Erdogan Submits Makkah Joint Defense Agreement to Parliament for Ratification - Asharq Al-Awsat"
+    assert relevance(title, other) < 0.34
+    good = "President Erdogan submitted the Makkah joint defense agreement to parliament for ratification. " * 5
+    assert relevance(title, good) > 0.6
+    # Arapça: ön ekli kelimeler alt dize olarak yakalanır
+    assert relevance("تركيا تحيل اتفاقية مكة للدفاع المشترك", "أحالت تركيا اتفاقية مكة للدفاع المشترك إلى البرلمان") > 0.6
+
+
+def test_jsonld_picks_body_matching_title_and_fetch_marks_mismatch():
+    from disgundem.fetch import article as A
+    other = "Gulf trade with Britain reached seventy billion dollars last year, officials said today. " * 8
+    right = "Erdogan submitted the Makkah defense agreement to parliament for ratification today. " * 8
+    html = ('<script type="application/ld+json">' + json.dumps({"@graph": [{"articleBody": other}, {"articleBody": right}]})
+            + "</script>")
+    assert A.extract(html, "Erdogan Submits Makkah Defense Agreement to Parliament").startswith("Erdogan")
+    A._robots.clear()
+    c = _client(lambda r: httpx.Response(404) if r.url.path == "/robots.txt" else
+                httpx.Response(200, text=f"<html><body><article><p>{other}</p></article></body></html>"))
+    assert fetch_text(c, "https://ex.com/n/1", "Bot", "Erdogan Submits Makkah Defense Agreement")[1] == "uyumsuz"
+
+
+def test_relevance_inflected_languages():
+    from disgundem.fetch.article import relevance
+    assert relevance("Η Βουλή της Λιβύης ενέκρινε το παράνομο τουρκολιβυκό μνημόνιο",
+                     "Η Βουλή των Αντιπροσώπων της Λιβύης ενέκρινε ομόφωνα το τουρκολιβυκού μνημονίου") > 0.6
+    assert relevance("Украинские дроны атаковали Тамбовскую область",
+                     "Беспилотники ВСУ атаковали Тамбовскую область, украинские дроны") > 0.6

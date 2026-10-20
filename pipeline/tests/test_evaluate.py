@@ -55,7 +55,7 @@ def test_cmd_eval_flow_never_stores_text(monkeypatch, tmp_path):
     monkeypatch.setattr(cli, "Classifier", FakeClf)
     monkeypatch.setattr(cli, "Store", FakeStore)
     monkeypatch.setattr(cli, "make_client", lambda s: SimpleNamespace(close=lambda: None))
-    monkeypatch.setattr(ev, "fetch_text", lambda c, u, ua: ("GİZLİ METİN", "ok"))
+    monkeypatch.setattr(ev, "fetch_text", lambda c, u, ua, t="": ("GİZLİ METİN", "ok"))
     monkeypatch.setattr(cli.config, "OUT", tmp_path)
     cli.cmd_eval(Settings(article_text=True), SimpleNamespace(no=None, onayli=False, hakemsiz=False, etiket="t"))
     row = saved[0]

@@ -236,7 +236,7 @@ def cmd_classify(s, args):
                 continue
             item = Item(source_id=a["source_id"], url=a["url"], title=a["title"], lang=a.get("lang"),
                         excerpt=a.get("excerpt"))
-            text, text_status = (fetch_text(client, a["url"], s.user_agent) if client else (None, "kapali"))
+            text, text_status = (fetch_text(client, a["url"], s.user_agent, a["title"]) if client else (None, "kapali"))
             stats["metin_ok" if text else "metin_yok"] += 1
             c = clf.classify(item, src, text=text, audit=s.audit)
             del text   # metin bu noktadan sonra hiçbir yere gitmez
