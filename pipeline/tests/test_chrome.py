@@ -57,3 +57,28 @@ def test_session_file_routes():
     kept, below = route([r for r in rows if r["source_id"] == "K001"], g)
     assert not below
     assert sum(r["status"] == "queued" for r in kept) == 4 and sum(r["status"] == "pool" for r in kept) == 3
+
+
+def test_import_skips_existing(monkeypatch, tmp_path, capsys):
+    """İkinci çalıştırma zaten saklı (source_id, url) kayıtlarını atlar; yeni küme açmaz."""
+    from types import SimpleNamespace
+    from disgundem import cli
+
+    class FakeStore:
+        def __init__(self, s): self.arts, self.clusters = [], []
+        def existing_article_keys(self, ids): return {(a["source_id"], a["url"]) for a in STORE.arts}
+        def queue_today(self): return {}, 0
+        def insert_cluster(self, row): STORE.clusters.append(row)
+        def upsert_articles(self, rows): STORE.arts.extend(rows)
+        def set_article_links(self, *a): pass
+
+    STORE = SimpleNamespace(arts=[], clusters=[])
+    monkeypatch.setattr(cli, "Store", FakeStore)
+    p = tmp_path / "s.json"
+    p.write_text(json.dumps([{"source_id": "K070", "url": "https://azertag.az/x", "title": "t",
+                              "summary_tr": "s", "importance": 4, "countries": ["az", "tr"]}]), encoding="utf-8")
+    from disgundem.fetch.rss import canonical  # noqa: F401  (url kanonikleştirilmiş saklanır)
+    cli.cmd_premium_import(None, SimpleNamespace(file=str(p)))
+    cli.cmd_premium_import(None, SimpleNamespace(file=str(p)))
+    assert len(STORE.arts) == 1 and len(STORE.clusters) == 1
+    assert "1 zaten içeride" in capsys.readouterr().out
