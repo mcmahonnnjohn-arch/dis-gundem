@@ -44,7 +44,8 @@ def test_cmd_eval_flow_never_stores_text(monkeypatch, tmp_path):
             assert text == "GİZLİ METİN"
             return SimpleNamespace(summary_tr="Bakan Güler AFP'ye Irak'ı anlattı.", warnings=[])
         def _call(self, system, user, model=None, cache=False):
-            assert "GİZLİ" not in user
+            if "hakem" in system or "hakemi" in system:
+                assert "GİZLİ METİN" in user          # hakem metni görür (yalnız çağrıda)
             return json.dumps({"dogruluk": 5, "kapsam": 4, "atif": 5, "hatalar": []})
 
     class FakeStore:
