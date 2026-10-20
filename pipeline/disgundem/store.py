@@ -73,6 +73,13 @@ class Store:
         r = self.client.table("articles").select("url").eq("source_id", source_id).in_("url", urls).execute()
         return {x["url"] for x in r.data}
 
+    def existing_article_keys(self, source_ids: list[str]) -> set[tuple[str, str]]:
+        """(source_id, url) çiftleri zaten saklı olanlar — içe almayı tekrar çalıştırmaya karşı güvenli kılar."""
+        if self.client is None or not source_ids:
+            return set()
+        r = self.client.table("articles").select("source_id,url").in_("source_id", sorted(set(source_ids))).execute()
+        return {(x["source_id"], x["url"]) for x in r.data}
+
     def upsert_articles(self, rows: list[dict]) -> None:
         self._upsert("articles", rows, "source_id,url")
 

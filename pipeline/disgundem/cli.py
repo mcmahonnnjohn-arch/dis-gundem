@@ -167,6 +167,9 @@ def cmd_premium_import(s, args):
     store = Store(s)
     gates = Gates()
     rows, links, rejected = load_session(args.file)
+    have = store.existing_article_keys([r["source_id"] for r in rows])
+    skipped = [r for r in rows if (r["source_id"], r["url"]) in have]
+    rows = [r for r in rows if (r["source_id"], r["url"]) not in have]
     per_today, total_today = store.queue_today()
     kept, below = route(rows, gates, per_today, total_today)
     now = datetime.now(timezone.utc)
@@ -185,7 +188,8 @@ def cmd_premium_import(s, args):
         if aid in kept_ids:
             store.set_article_links(aid, c, t, d)
     q = sum(1 for r in kept if r["status"] == "queued")
-    print(f"chrome-import: {q} kuyruğa, {len(kept) - q} havuza, {len(below)} eşik altı, {len(rejected)} reddedildi")
+    print(f"chrome-import: {q} kuyruğa, {len(kept) - q} havuza, {len(below)} eşik altı, "
+          f"{len(skipped)} zaten içeride, {len(rejected)} reddedildi")
     for r in rejected:
         print("  reddedildi:", r)
 

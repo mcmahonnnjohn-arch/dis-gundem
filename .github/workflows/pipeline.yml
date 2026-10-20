@@ -7,8 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "seed | fetch | classify | measure | check-feeds"
+        description: "seed | fetch | classify | measure | check-feeds | chrome-import"
         default: "check-feeds"
+      file:
+        description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
+        default: ""
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -22,6 +25,7 @@ env:
   IMPORTANCE_QUEUE_MIN: ${{ vars.IMPORTANCE_QUEUE_MIN || '4' }}
   QUEUE_PER_COUNTRY_DAILY: ${{ vars.QUEUE_PER_COUNTRY_DAILY || '4' }}
   QUEUE_TOTAL_DAILY: ${{ vars.QUEUE_TOTAL_DAILY || '30' }}
+  ECON_QUEUE_MIN: ${{ vars.ECON_QUEUE_MIN || '3' }}
 
 jobs:
   run:
@@ -60,6 +64,14 @@ jobs:
       - name: check-feeds
         if: steps.pick.outputs.job == 'check-feeds'
         run: disgundem check-feeds
+      - name: chrome-import
+        if: steps.pick.outputs.job == 'chrome-import'
+        env:
+          FILE: ${{ inputs.file }}
+        run: |
+          if [ -n "$FILE" ]; then files="$FILE"; else files=$(ls data/premium/*.json 2>/dev/null | sort); fi
+          [ -z "$files" ] && { echo "içe alınacak dosya yok"; exit 0; }
+          for f in $files; do echo "== $f"; disgundem chrome-import "$f"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
