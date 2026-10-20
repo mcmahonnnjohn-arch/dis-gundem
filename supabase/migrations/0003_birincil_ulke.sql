@@ -4,7 +4,8 @@
 
 alter table clusters add column if not exists primary_country text references countries(id);
 
-create or replace view queue_today as
+drop view if exists queue_today;
+create view queue_today as
 select primary_country as country_id, count(*) as n
 from clusters
 where status in ('queued','approved','published')
