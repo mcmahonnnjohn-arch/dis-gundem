@@ -91,7 +91,7 @@ Editörün kuyrukta yaptığı her düzeltme kaydedilir. Aynı türden düzeltme
 
 ## 10. Aynı olay tek kart (21 Ekim 2026 editör kararı)
 
-- Aynı somut gelişmeyi anlatan haberler (aynı karar, açıklama, görüşme, saldırı) farklı dil ve kaynaklardan gelse de **tek kartta** toplanır (`disgundem birlestir`). Bir olayın tepkileri (ör. Libya meclisinin onayı ile Yunanistan'ın tepkisi) ayrı olaydır.
+- **Bir kart = bir hikâye.** Aynı somut gelişmeyi anlatan haberler (aynı karar, açıklama, görüşme, saldırı) farklı dil ve kaynaklardan gelse de **tek kartta** toplanır (`disgundem birlestir`). O gelişmeye verilen **doğrudan tepkiler** de aynı karttadır (ör. Libya meclisinin onayı + Yunanistan'ın tepkisi + Hafter'in açıklaması; editör kararı 21 Ekim 2026). **Analiz ve görüş yazıları** ayrı kalır.
 - Kartın özeti üye haberlerin özetlerinden yazılır; kaynaklar arasında çelişen sayı/tarih/iddia kaynağına atfedilir.
 - Kaynaklar olayı belirgin biçimde farklı çerçeveliyorsa kartta **"Bakış farkı"** satırı yer alır: kim, nasıl görüyor ("Yunan basını mutabakatı yasadışı sayarken Libya kaynakları uzun vadeli ortaklık vurgusu yapıyor"). Fark yoksa satır yoktur.
 

@@ -20,7 +20,7 @@ from .config import PROMPTS
 
 log = logging.getLogger(__name__)
 
-GROUP_VERSION = "olay_grupla_v1"
+GROUP_VERSION = "olay_grupla_v2"   # v2: doğrudan tepkiler aynı kartta, analizler ayrı (21 Ekim editör kararı)
 SUMMARY_VERSION = "olay_ozet_v1"
 STATUS_RANK = {"queued": 3, "pool": 2, "classified": 1, "fetched": 0}
 
