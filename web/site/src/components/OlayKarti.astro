@@ -6,7 +6,7 @@ const SAGDAN_SOLA = new Set(["ar", "fa", "he"]);
 const kunye = [olay.bolge, olay.ulkeler.join(", ")].filter(Boolean).join(" · ");
 const tarih = olay.tarih ? new Date(olay.tarih).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "";
 ---
-<article class="kart" data-bolge={olay.bolge}>
+<article class="kart" data-bolge={olay.bolge} data-kaynak-ulkeler={olay.ulkeler.join("|")}>
   <p class="kunye">{kunye}{tarih && ` · ${tarih}`}</p>
   <h3>{olay.baslik}</h3>
   <p class="ozet">{olay.ozet}</p>

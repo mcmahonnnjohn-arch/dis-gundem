@@ -1,0 +1,76 @@
+---
+import Sayfa from "../../layouts/Sayfa.astro";
+import OlayKarti from "../../components/OlayKarti.astro";
+import { yayinCek, ulkeIdleri, ulkeOlaylari } from "../../lib/veri";
+export async function getStaticPaths() {
+  const y = await yayinCek();
+  return ulkeIdleri(y).map((id) => ({ params: { id } }));
+}
+const { id } = Astro.params as { id: string };
+const y = await yayinCek();
+const ulke = y.ulkeler[id];
+const olaylar = ulkeOlaylari(y, id);
+const bakis = olaylar.filter((o) => o.turkiye_mercegi);
+const analizler = y.analizler.filter((a) => a.baslik.toLocaleLowerCase("tr").includes(ulke.ad.toLocaleLowerCase("tr")));
+const aktor = new Map<string, { tur: string; n: number }>();
+for (const o of olaylar) for (const a of o.aktorler) aktor.set(a.ad, { tur: a.tur, n: (aktor.get(a.ad)?.n ?? 0) + 1 });
+const aktorler = [...aktor.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 8);
+const haritada = olaylar.some((o) => o.yerler.length > 0);
+const TUR: Record<string, string> = { devlet: "Devlet", silahli_grup: "Silahlı grup", orgut: "Örgüt", sirket: "Şirket", ittifak: "İttifak" };
+const tarih = (t: string | null) => (t ? new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "");
+---
+<Sayfa baslik={`${ulke.ad} masası`} aktif="ulkeler" ornek={y.ornek}>
+  <main class="sarmal-genis">
+    <p class="ekmek"><a href="/ulkeler/">Ülke masaları</a>{ulke.bolge && <> <i>›</i> {ulke.bolge}</>} <i>›</i> <b>{ulke.ad} masası</b></p>
+    <header class="masa-baslik">
+      <div>
+        <p class="kicker">Ülke masası</p>
+        <h2 class="kahraman-baslik">{ulke.ad}</h2>
+        <p class="kahraman-metin">{ulke.ad} kaynaklarından ve {ulke.ad}'i konu alan yayımlanmış olaylar.{olaylar[0]?.tarih && <> Son güncelleme: {tarih(olaylar[0].tarih)}.</>}</p>
+      </div>
+      <dl class="sayilar">
+        <div><dt>Olay</dt><dd>{olaylar.length}</dd></div>
+        <div><dt>Türkiye'ye bakış</dt><dd>{bakis.length}</dd></div>
+        <div><dt>Analiz</dt><dd>{analizler.length}</dd></div>
+      </dl>
+    </header>
+
+    <div class="sekmeler" role="tablist">
+      <button role="tab" type="button" data-sekme="haber" aria-selected="true">Son haberler <span>{olaylar.length}</span></button>
+      <button role="tab" type="button" data-sekme="bakis" aria-selected="false">Türkiye'ye bakış <span>{bakis.length}</span></button>
+      <button role="tab" type="button" data-sekme="analiz" aria-selected="false">Analizler <span>{analizler.length}</span></button>
+      {haritada && <a href="/harita/" class="sekme-baglanti">Haritada gör →</a>}
+    </div>
+
+    <div class="iki-sutun">
+      <div>
+        <section data-panel="haber">{olaylar.map((o) => <OlayKarti olay={o} />)}</section>
+        <section data-panel="bakis" hidden>
+          {bakis.map((o) => <OlayKarti olay={o} />)}
+          {bakis.length === 0 && <p class="bos">Bu masada Türkiye'ye bakış başlığında olay yok.</p>}
+        </section>
+        <section data-panel="analiz" hidden>
+          {analizler.map((a) => (
+            <article class="kart"><p class="kunye">Analiz · {tarih(a.tarih)}</p><h3><a href={`/analiz/${a.id}/`}>{a.baslik}</a></h3></article>
+          ))}
+          {analizler.length === 0 && <p class="bos">Bu ülkeyle başlığı eşleşen yayımlanmış analiz yok.</p>}
+        </section>
+      </div>
+      <aside class="yan">
+        <h2 class="bolum-baslik">Öne çıkan aktörler</h2>
+        {aktorler.length === 0 && <p class="yan-not">Bu masadaki olaylara henüz aktör bağlanmadı.</p>}
+        <ol class="siralama">
+          {aktorler.map(([ad, v]) => <li><div><span>{ad}<small>{TUR[v.tur] ?? v.tur}</small></span><b>{v.n}</b></div></li>)}
+        </ol>
+      </aside>
+    </div>
+  </main>
+  <script>
+    const sek = [...document.querySelectorAll<HTMLButtonElement>("[data-sekme]")];
+    const pan = [...document.querySelectorAll<HTMLElement>("[data-panel]")];
+    sek.forEach((s) => s.addEventListener("click", () => {
+      sek.forEach((x) => x.setAttribute("aria-selected", String(x === s)));
+      pan.forEach((p) => (p.hidden = p.dataset.panel !== s.dataset.sekme));
+    }));
+  </script>
+</Sayfa>

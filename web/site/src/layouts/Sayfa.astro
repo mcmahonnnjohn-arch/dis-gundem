@@ -1,6 +1,10 @@
 ---
 import "../styles/global.css";
-const { baslik = "Dış Gündem" } = Astro.props;
+const { baslik = "Dış Gündem", aktif = "", ornek = false } = Astro.props as { baslik?: string; aktif?: string; ornek?: boolean };
+const MENU: [string, string, string][] = [
+  ["/", "Ana sayfa", "ana"], ["/disaridan-turkiye/", "Dışarıdan Türkiye", "disaridan"], ["/harita/", "Harita", "harita"],
+  ["/analiz/", "Analizler", "analiz"], ["/ulkeler/", "Ülke masaları", "ulkeler"],
+];
 ---
 <!doctype html>
 <html lang="tr">
@@ -9,7 +13,25 @@ const { baslik = "Dış Gündem" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content="Türkiye'nin aktif olduğu coğrafyalardaki gelişmeler ve dünyanın Türkiye'ye bakışı." />
-    <title>{baslik}</title>
+    <title>{baslik === "Dış Gündem" ? baslik : `${baslik} · Dış Gündem`}</title>
   </head>
-  <body><slot /></body>
+  <body>
+    <div class="ust-serit"><div class="sarmal-genis"><span id="tarih-yeri">&nbsp;</span></div></div>
+    <header class="baslik-bandi">
+      <h1><a href="/">DIŞ GÜNDEM</a></h1>
+      <p><span>Bölgede ne oluyor, dünya Türkiye'yi nasıl görüyor.</span></p>
+    </header>
+    <nav class="ikinci-menu" aria-label="Bölümler">
+      <div class="sarmal-genis">
+        {MENU.map(([href, ad, k]) => <a href={href} aria-current={aktif === k ? "page" : undefined}>{ad}</a>)}
+      </div>
+    </nav>
+    {ornek && <div class="ornek-seridi">Örnek veri: kartlar editör referans özetleridir, yayımlanmış küme değildir.</div>}
+    <slot />
+    <footer>Dış Gündem · Özetler kaynaklara atıfla, kendi cümlelerimizle yazılır.</footer>
+    <script>
+      const t = document.getElementById("tarih-yeri");
+      if (t) t.textContent = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+    </script>
+  </body>
 </html>

@@ -1,0 +1,63 @@
+---
+import Sayfa from "../../layouts/Sayfa.astro";
+import { yayinCek } from "../../lib/veri";
+export async function getStaticPaths() {
+  const y = await yayinCek();
+  return y.analizler.map((a) => ({ params: { id: a.id } }));
+}
+const { id } = Astro.params as { id: string };
+const y = await yayinCek();
+const a = y.analizler.find((x) => x.id === id)!;
+const tarih = (t: string | null) => (t ? new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "");
+const par = (s: string | null) => (s ?? "").split(/\n\n+/).map((x) => x.trim()).filter(Boolean);
+const bolumler = [
+  { k: "yerel", ad: "Yerel gelişme", p: par(a.yerel) },
+  { k: "kuresel", ad: "Küresel okuma", p: par(a.kuresel) },
+  { k: "editor", ad: "Editörün süzgeci", p: par(a.editor) },
+].filter((b) => b.p.length > 0);
+const asil = a.kaynaklar[0];
+const kelime = bolumler.flatMap((b) => b.p).join(" ").split(/\s+/).length;
+---
+<Sayfa baslik={a.baslik} aktif="analiz" ornek={y.ornek}>
+  <main class="sarmal-genis makale">
+    <p class="ekmek"><a href="/analiz/">Analizler</a> <i>›</i> <b>Analiz</b></p>
+    <header class="makale-baslik">
+      <p class="meta">{tarih(a.tarih)} · {Math.max(1, Math.round(kelime / 200))} dk okuma</p>
+      <h2>{a.baslik}</h2>
+      <p class="imza">{a.yazar ?? "Dış Gündem · AI masası"}</p>
+    </header>
+
+    {asil && (
+      <aside class="asil-kaynak">
+        <p class="kunye">Analiz edilen asıl kaynak</p>
+        <p class="asil-yayin">{asil.yayin}{asil.tarih && ` · ${asil.tarih}`}</p>
+        <p class="asil-baslik"><a href={asil.url} target="_blank" rel="noopener noreferrer">{asil.baslik}</a></p>
+        {asil.yazar && <p class="asil-yazar">Yazar: {asil.yazar}</p>}
+      </aside>
+    )}
+
+    <div class="makale-govde">
+      <nav class="icindekiler" aria-label="İçindekiler">
+        <h3>İçindekiler</h3>
+        <ol>{bolumler.map((b, i) => <li><a href={`#${b.k}`}>{String(i + 1).padStart(2, "0")}. {b.ad}</a></li>)}</ol>
+      </nav>
+      <article class="metin">
+        {bolumler.map((b) => (
+          <section id={b.k}>
+            <h3>{b.ad}</h3>
+            {b.p.map((p) => <p>{p}</p>)}
+          </section>
+        ))}
+        <p class="not">Bu metin yapay zekâ destekli bir masa tarafından, yukarıdaki kaynağın içeriğine dayanarak hazırlanmıştır; kaynağın kendi cümleleri aktarılmaz.</p>
+      </article>
+      {a.kaynaklar.length > 1 && (
+        <aside class="yan">
+          <h3 class="bolum-baslik">Kaynaklar</h3>
+          <ul class="kaynak-listesi">
+            {a.kaynaklar.map((k) => <li><a href={k.url} target="_blank" rel="noopener noreferrer">{k.baslik}</a><small>{k.yayin}{k.tarih && ` · ${k.tarih}`}</small></li>)}
+          </ul>
+        </aside>
+      )}
+    </div>
+  </main>
+</Sayfa>

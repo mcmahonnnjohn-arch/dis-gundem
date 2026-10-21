@@ -1,0 +1,20 @@
+---
+import Sayfa from "../../layouts/Sayfa.astro";
+import { yayinCek } from "../../lib/veri";
+const y = await yayinCek();
+const tarih = (t: string | null) => (t ? new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "");
+const ilk = (s: string | null) => (s ?? "").split(/\n\n+/)[0];
+---
+<Sayfa baslik="Analizler" aktif="analiz" ornek={y.ornek}>
+  <main class="sarmal-genis" style="padding-block:2.5rem;max-width:56rem">
+    <h2 class="bolum-baslik">Analizler</h2>
+    {y.analizler.length === 0 && <p class="bos">Şimdilik yayımlanmış analiz yok.</p>}
+    {y.analizler.map((a) => (
+      <article class="kart">
+        <p class="kunye">{a.kaynaklar[0]?.yayin ?? "Analiz"} · {tarih(a.tarih)}</p>
+        <h3><a href={`/analiz/${a.id}/`}>{a.baslik}</a></h3>
+        <p class="ozet">{ilk(a.yerel)}</p>
+      </article>
+    ))}
+  </main>
+</Sayfa>

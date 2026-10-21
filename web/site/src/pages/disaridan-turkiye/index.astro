@@ -1,0 +1,59 @@
+---
+import Sayfa from "../../layouts/Sayfa.astro";
+import OlayKarti from "../../components/OlayKarti.astro";
+import { yayinCek } from "../../lib/veri";
+const y = await yayinCek();
+const olaylar = y.olaylar.filter((o) => o.turkiye_mercegi);
+// Ülke ülke: haberi yayımlayan kaynakların ülkesi (kim Türkiye'ye bakıyor)
+const sayim = new Map<string, number>();
+for (const o of olaylar) for (const u of o.ulkeler) sayim.set(u, (sayim.get(u) ?? 0) + 1);
+const ulkeler = [...sayim.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "tr"));
+---
+<Sayfa baslik="Dışarıdan Türkiye" aktif="disaridan" ornek={y.ornek}>
+  <section class="kahraman">
+    <div class="sarmal-genis kahraman-ic">
+      <div>
+        <p class="kicker">Editoryal masa · Tematik odak</p>
+        <h2 class="kahraman-baslik">Dışarıdan Türkiye</h2>
+        <p class="kahraman-alt">Türkiye hakkında dünyada ne yazılıyor, kim yazıyor, neden önemli?</p>
+      </div>
+      <p class="kahraman-metin">Komşu ülkelerin ve dünya basınının Türkiye'yi nasıl anlattığı; her olayda kaynağın ülkesi, dili ve özgün başlığıyla. Aynı olayı farklı çerçeveleyen kaynaklar kartta “Bakış farkı” olarak ayrıca gösterilir.</p>
+    </div>
+  </section>
+
+  <main class="sarmal-genis iki-sutun">
+    <section data-liste>
+      <h2 class="bolum-baslik">Günün taraması · <span id="sayi">{olaylar.length}</span> olay</h2>
+      <div class="cipler" role="group" aria-label="Kaynak ülkesi">
+        <button type="button" data-ulke="" aria-pressed="true">Tümü</button>
+        {ulkeler.map(([u]) => <button type="button" data-ulke={u} aria-pressed="false">{u}</button>)}
+      </div>
+      {olaylar.map((o) => <OlayKarti olay={o} />)}
+      <p class="bos" hidden>Bu ülkeden şimdilik bu başlıkta olay yok.</p>
+      {olaylar.length === 0 && <p class="bos">Şimdilik yayımlanmış bir olay yok.</p>}
+    </section>
+    <aside class="yan">
+      <h2 class="bolum-baslik">Ülke ülke</h2>
+      <p class="yan-not">Olayı yayımlayan kaynakların ülkesine göre olay sayısı.</p>
+      <ol class="siralama">
+        {ulkeler.map(([u, n]) => <li><button type="button" data-ulke={u}><span>{u}</span><b>{n}</b></button></li>)}
+      </ol>
+    </aside>
+  </main>
+
+  <script>
+    const kartlar = [...document.querySelectorAll<HTMLElement>(".kart")];
+    const dugmeler = [...document.querySelectorAll<HTMLButtonElement>("[data-ulke]")];
+    function ciz(u: string) {
+      let n = 0;
+      for (const k of kartlar) {
+        const ok = !u || (k.dataset.kaynakUlkeler ?? "").split("|").includes(u);
+        k.hidden = !ok; if (ok) n++;
+      }
+      document.getElementById("sayi")!.textContent = String(n);
+      document.querySelector<HTMLElement>(".bos")!.hidden = n > 0 || kartlar.length === 0;
+      document.querySelectorAll(".cipler button").forEach((b) => b.setAttribute("aria-pressed", String((b as HTMLElement).dataset.ulke === u)));
+    }
+    dugmeler.forEach((d) => d.addEventListener("click", () => { ciz(d.dataset.ulke ?? ""); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+  </script>
+</Sayfa>

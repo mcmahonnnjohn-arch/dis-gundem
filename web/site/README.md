@@ -18,5 +18,6 @@ npm run build      # dist/ (statik)
 - Okur ekranında yalnız: bölge/ülke künyesi, başlık, özet, varsa **Bakış farkı**, kaynaklar (yayın · ülke · dil; özgün başlık kendi yazı yönünde). Kaynak kodu, önem puanı, uyarı etiketleri yok (§13.2).
 - Tasarımdaki uydurma bölümler (algı barometresi, piyasa kutuları, "Seviye" matrisi, son dakika şeridi, uydurma künyeler) taşınmadı; bkz. `../tasarim/README.md`.
 - "Dışarıdan Türkiye" bölümü: kümede B kapsamlı (yalnız Türkiye'ye bakış) kaynak ya da `is_turkey_related` haber varsa. Bu ölçüt ilk tahmindir; editörle gözden geçirilmeli.
-- Yok: olay detay sayfası, ülke masası, harita, arama, editör görünümü, `kisa_aciklama` (§11) ile terim açıklaması. Özetler zaten ilk geçişte açıklamayı taşımalıdır (özetleme prompt'unun işi).
+- Sayfalar: `/` ana sayfa, `/disaridan-turkiye/`, `/ulkeler/` + `/ulke/<kod>/` (ülke masası), `/harita/` (Leaflet; olay türü ve zaman süzgeci), `/analiz/` + `/analiz/<id>/`. Harita koordinatları `places_xy` görünümünden gelir (migration 0010). Tasarımdaki sayısal/sentiment öğeleri (barometre, GSYH, seviye) gerçek verisi olmadığından yok.
+- Yok: olay detay sayfası, arama, editör görünümü, `kisa_aciklama` (§11) ile terim açıklaması. Özetler zaten ilk geçişte açıklamayı taşımalıdır (özetleme prompt'unun işi).
 - Yazı tipleri Google Fonts'tan gelir (Playfair Display, Merriweather, IBM Plex Sans).

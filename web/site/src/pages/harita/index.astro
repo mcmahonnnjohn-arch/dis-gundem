@@ -1,0 +1,84 @@
+---
+import Sayfa from "../../layouts/Sayfa.astro";
+import { yayinCek, OLAY_TURU } from "../../lib/veri";
+const y = await yayinCek();
+const noktalar = y.olaylar.flatMap((o) => {
+  const yer = o.yerler.find((p) => p.birincil) ?? o.yerler[0];
+  if (!yer) return [];
+  return [{ id: o.id, baslik: o.baslik, ozet: o.ozet, anlam: o.turkiye_anlami, tur: o.olay_turu, tarih: o.olay_tarihi,
+            yer: yer.ad, lat: yer.lat, lon: yer.lon, kaynak: o.kaynaklar.length }];
+});
+const turler = [...new Set(noktalar.map((n) => n.tur).filter(Boolean))] as string[];
+const guncel = noktalar.map((n) => n.tarih).filter(Boolean).sort().at(-1);
+const tarih = (t: string) => new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+---
+<Sayfa baslik="Harita" aktif="harita" ornek={y.ornek}>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <main class="sarmal-genis">
+    <header class="harita-baslik">
+      <p class="kicker">Bölgesel istihbarat &amp; kartografi</p>
+      <h2 class="kahraman-baslik">Jeopolitik Harita</h2>
+      <p class="kahraman-metin"><span id="olay-sayi">{noktalar.length}</span> olay haritada{guncel && <> · son olay {tarih(guncel)}</>}. İşaretçiler olayın birincil konumunu gösterir.</p>
+    </header>
+
+    {noktalar.length === 0 ? (
+      <p class="bos">Haritaya bağlanmış yayımlanmış olay yok{y.ornek ? " (örnek veri modunda harita verisi yoktur)" : ""}.</p>
+    ) : (
+      <>
+        <div class="harita-araclar">
+          <div class="cipler" role="group" aria-label="Olay türü">
+            <button type="button" data-tur="" aria-pressed="true">Tümü</button>
+            {turler.map((t) => <button type="button" data-tur={t} aria-pressed="false">{OLAY_TURU[t] ?? t}</button>)}
+          </div>
+          <div class="cipler" role="group" aria-label="Zaman">
+            <button type="button" data-gun="0" aria-pressed="true">Tümü</button>
+            <button type="button" data-gun="7" aria-pressed="false">Son 7 gün</button>
+            <button type="button" data-gun="30" aria-pressed="false">Son 30 gün</button>
+          </div>
+        </div>
+        <div class="harita-duzen">
+          <div id="harita" role="application" aria-label="Olay haritası"></div>
+          <ol id="harita-liste" class="harita-liste"></ol>
+        </div>
+        {y.haritaNotu && (
+          <aside class="harita-notu"><p class="kunye">Harita notu · {tarih(y.haritaNotu.tarih)}</p><h3>{y.haritaNotu.baslik}</h3><p style="white-space:pre-line">{y.haritaNotu.govde}</p></aside>
+        )}
+        <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script is:inline define:vars={{ noktalar, TUR: OLAY_TURU }}>
+          window.addEventListener("load", function () {
+            var RENK = { catisma: "#b3261e", saldiri: "#b3261e", askeri_hareket: "#8c4a00", diplomasi: "#1a56c4", anlasma: "#1a56c4",
+                         ekonomi: "#1b7a4b", enerji: "#1b7a4b", yargi_guvenlik: "#5b0617", siyasi: "#5b0617", secim: "#5b0617", protesto: "#8c4a00", insani: "#5a5a5a" };
+            var map = L.map("harita", { scrollWheelZoom: false }).setView([36, 38], 5);
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 12, attribution: "© OpenStreetMap" }).addTo(map);
+            var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); };
+            var fmt = function (t) { return t ? new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }) : ""; };
+            var tur = "", gun = 0, isaret = {}, liste = document.getElementById("harita-liste");
+            noktalar.forEach(function (n) {
+              var m = L.circleMarker([n.lat, n.lon], { radius: 9, color: "#fff", weight: 2, fillColor: RENK[n.tur] || "#5b0617", fillOpacity: .92 });
+              m.bindPopup('<div class="pp"><p class="pp-k">' + esc(TUR[n.tur] || "Olay") + " · " + esc(n.yer) + " · " + esc(fmt(n.tarih)) + "</p><h4>" + esc(n.baslik) + "</h4><p>" + esc(n.ozet) + "</p>" +
+                (n.anlam ? '<p class="pp-a"><b>Türkiye için anlamı</b> ' + esc(n.anlam) + "</p>" : "") + '<p class="pp-s">' + n.kaynak + " kaynak</p></div>", { maxWidth: 340 });
+              isaret[n.id] = m;
+            });
+            function ciz() {
+              var sinir = gun ? Date.now() - gun * 864e5 : 0, k = 0;
+              liste.innerHTML = "";
+              noktalar.forEach(function (n) {
+                var ok = (!tur || n.tur === tur) && (!gun || (n.tarih && new Date(n.tarih).getTime() >= sinir));
+                var m = isaret[n.id];
+                if (ok) { m.addTo(map); k++; var li = document.createElement("li");
+                  li.innerHTML = '<button type="button"><small>' + esc(TUR[n.tur] || "Olay") + " · " + esc(n.yer) + "</small>" + esc(n.baslik) + "</button>";
+                  li.firstChild.addEventListener("click", function () { map.flyTo([n.lat, n.lon], Math.max(map.getZoom(), 6)); m.openPopup(); });
+                  liste.appendChild(li); } else { map.removeLayer(m); }
+              });
+              document.getElementById("olay-sayi").textContent = k;
+            }
+            document.querySelectorAll("[data-tur]").forEach(function (b) { b.addEventListener("click", function () { tur = b.dataset.tur; document.querySelectorAll("[data-tur]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); ciz(); }); });
+            document.querySelectorAll("[data-gun]").forEach(function (b) { b.addEventListener("click", function () { gun = +b.dataset.gun; document.querySelectorAll("[data-gun]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); ciz(); }); });
+            ciz();
+            var gr = L.featureGroup(Object.values(isaret)); if (noktalar.length) map.fitBounds(gr.getBounds().pad(.25), { maxZoom: 7 });
+          });
+        </script>
+      </>
+    )}
+  </main>
+</Sayfa>

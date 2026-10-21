@@ -6,14 +6,7 @@ const { olaylar, ornek, bolgeler } = await yayinCek();
 const disaridan = olaylar.filter((o) => o.turkiye_mercegi);
 const bolgeden = olaylar.filter((o) => !o.turkiye_mercegi);
 ---
-<Sayfa>
-  <div class="ust-serit"><div class="sarmal-genis"><span id="tarih-yeri">&nbsp;</span></div></div>
-  <header class="baslik-bandi">
-    <h1>DIŞ GÜNDEM</h1>
-    <p><span>Bölgede ne oluyor, dünya Türkiye'yi nasıl görüyor.</span></p>
-  </header>
-  {ornek && <div class="ornek-seridi">Örnek veri: kartlar editör referans özetleridir, yayımlanmış küme değildir.</div>}
-
+<Sayfa aktif="ana" ornek={ornek}>
   <nav class="suzgec" aria-label="Bölge süzgeci">
     <div class="sarmal-genis">
       <button type="button" data-bolge="" aria-pressed="true">Tümü</button>
@@ -37,15 +30,11 @@ const bolgeden = olaylar.filter((o) => !o.turkiye_mercegi);
     </section>
   </main>
 
-  <footer>Dış Gündem · Özetler kaynaklara atıfla, kendi cümlelerimizle yazılır.</footer>
-
   <script>
     const ADIM = 5;
     let bolge = "";
     const sayac = new Map<Element, number>();
     const bolumler = [...document.querySelectorAll<HTMLElement>("[data-liste]")];
-    const tarihYeri = document.getElementById("tarih-yeri");
-    if (tarihYeri) tarihYeri.textContent = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
     function ciz() {
       for (const b of bolumler) {
         const n = sayac.get(b) ?? ADIM;
