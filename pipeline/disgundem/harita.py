@@ -219,3 +219,78 @@ def extract(clf, events: list[dict]) -> dict[str, MapLinks]:
                 continue
             out[e["k"]] = clean(r, e.get("ulke"))
     return out
+
+
+# ------------------------------------------------------------------ ölçüm raporu (haftalık)
+def _pct(n: int, d: int) -> str:
+    return f"%{100 * n / d:.0f}" if d else "-"
+
+
+def build_report(clusters: list[dict], place_links: dict[str, list[tuple[str, bool]]],
+                 actor_links: dict[str, list[str]], unresolved: list[dict], days: int) -> str:
+    """Haritaya bağlama kalitesinin haftalık raporu (DB'siz test edilebilir).
+
+    clusters: harita pencerindeki olaylar ({"id","status","primary_country","event_type","turkey_stake"});
+    place_links: küme → [(yer id, birincil)]; actor_links: küme → [aktör id];
+    unresolved: place_unresolved satırları ({"raw_name","country_id","seen_count"})."""
+    from collections import Counter
+    known = places()
+    done = [c for c in clusters if c.get("event_type")]
+    waiting = len(clusters) - len(done)
+
+    def where(c: dict) -> str:
+        prim = next((p for p, b in place_links.get(c["id"], []) if b), None)
+        if prim is None:
+            return "yersiz"
+        pl = known.get(prim)
+        return "ulke" if pl is not None and pl.precision == "ulke" else "nokta"
+
+    cat = {c["id"]: where(c) for c in done}
+    n = len(done)
+    cnt = Counter(cat.values())
+    out = [f"# Harita ölçümü — son {days} gün", "",
+           f"Pencerede {len(clusters)} olay; {n} tanesi haritaya bağlandı, {waiting} tanesi bekliyor "
+           f"(özeti yok ya da `disgundem harita` henüz çalışmadı).", ""]
+    if not n:
+        return "\n".join(out + ["Bağlanmış olay yok: `0008_harita.sql` uygulandı mı, `LLM_PROVIDER` ayarlı mı?", ""])
+
+    out += ["## Konumlama", "", "| | olay | oran |", "|---|---:|---:|",
+            f"| Noktada ya da bölgede (haritada işaretçi) | {cnt['nokta']} | {_pct(cnt['nokta'], n)} |",
+            f"| Ülke geneli (listede, işaretçi yok) | {cnt['ulke']} | {_pct(cnt['ulke'], n)} |",
+            f"| Yersiz (haritada ve listede yok) | {cnt['yersiz']} | {_pct(cnt['yersiz'], n)} |", ""]
+
+    by_c: dict[str, Counter] = {}
+    for c in done:
+        by_c.setdefault(c.get("primary_country") or "?", Counter())[cat[c["id"]]] += 1
+    out += ["### Birincil ülkeye göre", "", "| ülke | olay | işaretçi | ülke geneli | yersiz |", "|---|---:|---:|---:|---:|"]
+    for ctry, k in sorted(by_c.items(), key=lambda kv: -sum(kv[1].values())):
+        out.append(f"| {ctry} | {sum(k.values())} | {k['nokta']} | {k['ulke']} | {k['yersiz']} |")
+    out += ["", "Yüksek ülke geneli oranı iki nedenden olur: haberler gerçekten ulusaldır (atama, ekonomi, analiz) ya da şehir kaydı eksiktir. "
+            "Ayırt etmek için aşağıdaki başlıklara bak: başlıkta ya da özette yer adı geçiyorsa sözlük eksiktir.", ""]
+    for key, title in (("ulke", "Ülke geneli olaylar (ilk 15)"), ("yersiz", "Yersiz olaylar (ilk 15)")):
+        rows = [c for c in done if cat[c["id"]] == key][:15]
+        if rows:
+            out += [f"### {title}", ""] + [f"- {c.get('primary_country') or '?'} · {c.get('event_type')} · {(c.get('title_tr') or c['id'])[:110]}"
+                                           for c in rows] + [""]
+
+    types = Counter(c["event_type"] for c in done)
+    out += ["## Olay türleri", "", "| tür | olay |", "|---|---:|"] + [f"| {t} | {k} |" for t, k in types.most_common()] + [""]
+
+    stake = sum(1 for c in done if c.get("turkey_stake"))
+    withact = sum(1 for c in done if actor_links.get(c["id"]))
+    acts = Counter(a for c in done for a in actor_links.get(c["id"], []))
+    out += ["## Türkiye için anlamı ve aktörler", "",
+            f"- \"Türkiye için anlamı\" satırı olan olay: {stake} ({_pct(stake, n)})",
+            f"- En az bir aktörü olan olay: {withact} ({_pct(withact, n)})",
+            "- En sık aktörler: " + (", ".join(f"{a} ({k})" for a, k in acts.most_common(10)) or "-"), ""]
+
+    open_ = sorted((u for u in unresolved if not u.get("resolved_to")), key=lambda u: -(u.get("seen_count") or 0))
+    out += ["## Çözülemeyen yer adları", ""]
+    if not open_:
+        out += ["Yok.", ""]
+    else:
+        out += ["Sık geçenler sözlüğe eklenmeli (`data/sozluk/yerler_*.csv`) ya da `place_unresolved.resolved_to` ile mevcut bir yere bağlanmalı.", "",
+                "| ad | ülke | kaç kez |", "|---|---|---:|"]
+        out += [f"| {u['raw_name']} | {u.get('country_id') or '-'} | {u.get('seen_count')} |" for u in open_[:25]]
+        out += [""]
+    return "\n".join(out)

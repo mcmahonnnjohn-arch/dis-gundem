@@ -34,3 +34,9 @@ Olayların haritaya düştüğü yerler `yerler_*.csv` dosyalarındadır: `yerle
 Şehir ve başkent koordinatları GeoNames'ten, sınır kapısı/üs/tesis/deniz alanı koordinatları Wikipedia'dan doğrulandı (21 Ekim 2026). Boğaz ve körfezler (`deniz_alani`) `kuresel` ülkesi altındadır; model ülkeyi yanlış verse de adla eşleşir. Doğrulanamayan 5 kayıt `verified=false`: Bab es-Selame, Cedide Yabus, Tartus Limanı, Humus Rafinerisi, Conoco sahası.
 
 `aktorler.csv` — olaylarda rol alan devlet, örgüt ve silahlı gruplar (`cluster_actors`). Adlar Yayın Kılavuzu §4'e uyar; feshedilmiş yapılar (`aktif=0`: HTŞ) geçmiş olaylar için kalır. Eski SDG kılavuz gereği "PKK/YPG güdümlü eski SDG" adıyla tutulur.
+
+## Haritayı ölçme (haftalık)
+
+`disgundem harita-olcum --days 7` raporu `data/out/harita_raporu.md`'ye yazar; GitHub Actions'ta iş özetinde (Summary sekmesi) da görünür ve haftalık `measure` işiyle (Pazartesi) otomatik çalışır; elle çalıştırmak için Actions → pipeline → Run workflow → `harita-olcum`. Rapor: konumlama oranları (işaretçi / ülke geneli / yersiz), birincil ülkeye göre kırılım, ülke geneli ve yersiz olayların başlıkları, olay türleri, "Türkiye için anlamı" ve aktör oranları, çözülemeyen yer adları.
+
+Nasıl okunur: **yersiz** olay haritada hiç görünmez, sıfıra yakın olmalı (yoksa ülke kaydı ya da `LLM_PROVIDER` eksik). **Ülke geneli** oranı yüksekse başlıklara bak: yer adı geçiyorsa sözlük eksiktir, geçmiyorsa haber gerçekten ulusaldır. **Çözülemeyen yer adlarından** haftada 2-3 kez geçenleri `yerler_*.csv`'ye ekle ya da `place_unresolved.resolved_to` ile mevcut bir yere bağla.

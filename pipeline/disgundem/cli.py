@@ -342,6 +342,27 @@ def cmd_harita(s, args):
           f"{len(unresolved)} çözülemeyen yer adı (place_unresolved)")
 
 
+def cmd_harita_olcum(s, args):
+    """Haritaya bağlama kalitesinin raporu: konumlama oranları, ülke kırılımı, çözülemeyen yer adları.
+    data/out/harita_raporu.md'ye yazılır; GitHub Actions'ta iş özetine (job summary) da eklenir."""
+    import os
+    from . import harita
+    try:
+        cl, pl, ac, un = Store(s).map_report_data(days=args.days)
+    except Exception as e:   # 0008 uygulanmadıysa haftalık ölçüm işi düşmesin
+        print(f"harita-olcum: atlandı, harita tabloları yok (0008_harita.sql uygulandı mı?): {str(e)[:160]}")
+        return
+    rep = harita.build_report(cl, pl, ac, un, args.days)
+    config.OUT.mkdir(parents=True, exist_ok=True)
+    p = config.OUT / "harita_raporu.md"
+    p.write_text(rep, encoding="utf-8")
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+            f.write(rep + "\n")
+    print(rep)
+    print(f"rapor: {p}")
+
+
 def cmd_olay(s, args):
     """Çok haberli kümelere olay özeti + bakış farkı yazar; metni hiç okunamamış kuyruk kümelerini havuza düşürür."""
     from . import olay
@@ -504,6 +525,8 @@ def main(argv=None):
     h = sub.add_parser("harita", help="özetli olayları haritaya bağla (tür, yer, aktör, Türkiye için anlamı)")
     h.add_argument("--saat", type=int, default=72)
     h.add_argument("--yeniden", action="store_true", help="bağlı kümeleri de yeniden çıkar")
+    ho = sub.add_parser("harita-olcum", help="harita bağlama kalitesi raporu (konumlama oranı, çözülemeyen yer adları)")
+    ho.add_argument("--days", type=int, default=7)
     e = sub.add_parser("eval", help="özet test setini çalıştır ve puanla")
     e.add_argument("--no", nargs="*", help="yalnız bu test numaraları")
     e.add_argument("--onayli", action="store_true", help="yalnız editör onaylı satırlar")
@@ -518,7 +541,7 @@ def main(argv=None):
     args = p.parse_args(argv)
     s = config.load()
     {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
-     "birlestir": cmd_birlestir, "olay": cmd_olay, "harita": cmd_harita,
+     "birlestir": cmd_birlestir, "olay": cmd_olay, "harita": cmd_harita, "harita-olcum": cmd_harita_olcum,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 

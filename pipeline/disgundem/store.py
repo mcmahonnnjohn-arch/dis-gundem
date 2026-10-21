@@ -290,6 +290,27 @@ class Store:
         self._upsert("place_unresolved", [{"raw_name": n, "country_id": c, "seen_count": have.get(n, 0) + 1,
                                            "last_seen": now} for n, c in uniq.items()], "raw_name")
 
+    def map_report_data(self, days: int = 7) -> tuple[list[dict], dict, dict, list[dict]]:
+        """Harita ölçüm raporu için: pencere kümeleri, kümenin yerleri, aktörleri, çözülemeyen adlar."""
+        if self.client is None:
+            return [], {}, {}, []
+        since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        cl = (self.client.table("clusters").select("id,status,primary_country,event_type,turkey_stake,title_tr")
+              .in_("status", ["queued", "approved", "published"]).is_("merged_into", "null")
+              .gte("created_at", since).execute().data)
+        ids = [c["id"] for c in cl]
+        pl: dict[str, list] = {}
+        ac: dict[str, list] = {}
+        for i in range(0, len(ids), 100):
+            chunk = ids[i:i + 100]
+            for r in self.client.table("cluster_places").select("cluster_id,place_id,is_primary").in_("cluster_id", chunk).execute().data:
+                pl.setdefault(r["cluster_id"], []).append((r["place_id"], r["is_primary"]))
+            for r in self.client.table("cluster_actors").select("cluster_id,actor_id").in_("cluster_id", chunk).execute().data:
+                ac.setdefault(r["cluster_id"], []).append(r["actor_id"])
+        un = (self.client.table("place_unresolved").select("raw_name,country_id,seen_count,resolved_to")
+              .gte("last_seen", since).execute().data)
+        return cl, pl, ac, un
+
     def log_run(self, row: dict) -> None:
         self._upsert("fetch_runs", [row], "id")
 

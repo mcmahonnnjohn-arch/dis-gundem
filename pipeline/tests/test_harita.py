@@ -160,3 +160,61 @@ def test_cmd_harita_skips_without_migration(monkeypatch, capsys):
     monkeypatch.setattr(cli, "Classifier", lambda s: FakeClf([]))
     cli.cmd_harita(Settings(), SimpleNamespace(saat=72, yeniden=False))
     assert "atlandı" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------- haftalık ölçüm raporu
+def _clusters():
+    return [
+        {"id": "a", "primary_country": "sy", "event_type": "askeri_hareket", "turkey_stake": None},
+        {"id": "b", "primary_country": "sy", "event_type": "ekonomi", "turkey_stake": "Türkiye bağlantısı.", "title_tr": "Suriye ekonomi başlığı"},
+        {"id": "c", "primary_country": "sy", "event_type": "ekonomi", "turkey_stake": None},
+        {"id": "d", "primary_country": "lb", "event_type": "askeri_hareket", "turkey_stake": None},
+        {"id": "e", "primary_country": "il", "event_type": "diplomasi", "turkey_stake": None},
+        {"id": "f", "primary_country": "sy", "event_type": None, "turkey_stake": None},     # henüz bağlanmadı
+    ]
+
+
+def test_report_counts_and_percentages():
+    places_ = {"a": [("sy-kuneytra", True)], "b": [("sy", True)], "c": [("sy", True), ("sy-halep", False)],
+               "d": [("lb", True)], "e": []}
+    actors_ = {"a": ["il", "sy"], "b": ["tr"]}
+    un = [{"raw_name": "Nebatiye", "country_id": "lb", "seen_count": 4, "resolved_to": None},
+          {"raw_name": "Eski", "country_id": "lb", "seen_count": 9, "resolved_to": "lb"}]
+    rep = harita.build_report(_clusters(), places_, actors_, un, 7)
+    assert "Pencerede 6 olay; 5 tanesi haritaya bağlandı, 1 tanesi bekliyor" in rep
+    assert "Noktada ya da bölgede (haritada işaretçi) | 1 | %20 |" in rep
+    assert "Ülke geneli (listede, işaretçi yok) | 3 | %60 |" in rep      # b, c (birincil sy), d (lb)
+    assert "Yersiz (haritada ve listede yok) | 1 | %20 |" in rep       # e
+    assert "| sy | 3 | 1 | 2 | 0 |" in rep and "| lb | 1 | 0 | 1 | 0 |" in rep and "| il | 1 | 0 | 0 | 1 |" in rep
+    assert "satırı olan olay: 1 (%20)" in rep and "En az bir aktörü olan olay: 2 (%40)" in rep
+    assert "| Nebatiye | lb | 4 |" in rep and "Eski" not in rep
+    assert "- sy · ekonomi · Suriye ekonomi başlığı" in rep and "### Yersiz olaylar" in rep               # eşlenmiş ad listelenmez
+
+
+def test_report_without_linked_events():
+    rep = harita.build_report([{"id": "x", "event_type": None}], {}, {}, [], 7)
+    assert "`0008_harita.sql` uygulandı mı" in rep and "Konumlama" not in rep
+
+
+def test_cmd_harita_olcum_writes_report(monkeypatch, tmp_path):
+    class FakeStore:
+        def __init__(self, s): pass
+        def map_report_data(self, days): return _clusters(), {"a": [("sy-halep", True)]}, {}, []
+
+    monkeypatch.setattr(cli, "Store", FakeStore)
+    monkeypatch.setattr(cli.config, "OUT", tmp_path)
+    summary = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+    cli.cmd_harita_olcum(Settings(), SimpleNamespace(days=7))
+    assert "# Harita ölçümü" in (tmp_path / "harita_raporu.md").read_text(encoding="utf-8")
+    assert "# Harita ölçümü" in summary.read_text(encoding="utf-8")
+
+
+def test_cmd_harita_olcum_skips_without_migration(monkeypatch, capsys, tmp_path):
+    class FakeStore:
+        def __init__(self, s): pass
+        def map_report_data(self, days): raise RuntimeError('relation "cluster_places" does not exist')
+    monkeypatch.setattr(cli, "Store", FakeStore)
+    monkeypatch.setattr(cli.config, "OUT", tmp_path)
+    cli.cmd_harita_olcum(Settings(), SimpleNamespace(days=7))
+    assert "atlandı" in capsys.readouterr().out and not (tmp_path / "harita_raporu.md").exists()
