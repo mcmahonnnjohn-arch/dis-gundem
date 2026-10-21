@@ -26,7 +26,7 @@ create index places_aliases_idx on places using gin (aliases);
 
 -- ---------------------------------------------------------------- Olayların haritaya düşmesi
 -- Her küme (olay) 0..n yere bağlanır; biri birincil konumdur (işaretçi oraya konur).
-create type event_type as enum ('catisma','saldiri','diplomasi','anlasma','ekonomi','enerji','secim','protesto','askeri_hareket','insani');
+create type event_type as enum ('catisma','saldiri','diplomasi','anlasma','ekonomi','enerji','secim','protesto','askeri_hareket','insani','yargi_guvenlik','siyasi');
 
 alter table clusters add column if not exists event_type  event_type;
 alter table clusters add column if not exists turkey_stake text;   -- popup'taki "Türkiye için anlamı" (tek cümle)
@@ -135,6 +135,7 @@ select c.id, c.title_tr, c.summary_tr, c.turkey_stake, c.event_type, c.importanc
        least(greatest(coalesce(c.importance, 3) - 2, 1), 3) as marker,
        coalesce(c.event_at, c.first_seen) as event_at, c.primary_country, c.is_milestone,
        p.id as place_id, p.name_tr as place_name, p.precision, p.geom,
+       (p.precision = 'ulke') as country_level,   -- true: haritada işaretçi çizme, "Ülke geneli" listesinde göster
        array(select dossier_id from article_dossiers ad join articles a on a.id = ad.article_id
              where a.cluster_id = c.id group by dossier_id) as dossiers,
        array(select actor_id from cluster_actors ca where ca.cluster_id = c.id) as actors

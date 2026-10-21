@@ -25,12 +25,33 @@ def test_gazetteer_loads_and_is_consistent():
         assert p.kind in {"sehir", "ilce", "bolge", "sinir_kapisi", "liman", "us", "tesis", "deniz_alani", "ulke"}
 
 
-def test_gazetteer_names_match_glossary():
-    """varliklar.csv'deki Suriye yerleri yer sözlüğüyle aynı Türkçe yazılışta olmalı (Dera, Kuneytra, Banyas)."""
+def _base(name: str) -> str:
+    return name.split(" (")[0].strip()
+
+
+def test_gazetteer_covers_every_glossary_place():
+    """varliklar.csv'deki her yer (Suriye ve diğerleri) yer sözlüğünde aynı Türkçe yazılışla ya da takma adla bulunmalı
+    (Dera, Kuneytra, Banyas, Ovda, Hürmüz…). Bir satırda iki yer olabilir: 'Trablus (Libya) / Trablusşam (Lübnan)'."""
     with (harita.SOZLUK / "varliklar.csv").open(encoding="utf-8") as f:
-        sy = [r for r in csv.DictReader(f) if r["tur"] == "yer" and r["ulke"] == "sy"]
-    names = {p.name_tr for p in harita.places().values()}
-    assert sy and all(r["tr"] in names for r in sy)
+        yer = [r for r in csv.DictReader(f) if r["tur"] == "yer"]
+    have = {harita.norm(n) for p in harita.places().values() for n in (p.name_tr, *p.aliases)}
+    missing = [part for r in yer for part in map(_base, r["tr"].split(" / ")) if harita.norm(part) not in have]
+    assert yer and not missing, missing
+
+
+def test_every_country_has_a_country_level_record():
+    from disgundem.sources import COUNTRIES
+    codes = {v[0] for v in COUNTRIES.values() if not v[3]}          # grup etiketleri (levant, korfez…) hariç
+    country_level = {p.id for p in harita.places().values() if p.precision == "ulke"}
+    assert codes <= country_level, sorted(codes - country_level)
+    assert all(harita.places()[c].country_id == c for c in country_level)
+
+
+def test_place_countries_are_known_to_the_countries_table():
+    """places.country_id yabancı anahtarı: sözlükte olmayan ülke kodu seed'i düşürür."""
+    from disgundem.sources import dictionaries
+    known = {c["id"] for c in dictionaries()["countries"]}
+    assert {p.country_id for p in harita.places().values()} <= known
 
 
 def test_actor_countries_exist():
@@ -44,8 +65,23 @@ def test_actor_countries_exist():
     ("Al-Bab", "sy-el-bab"), ("al Bab", "sy-el-bab"), ("Kobani", "sy-ayn-el-arab"), ("Deir ez-Zor", "sy-deyrizor"),
     ("İdlib", "sy-idlib"), ("IDLIB", "sy-idlib"), ("حلب", "sy-halep"), ("Qamishli", "sy-kamisli"),
 ])
-def test_resolve_aliases(raw, expected):
+def test_resolve_aliases_syria(raw, expected):
     assert harita.resolve(raw, "sy") == expected
+
+
+@pytest.mark.parametrize("raw,country,expected", [
+    ("Irak", "iq", "iq"), ("Lübnan", "lb", "lb"), ("Turkey", "tr", "tr"), ("Libya", "ly", "ly"),
+    ("Ovda Hava Üssü", "il", "il-ovda"), ("Uvda", "il", "il-ovda"), ("Kyiv", "ua", "ua-kiev"),
+    ("Tripoli", "ly", "ly-trablus"), ("Tripoli", "lb", "lb-trablussam"),      # aynı ad, ülke ayırır
+    ("Strait of Hormuz", "ir", "kuresel-hurmuz-bogazi"), ("Hormuz", "om", "kuresel-hurmuz-bogazi"),   # deniz alanı: ülke yanlışsa da
+    ("Persian Gulf", "sa", "kuresel-basra-korfezi"), ("Bab el-Mandeb", "ye", "kuresel-babulmendep"),
+])
+def test_resolve_countries_and_seas(raw, country, expected):
+    assert harita.resolve(raw, country) == expected
+
+
+def test_resolve_ambiguous_without_country():
+    assert harita.resolve("Tripoli", None) is None          # Libya mı Lübnan mı: belirsizse eşleşmez
 
 
 def test_resolve_unknown_and_wrong_country():
@@ -72,8 +108,12 @@ def test_clean_defaults():
     assert L.event_type is None and L.places == [("sy-halep", True)] and L.turkey_stake is None
     L = harita.clean({"tur": "diplomasi", "yerler": []}, "sy")      # yer yok → ülke merkezi birincil
     assert L.places == [("sy", True)]
-    L = harita.clean({"tur": "diplomasi", "yerler": []}, "gr")      # sözlüğü olmayan ülke → yersiz
+    L = harita.clean({"tur": "diplomasi", "yerler": []}, "gr")      # her ülkenin ülke kaydı var
+    assert L.places == [("gr", True)]
+    L = harita.clean({"tur": "diplomasi", "yerler": []}, "xx")      # sözlükte olmayan kod → yersiz
     assert L.places == []
+    assert harita.clean({"tur": "yargi_guvenlik"}, None).event_type == "yargi_guvenlik"
+    assert harita.clean({"tur": "siyasi"}, None).event_type == "siyasi"
 
 
 def test_extract_batches_and_maps_indices(monkeypatch):

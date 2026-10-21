@@ -26,7 +26,7 @@ PROMPT_VERSION = "harita_v1"
 SOZLUK = ROOT / "data" / "sozluk"
 BATCH = 8
 EVENT_TYPES = {"catisma", "saldiri", "diplomasi", "anlasma", "ekonomi", "enerji", "secim", "protesto",
-               "askeri_hareket", "insani"}
+               "askeri_hareket", "insani", "yargi_guvenlik", "siyasi"}
 ROLES = {"fail", "hedef", "arabulucu", "taraf"}
 MAX_STAKE = 160
 
@@ -119,12 +119,18 @@ def _index() -> dict[tuple[str, str], str]:
     return idx
 
 
+@lru_cache(maxsize=1)
+def _sea_index() -> dict[str, str]:
+    """Boğaz, körfez gibi ülkeler arası deniz alanları: model ülkeyi yanlış verse de ('ir' yerine 'om') adı eşleşir."""
+    return {norm(n): p.id for p in places().values() if p.kind == "deniz_alani" for n in {p.name_tr, *p.aliases}}
+
+
 def resolve(name: str, country: str | None) -> str | None:
     if not name:
         return None
     idx = _index()
     if country:
-        return idx.get((country, norm(name)))
+        return idx.get((country, norm(name))) or _sea_index().get(norm(name))
     hits = {v for (c, n), v in idx.items() if n == norm(name)}
     return hits.pop() if len(hits) == 1 else None
 
