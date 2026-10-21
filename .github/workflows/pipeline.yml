@@ -70,6 +70,7 @@ jobs:
           disgundem birlestir
           disgundem classify --limit 300
           disgundem olay
+          disgundem harita
       - name: classify
         if: steps.pick.outputs.job == 'classify'
         run: disgundem classify --limit 500
@@ -79,6 +80,7 @@ jobs:
           disgundem birlestir --saat 72
           disgundem classify --limit 300
           disgundem olay --saat 72
+          disgundem harita
       - name: classify-yeniden
         if: steps.pick.outputs.job == 'classify-yeniden'
         run: disgundem classify --yeniden --limit 200
@@ -104,6 +106,7 @@ jobs:
           disgundem birlestir
           disgundem classify --limit 300
           disgundem olay
+          disgundem harita
       - uses: actions/upload-artifact@v4
         if: always()
         with:

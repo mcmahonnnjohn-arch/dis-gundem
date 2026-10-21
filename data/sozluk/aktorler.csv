@@ -1,0 +1,31 @@
+id,name_tr,kind,country_id,aliases,aktif,not
+tr,Türkiye,devlet,tr,Turkey|Türkiye|Ankara,1,
+sy,Suriye yönetimi,devlet,sy,Syrian government|Damascus|Şam yönetimi|Suriye hükümeti|Syrian army|Suriye ordusu,1,Geçiş dönemi hükümeti ve ordusu; 2024 öncesi olaylarda Esed rejimi ayrı aktör değil bu kimlikle tarihlenir
+us,ABD,devlet,us,United States|Washington|US military|CENTCOM,1,
+ru,Rusya,devlet,ru,Russia|Moscow|Moskova,1,
+ir,İran,devlet,ir,Iran|Tehran|Tahran|İran yönetimi,1,Kılavuz §4: "rejim" yalnız atıfla
+ir-dmo,İran Devrim Muhafızları Ordusu,devlet,ir,IRGC|Islamic Revolutionary Guard Corps|Sepah|DMO,1,varliklar.csv B24
+il,İsrail,devlet,il,Israel|IDF|Israeli army|İsrail ordusu|Tel Aviv,1,Golan/Güney Suriye varlığı için kılavuz §4 "işgal"
+fr,Fransa,devlet,fr,France|Paris,1,
+gb,İngiltere,devlet,gb,United Kingdom|UK|Britain|London,1,
+de,Almanya,devlet,de,Germany|Berlin,1,
+iq,Irak,devlet,iq,Iraq|Baghdad|Bağdat,1,
+iq-ikby,Irak Kürt Bölgesel Yönetimi (IKBY),devlet,iq,KRG|Kurdistan Regional Government|Erbil|IKBY,1,varliklar.csv B30
+lb,Lübnan,devlet,lb,Lebanon|Beirut|Beyrut,1,
+jo,Ürdün,devlet,,Jordan|Amman,1,countries tablosunda ülke kodu yok
+sa,Suudi Arabistan,devlet,sa,Saudi Arabia|Riyadh|Riyad,1,
+qa,Katar,devlet,qa,Qatar|Doha,1,
+ae,Birleşik Arap Emirlikleri (BAE),devlet,ae,UAE|United Arab Emirates|Abu Dhabi|BAE,1,
+eg,Mısır,devlet,eg,Egypt|Cairo|Kahire,1,
+bm,Birleşmiş Milletler (BM),orgut,kuresel,UN|United Nations|BM|OCHA|UNHCR,1,BM ajansları bu kimlikte toplanır
+ab,Avrupa Birliği (AB),orgut,eu,EU|European Union|Brussels|Brüksel,1,
+nato,NATO,ittifak,,NATO,1,
+arap-birligi,Arap Birliği,orgut,,Arab League,1,
+deas,DEAŞ,silahli_grup,,ISIS|ISIL|Islamic State|IS|Daesh|DAEŞ,1,
+eski-sdg,PKK/YPG güdümlü eski SDG,silahli_grup,sy,SDF|Syrian Democratic Forces|SDG|YPG|QSD|Suriye Demokratik Güçleri,1,Kılavuz §4: SDG 25 Ağustos 2026'da feshini açıkladı; bugünkü yapılar için kaynağın adlandırması atıfla
+pkk,PKK,silahli_grup,tr,PKK|Kurdistan Workers' Party,1,Kılavuz §4: ilk geçişte "terör örgütü PKK"
+hts,Heyet Tahrir eş-Şam (HTŞ),silahli_grup,sy,HTS|Hay'at Tahrir al-Sham,0,2025'te Suriye ordusuna katıldı; yalnız geçmiş olaylar
+hizbullah,Hizbullah,silahli_grup,lb,Hezbollah|Hizballah,1,
+hasdi-sabi,Haşdi Şabi,silahli_grup,iq,Popular Mobilization Forces|PMF|al-Hashd al-Shaabi,1,
+hamas,Hamas,silahli_grup,,Hamas,1,
+husiler,Husiler,silahli_grup,,Houthis|Ansar Allah|Ensarullah,1,

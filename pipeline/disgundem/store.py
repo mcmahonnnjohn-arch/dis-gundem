@@ -238,6 +238,58 @@ class Store:
         self.client.table("clusters").insert(self._clean([row])[0]).execute()
         return row["id"]
 
+    # ---- harita (0008)
+    def upsert_map_dictionaries(self, places: list[dict], actors: list[dict]) -> None:
+        self._upsert("places", places, "id")
+        self._upsert("actors", actors, "id")
+
+    def map_candidates(self, hours: int = 72, redo: bool = False) -> tuple[list[dict], list[dict]]:
+        """Haritaya bağlanmamış (event_type boş) kuyruk/onaylı/yayında kümeler ve üye makaleleri."""
+        if self.client is None:
+            return [], []
+        since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+        q = (self.client.table("clusters").select("id,status,importance,primary_country,countries,title_tr,summary_tr")
+             .in_("status", ["queued", "approved", "published"]).is_("merged_into", "null").gte("created_at", since))
+        if not redo:
+            q = q.is_("event_type", "null")
+        cl = q.execute().data
+        ids = [c["id"] for c in cl]
+        arts: list[dict] = []
+        for i in range(0, len(ids), 100):
+            arts += (self.client.table("articles").select("id,cluster_id,title,summary_tr")
+                     .in_("cluster_id", ids[i:i + 100]).execute().data)
+        return cl, arts
+
+    def set_map_links(self, cid: str, fields: dict, places: list[tuple[str, bool]],
+                      actors: list[tuple[str, str | None]]) -> None:
+        """Kümenin yer ve aktör bağlarını baştan yazar (yeniden çalıştırmada eski bağlar kalmasın)."""
+        if self.client is None:
+            self._dump("map_links", [{"id": cid, **fields, "places": places, "actors": actors}])
+            return
+        self.client.table("cluster_places").delete().eq("cluster_id", cid).execute()
+        self.client.table("cluster_actors").delete().eq("cluster_id", cid).execute()
+        if places:
+            self.client.table("cluster_places").insert(
+                [{"cluster_id": cid, "place_id": p, "is_primary": b} for p, b in places]).execute()
+        if actors:
+            self.client.table("cluster_actors").insert(
+                [{"cluster_id": cid, "actor_id": a, "role": r} for a, r in actors]).execute()
+        self.update_cluster(cid, fields)
+
+    def note_unresolved(self, names: list[tuple[str, str | None]]) -> None:
+        """Sözlükte bulunamayan yer adları; görülme sayısı artar, editör `resolved_to` ile eşler."""
+        if not names:
+            return
+        if self.client is None:
+            self._dump("place_unresolved", [{"raw_name": n, "country_id": c} for n, c in names])
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        uniq = {n: c for n, c in names}
+        have = {r["raw_name"]: r["seen_count"] for r in self.client.table("place_unresolved")
+                .select("raw_name,seen_count").in_("raw_name", list(uniq)).execute().data}
+        self._upsert("place_unresolved", [{"raw_name": n, "country_id": c, "seen_count": have.get(n, 0) + 1,
+                                           "last_seen": now} for n, c in uniq.items()], "raw_name")
+
     def log_run(self, row: dict) -> None:
         self._upsert("fetch_runs", [row], "id")
 

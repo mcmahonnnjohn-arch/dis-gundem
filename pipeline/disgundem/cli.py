@@ -31,7 +31,13 @@ def cmd_seed(s, args):
     store.upsert_dictionaries(dictionaries())
     srcs = load_sources()
     store.upsert_sources([x.as_row() for x in srcs])
-    print(f"seed: {len(srcs)} kaynak, {len(dictionaries()['countries'])} ülke")
+    from . import harita
+    pl, ac = harita.places(), harita.actors()
+    try:
+        store.upsert_map_dictionaries([x.row() for x in pl.values()], [x.row() for x in ac.values()])
+    except Exception as e:   # 0008 uygulanmadıysa hat durmasın
+        log.warning("harita sözlükleri yüklenemedi (0008_harita.sql uygulandı mı?): %s", str(e)[:200])
+    print(f"seed: {len(srcs)} kaynak, {len(dictionaries()['countries'])} ülke, {len(pl)} yer, {len(ac)} aktör")
 
 
 def _collect(client, matcher, src: dict) -> tuple[list[Item], str]:
@@ -297,6 +303,45 @@ def cmd_birlestir(s, args):
     print(f"birlestir: {len(items)} küme, {len(groups)} olay grubu, {merged} küme birleşti")
 
 
+def cmd_harita(s, args):
+    """Özetli kümeleri haritaya bağlar: olay türü, yerler (birincil işaretçi), aktörler, "Türkiye için anlamı".
+    `olay` adımından sonra çalışır; yalnız event_type'ı boş kümeler (--yeniden ile hepsi)."""
+    from . import harita
+    store = Store(s)
+    clf = Classifier(s)
+    try:
+        clusters, arts = store.map_candidates(hours=args.saat, redo=args.yeniden)
+    except Exception as e:   # 0008 uygulanmadıysa hat durmasın
+        print(f"harita: atlandı, harita sütunları yok (0008_harita.sql uygulandı mı?): {str(e)[:160]}")
+        return
+    by_c: dict[str, list[dict]] = {}
+    for a in arts:
+        by_c.setdefault(a["cluster_id"], []).append(a)
+    events = []
+    for c in clusters:
+        members = by_c.get(c["id"], [])
+        ozet = c.get("summary_tr") or next((a["summary_tr"] for a in members if a.get("summary_tr")), None)
+        if not ozet:
+            continue                       # özetsiz küme haritaya düşmez; sonraki çalıştırmada tekrar denenir
+        baslik = c.get("title_tr") or (members[0]["title"] if members else None)
+        events.append({"k": c["id"], "baslik": baslik, "ozet": ozet, "ulke": c.get("primary_country"),
+                       "kaynak_basliklari": [a["title"][:200] for a in members]})
+    links = harita.extract(clf, events)
+    known_c = {x["id"] for x in dictionaries()["countries"]}
+    unresolved: list[tuple[str, str | None]] = []
+    noplace = 0
+    for cid, L in links.items():
+        meta = {"prompt": harita.PROMPT_VERSION, "model": clf.model,
+                "cozulemeyen": [n for n, _ in L.unresolved]}
+        store.set_map_links(cid, {"event_type": L.event_type, "turkey_stake": L.turkey_stake, "map_meta": meta},
+                            L.places, L.actors)
+        unresolved += [(n, c if c in known_c else None) for n, c in L.unresolved]
+        noplace += not L.places
+    store.note_unresolved(unresolved)
+    print(f"harita: {len(events)} olay, {len(links)} bağlandı, {noplace} yersiz, "
+          f"{len(unresolved)} çözülemeyen yer adı (place_unresolved)")
+
+
 def cmd_olay(s, args):
     """Çok haberli kümelere olay özeti + bakış farkı yazar; metni hiç okunamamış kuyruk kümelerini havuza düşürür."""
     from . import olay
@@ -456,6 +501,9 @@ def main(argv=None):
     o = sub.add_parser("olay", help="çok haberli kümelere olay özeti; metinsiz kuyruk kümesini havuza düşür")
     o.add_argument("--saat", type=int, default=48)
     o.add_argument("--yeniden", action="store_true", help="olay özeti olan kümeleri de yeniden yaz")
+    h = sub.add_parser("harita", help="özetli olayları haritaya bağla (tür, yer, aktör, Türkiye için anlamı)")
+    h.add_argument("--saat", type=int, default=72)
+    h.add_argument("--yeniden", action="store_true", help="bağlı kümeleri de yeniden çıkar")
     e = sub.add_parser("eval", help="özet test setini çalıştır ve puanla")
     e.add_argument("--no", nargs="*", help="yalnız bu test numaraları")
     e.add_argument("--onayli", action="store_true", help="yalnız editör onaylı satırlar")
@@ -470,7 +518,7 @@ def main(argv=None):
     args = p.parse_args(argv)
     s = config.load()
     {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
-     "birlestir": cmd_birlestir, "olay": cmd_olay,
+     "birlestir": cmd_birlestir, "olay": cmd_olay, "harita": cmd_harita,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
 
 
