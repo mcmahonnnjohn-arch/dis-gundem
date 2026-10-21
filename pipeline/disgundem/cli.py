@@ -290,17 +290,22 @@ def cmd_birlestir(s, args):
              for c in clusters if by_c.get(c["id"])]
     groups = olay.group_items(clf, items)
     cmap = {c["id"]: c for c in clusters}
-    merged = 0
+    merged = gec = 0
     for g in groups:
         cs = [cmap[x] for x in g]
         target = olay.pick_target(cs)
+        cs, disarda = olay.within_window(target, cs, args.pencere)
+        if len(cs) < 2:
+            continue
+        gec += len(disarda)
         others = [c for c in cs if c["id"] != target["id"]]
         members = [a for c in cs for a in by_c.get(c["id"], [])]
         store.merge_clusters(target, others, members)
         merged += len(others)
         print(f"  olay: {len(members)} haber → {target['id'][:8]} ({target['status']}) · "
               + " | ".join(a["title"][:50] for a in members[:4]))
-    print(f"birlestir: {len(items)} küme, {len(groups)} olay grubu, {merged} küme birleşti")
+    print(f"birlestir: {len(items)} küme, {len(groups)} olay grubu, {merged} küme birleşti, "
+          f"{gec} küme zaman penceresi ({args.pencere} sa) dışında kaldı")
 
 
 def cmd_harita(s, args):
@@ -397,6 +402,10 @@ def cmd_olay(s, args):
                     "baslik": a["title"][:200], "ozet": a["summary_tr"], "bakis": a.get("local_view_note")}
                    for a in done]
         res = olay.summarize_event(clf, payload)
+        if res and res["ozet"] and s.audit and clf.provider != "none":
+            res = olay.audit_event(clf, payload, res)
+            for x in res.get("denetim") or []:
+                print(f"  denetim ({x.get('alan')}/{x.get('tur')}): {str(x.get('ozet_ifadesi'))[:60]} — {str(x.get('aciklama'))[:90]}")
         if res and res["ozet"]:
             store.update_cluster(c["id"], {"title_tr": res["baslik"], "summary_tr": res["ozet"],
                                            "bakis_farki": res["bakis_farki"], "article_count": len(members)})
@@ -519,6 +528,7 @@ def main(argv=None):
     c.add_argument("--yeniden", action="store_true", help="sunucu kökenli kuyruk haberlerini baştan özetle")
     b = sub.add_parser("birlestir", help="aynı olayın kümelerini birleştir (diller arası)")
     b.add_argument("--saat", type=int, default=48)
+    b.add_argument("--pencere", type=int, default=48, help="bir olaya katılabilecek kümelerin ilk-haber zaman farkı (saat)")
     o = sub.add_parser("olay", help="çok haberli kümelere olay özeti; metinsiz kuyruk kümesini havuza düşür")
     o.add_argument("--saat", type=int, default=48)
     o.add_argument("--yeniden", action="store_true", help="olay özeti olan kümeleri de yeniden yaz")

@@ -11,6 +11,7 @@ class FakeClf:
     def __init__(self, replies): self.replies = list(replies); self.calls = []
     def _call(self, system, user, model=None, cache=False):
         self.calls.append(user); return json.dumps(self.replies.pop(0))
+    def audit(self, item, text, summary): return {"gecti": True, "sorunlar": [], "duzeltilmis_ozet": None}
 
 
 def test_group_items_maps_indices_and_drops_singletons():
@@ -62,3 +63,35 @@ def test_legacy_articles_without_metin_flag_are_not_dropped(monkeypatch):
     cl = [{"id": "k1", "status": "queued", "origin": "server"}]
     arts = [{"id": "a1", "cluster_id": "k1", "title": "t", "classification": {"prompt": "classify_v1"}, "summary_tr": "s"}]
     assert _run_olay(monkeypatch, cl, arts, []).st == []
+
+
+def test_within_window_keeps_old_event_separate():
+    t = {"id": "t", "first_seen": "2026-10-10T00:00:00+00:00"}
+    near = {"id": "n", "first_seen": "2026-10-11T10:00:00+00:00"}
+    far = {"id": "f", "first_seen": "2026-10-15T00:00:00+00:00"}
+    nodate = {"id": "d", "first_seen": None}
+    inside, outside = olay.within_window(t, [t, near, far, nodate], hours=48)
+    assert [c["id"] for c in inside] == ["t", "n", "d"] and [c["id"] for c in outside] == ["f"]
+
+
+class AuditClf(FakeClf):
+    """Başlıktaki yanlış unvanı yakalayıp düzelten denetçi."""
+    def audit(self, item, text, summary):
+        if "Genelkurmay'ı Munir" in summary:
+            return {"gecti": False, "sorunlar": [{"tur": "unvan", "ozet_ifadesi": "Genelkurmay'ı Munir", "aciklama": "x"}],
+                    "duzeltilmis_ozet": summary.replace("Genelkurmay'ı Munir", "Genelkurmay Başkanı Munir")}
+        return {"gecti": True, "sorunlar": [], "duzeltilmis_ozet": None}
+
+
+def test_audit_event_fixes_title_and_reports_issue():
+    members = [{"kaynak": "K", "baslik": "b", "ozet": "o"}]
+    res = olay.audit_event(AuditClf([]), members, {"baslik": "Pakistan Genelkurmay'ı Munir geldi", "ozet": "Temiz özet.", "bakis_farki": None})
+    assert res["baslik"] == "Pakistan Genelkurmay Başkanı Munir geldi" and res["ozet"] == "Temiz özet."
+    assert res["denetim"] == [{"tur": "unvan", "ozet_ifadesi": "Genelkurmay'ı Munir", "aciklama": "x", "alan": "baslik"}]
+
+
+def test_audit_error_leaves_event_text_unchanged():
+    class Err(FakeClf):
+        def audit(self, item, text, summary): return {"gecti": None, "sorunlar": [], "duzeltilmis_ozet": None}
+    res = olay.audit_event(Err([]), [], {"baslik": "B", "ozet": "O."})
+    assert res["baslik"] == "B" and res["denetim"] == []

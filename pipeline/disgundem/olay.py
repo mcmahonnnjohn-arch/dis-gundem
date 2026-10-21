@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 GROUP_VERSION = "olay_grupla_v3"   # v2: tepkiler aynı kartta, analizler ayrı; v3: aynı gün aşamaları, aynı konuşmanın dilleri
 SUMMARY_VERSION = "olay_ozet_v1"
 STATUS_RANK = {"queued": 3, "pool": 2, "classified": 1, "fetched": 0}
+EVENT_WINDOW_HOURS = 48   # bir olaya, hedef kümenin ilk haberinden en fazla bu kadar sonra açılan küme katılabilir
 
 
 def group_items(clf: Classifier, items: list[dict]) -> list[list[str]]:
@@ -52,6 +53,17 @@ def pick_target(clusters: list[dict]) -> dict:
                                         c.get("importance") or 0, -(_ts(c.get("first_seen")))))
 
 
+def within_window(target: dict, clusters: list[dict], hours: int = EVENT_WINDOW_HOURS) -> tuple[list[dict], list[dict]]:
+    """Hedefin ilk haberinden ±`hours` içinde açılan kümeler (birleşir) ve dışarıda kalanlar (ayrı olay kalır).
+    Uzayan konulara (ör. Libya) her turda yeni haber yığılmasın diye; tarihi olmayan küme pencerede sayılır."""
+    t0, lim = _ts(target.get("first_seen")), hours * 3600
+    inside, outside = [], []
+    for c in clusters:
+        ts = _ts(c.get("first_seen"))
+        (inside if not t0 or not ts or abs(ts - t0) <= lim else outside).append(c)
+    return inside, outside
+
+
 def _ts(v) -> float:
     from datetime import datetime
     if not v:
@@ -60,6 +72,29 @@ def _ts(v) -> float:
         return datetime.fromisoformat(str(v).replace("Z", "+00:00")).timestamp()
     except ValueError:
         return 0.0
+
+
+def audit_event(clf: Classifier, members: list[dict], res: dict) -> dict:
+    """Olay başlığını ve özetini üye özetlerine karşı denetler (unvan/ad/sayı/atıf); düzeltilmiş metin varsa uygular.
+    Üye özetleri zaten kaynağa karşı denetlenmiş olduğundan 'kaynak' onlardır. Dönen: {**res, "denetim": [...]}.
+    Denetim hatası olayı durdurmaz (gecti=None → metin olduğu gibi kalır)."""
+    from types import SimpleNamespace
+    src = " ".join(f"[{m.get('kaynak')}] {m.get('baslik')}. {m.get('ozet')}" for m in members)
+    item = SimpleNamespace(title=res.get("baslik") or "", excerpt="", url="olay")
+    found: list[dict] = []
+    out = dict(res)
+    for alan in ("baslik", "ozet"):
+        text = out.get(alan)
+        if not text:
+            continue
+        r = clf.audit(item, src, text)
+        if r.get("gecti") is False:
+            found += [{**x, "alan": alan} for x in r.get("sorunlar") or []]
+            fixed = r.get("duzeltilmis_ozet")
+            if fixed:
+                out[alan] = fixed.strip()[:160] if alan == "baslik" else (fit_summary(fixed) or text)
+    out["denetim"] = found
+    return out
 
 
 def summarize_event(clf: Classifier, members: list[dict]) -> dict | None:
