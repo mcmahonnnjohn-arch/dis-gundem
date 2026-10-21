@@ -7,55 +7,53 @@ const disaridan = olaylar.filter((o) => o.turkiye_mercegi);
 const bolgeden = olaylar.filter((o) => !o.turkiye_mercegi);
 ---
 <Sayfa>
+  <div class="ust-serit"><div class="sarmal-genis"><span id="tarih-yeri">&nbsp;</span></div></div>
   <header class="baslik-bandi">
     <h1>DIŞ GÜNDEM</h1>
-    <p>Bölgede ne oluyor, dünya Türkiye'yi nasıl görüyor.</p>
+    <p><span>Bölgede ne oluyor, dünya Türkiye'yi nasıl görüyor.</span></p>
   </header>
   {ornek && <div class="ornek-seridi">Örnek veri: kartlar editör referans özetleridir, yayımlanmış küme değildir.</div>}
 
   <nav class="suzgec" aria-label="Bölge süzgeci">
-    <div class="sarmal">
+    <div class="sarmal-genis">
       <button type="button" data-bolge="" aria-pressed="true">Tümü</button>
       {bolgeler.map((b) => <button type="button" data-bolge={b} aria-pressed="false">{b}</button>)}
     </div>
   </nav>
 
-  <main>
-    <section class="bolum bolum-vurgulu" data-liste>
-      <div class="sarmal">
-        <h2 class="bolum-baslik">Dışarıdan Türkiye</h2>
-        <p class="bolum-alt">Bölge basını ve dünya, Türkiye'yi nasıl görüyor.</p>
-        {disaridan.map((o) => <OlayKarti olay={o} />)}
-        <p class="bos" hidden>Bu bölgede şimdilik bu başlıkta olay yok.</p>
-        <button class="daha" type="button" hidden>Daha fazla göster</button>
-      </div>
+  <main class="sarmal-genis ana">
+    <section class="sutun sol" data-liste data-ilk="on">
+      <h2 class="bolum-baslik">Bölgede neler oluyor</h2>
+      {bolgeden.map((o) => <OlayKarti olay={o} />)}
+      <p class="bos" hidden>Bu bölgede şimdilik bu başlıkta olay yok.</p>
+      <button class="daha" type="button" hidden>Daha fazla göster</button>
     </section>
 
-    <section class="bolum" data-liste>
-      <div class="sarmal">
-        <h2 class="bolum-baslik">Bölgeden gelişmeler</h2>
-        <p class="bolum-alt">Türkiye'nin aktif olduğu coğrafyalarda öne çıkanlar.</p>
-        {bolgeden.map((o) => <OlayKarti olay={o} />)}
-        <p class="bos" hidden>Bu bölgede şimdilik bu başlıkta olay yok.</p>
-        <button class="daha" type="button" hidden>Daha fazla göster</button>
-      </div>
+    <section class="sutun sag" data-liste data-ilk="kutulu">
+      <h2 class="bolum-baslik">Dışarıdan Türkiye</h2>
+      {disaridan.map((o) => <OlayKarti olay={o} />)}
+      <p class="bos" hidden>Bu bölgede şimdilik bu başlıkta olay yok.</p>
+      <button class="daha" type="button" hidden>Daha fazla göster</button>
     </section>
   </main>
 
   <footer>Dış Gündem · Özetler kaynaklara atıfla, kendi cümlelerimizle yazılır.</footer>
 
   <script>
-    const ADIM = 4;
+    const ADIM = 5;
     let bolge = "";
     const sayac = new Map<Element, number>();
     const bolumler = [...document.querySelectorAll<HTMLElement>("[data-liste]")];
+    const tarihYeri = document.getElementById("tarih-yeri");
+    if (tarihYeri) tarihYeri.textContent = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
     function ciz() {
       for (const b of bolumler) {
         const n = sayac.get(b) ?? ADIM;
         const kartlar = [...b.querySelectorAll<HTMLElement>(".kart")];
         const uygun = kartlar.filter((k) => !bolge || k.dataset.bolge === bolge);
-        kartlar.forEach((k) => (k.hidden = true));
+        kartlar.forEach((k) => { k.hidden = true; k.classList.remove("on", "kutulu"); });
         uygun.slice(0, n).forEach((k) => (k.hidden = false));
+        if (uygun[0]) uygun[0].classList.add(b.dataset.ilk!);
         b.querySelector<HTMLElement>(".bos")!.hidden = uygun.length > 0;
         b.querySelector<HTMLElement>(".daha")!.hidden = uygun.length <= n;
       }
