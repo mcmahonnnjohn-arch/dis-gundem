@@ -1,0 +1,14 @@
+{
+  "name": "dis-gundem-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "ornek": "python3 scripts/ornek-veri.py"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}
