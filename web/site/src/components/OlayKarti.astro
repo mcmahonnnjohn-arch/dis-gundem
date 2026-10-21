@@ -13,12 +13,16 @@ const tarih = olay.tarih ? new Date(olay.tarih).toLocaleDateString("tr-TR", { da
   {olay.bakis_farki && (
     <p class="bakis-farki"><b>Bakış farkı</b>{olay.bakis_farki}</p>
   )}
-  <ul class="kaynaklar">
-    {olay.kaynaklar.map((k) => (
-      <li>
-        <a href={k.url} rel="noopener noreferrer" target="_blank">{k.ad}</a> · {k.ulke}{k.dil && ` · ${DIL[k.dil] ?? k.dil}`}
-        {k.ozgun_baslik && <span class="ozgun" dir={SAGDAN_SOLA.has(k.dil) ? "rtl" : "ltr"} lang={k.dil}>{k.ozgun_baslik}</span>}
-      </li>
-    ))}
-  </ul>
+  <details class="kaynaklar">
+    <summary>Kaynaklar ({olay.kaynaklar.length})</summary>
+    <ul>
+      {olay.kaynaklar.map((k) => (
+        <li>
+          <a href={k.url} rel="noopener noreferrer" target="_blank">{k.ad}</a>
+          {[k.ulke, k.dil && (DIL[k.dil] ?? k.dil)].filter(Boolean).map((x) => ` · ${x}`).join("")}
+          {k.ozgun_baslik && <span class="ozgun" dir={SAGDAN_SOLA.has(k.dil) ? "rtl" : "ltr"} lang={k.dil}>{k.ozgun_baslik}</span>}
+        </li>
+      ))}
+    </ul>
+  </details>
 </article>
