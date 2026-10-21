@@ -63,3 +63,7 @@ A kapsamı kaynaklarda `gnews` Türkiye filtresi uygulamaz (iç gündem de gerek
 - Editör arayüzü ve yayın yüzeyi (Astro/Next; `published` RLS politikası hazır)
 - Chrome tarama oturumunun standart talimatı: `docs/CHROME_OTURUMU.md`
 - Kaynak özel scraper seçicileri (`fetch/scrape.py: SELECTORS`)
+
+## Editör onay görünümü (21 Ekim 2026)
+
+`disgundem editor` — yalnız `127.0.0.1`'de çalışan yerel arayüz (varsayılan port 8787). Servis anahtarı bu süreçte kalır; sayfa yalnız bu sunucuyla konuşur (oturum anahtarı + Host denetimi; yerel olsa da dış sayfaların isteğine kapalı). Onay birimi **küme = olay kartı**: başlık, özet ve bakış farkı düzeltilir; **Yayınla** küme ve üye makaleleri `published` yapar, **Reddet** `rejected`. Her metin düzeltmesi `editor_corrections` günlüğüne gider (0009; Yayın Kılavuzu §9). İç bilgi (önem, köken, uyarılar, üye özetleri) yalnız "Ayrıntılar" altında, varsayılan kapalı. Veritabanı olmadan denemek için `disgundem editor --demo`.

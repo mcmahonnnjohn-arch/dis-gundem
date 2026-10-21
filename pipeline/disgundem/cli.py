@@ -502,6 +502,25 @@ def cmd_check_feeds(s, args):
             print(f"  {r['id']:5} {r['name'][:30]:30} {r['via']:11} {r['items']:4}  {r['rss_error'] or ''}")
 
 
+def cmd_editor(s, args):
+    """Yerel editör onay görünümü (yalnız 127.0.0.1). Servis anahtarı bu süreçte kalır."""
+    from .editor import DemoStore, sunucu_kur
+    if args.demo:
+        store = DemoStore(config.ROOT / "web" / "site" / "src" / "data" / "ornek.json")
+    elif s.has_db:
+        store = Store(s)
+    else:
+        print("Veritabanı yok (SUPABASE_URL / SUPABASE_SERVICE_KEY, DRY_RUN=0). Arayüzü denemek için: disgundem editor --demo")
+        return 1
+    srv = sunucu_kur(store, args.port, demo=args.demo)
+    print(f"Editör: http://127.0.0.1:{args.port}  (durdurmak için Ctrl+C)")
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    return 0
+
+
 def main(argv=None):
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     p = argparse.ArgumentParser(prog="disgundem")
@@ -538,11 +557,14 @@ def main(argv=None):
     m.add_argument("--report", action="store_true")
     k = sub.add_parser("check-feeds", help="envanterdeki RSS adreslerini dene")
     k.add_argument("--core", action="store_true")
+    ed = sub.add_parser("editor", help="yerel editör onay görünümü (küme = olay kartı; yayınla/düzelt/reddet)")
+    ed.add_argument("--port", type=int, default=8787)
+    ed.add_argument("--demo", action="store_true", help="veritabanı olmadan bellek içi örnek kuyrukla dene")
     args = p.parse_args(argv)
     s = config.load()
     {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
      "birlestir": cmd_birlestir, "olay": cmd_olay, "harita": cmd_harita, "harita-olcum": cmd_harita_olcum,
-     "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)
+     "measure": cmd_measure, "check-feeds": cmd_check_feeds, "editor": cmd_editor}[args.cmd](s, args)
 
 
 if __name__ == "__main__":

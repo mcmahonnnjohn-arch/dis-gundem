@@ -333,3 +333,56 @@ class Store:
 
     def upsert_metrics(self, rows: list[dict]) -> None:
         self._upsert("source_metrics", rows, "source_id,window_start,window_end")
+
+    # ---- editör onay görünümü (0009)
+    def editor_queue(self, limit: int = 60) -> list[dict]:
+        """Onay bekleyen (status=queued) olay kümeleri, üye makaleleri ve kaynak adlarıyla."""
+        if self.client is None:
+            return []
+        cl = (self.client.table("clusters")
+              .select("id,title_tr,summary_tr,bakis_farki,importance,primary_country,countries,article_count,"
+                      "first_seen,last_seen,origin")
+              .eq("status", "queued").is_("merged_into", "null")
+              .order("importance", desc=True).order("last_seen", desc=True).limit(limit).execute().data)
+        ids = [c["id"] for c in cl]
+        arts: list[dict] = []
+        for i in range(0, len(ids), 100):
+            arts += (self.client.table("articles")
+                     .select("id,cluster_id,source_id,title,url,lang,frame,summary_tr,uyarilar,published_at")
+                     .in_("cluster_id", ids[i:i + 100]).execute().data)
+        sids = sorted({a["source_id"] for a in arts})
+        names: dict[str, dict] = {}
+        for i in range(0, len(sids), 100):
+            for s in self.client.table("sources").select("id,name,country_id").in_("id", sids[i:i + 100]).execute().data:
+                names[s["id"]] = s
+        by: dict[str, list[dict]] = {}
+        for a in arts:
+            s = names.get(a["source_id"], {})
+            by.setdefault(a["cluster_id"], []).append({**a, "kaynak_adi": s.get("name", a["source_id"]),
+                                                     "kaynak_ulke": s.get("country_id")})
+        return [{**c, "makaleler": by.get(c["id"], [])} for c in cl]
+
+    def editor_cluster(self, cid: str) -> dict | None:
+        if self.client is None:
+            return None
+        r = (self.client.table("clusters").select("id,status,title_tr,summary_tr,bakis_farki")
+             .eq("id", cid).limit(1).execute().data)
+        return r[0] if r else None
+
+    def editor_save(self, cid: str, fields: dict, corrections: list[dict]) -> None:
+        """Kümeyi günceller ve düzeltmeleri günlüğe yazar."""
+        if self.client is None:
+            return
+        if fields:
+            self.client.table("clusters").update(fields).eq("id", cid).execute()
+        if corrections:
+            self.client.table("editor_corrections").insert(
+                [{"cluster_id": cid, **c} for c in corrections]).execute()
+
+    def editor_set_status(self, cid: str, status: str) -> None:
+        """Küme ve üye makaleleri aynı duruma geçer (published | rejected). Reddedilmiş makaleye dokunulmaz."""
+        if self.client is None:
+            return
+        self.client.table("clusters").update({"status": status}).eq("id", cid).execute()
+        (self.client.table("articles").update({"status": status})
+         .eq("cluster_id", cid).neq("status", "rejected").execute())
