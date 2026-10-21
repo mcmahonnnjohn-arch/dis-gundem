@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: "seed | fetch | classify | classify-yeniden | olay | eval | measure | check-feeds | chrome-import"
+        description: "seed | fetch | classify | classify-yeniden | olay | eval | measure | harita-olcum | check-feeds | chrome-import"
         default: "check-feeds"
       file:
         description: "chrome-import için oturum dosyası (boşsa data/premium/ altındaki tüm JSON'lar)"
@@ -70,6 +70,7 @@ jobs:
           disgundem birlestir
           disgundem classify --limit 300
           disgundem olay
+          disgundem harita
       - name: classify
         if: steps.pick.outputs.job == 'classify'
         run: disgundem classify --limit 500
@@ -79,6 +80,7 @@ jobs:
           disgundem birlestir --saat 72
           disgundem classify --limit 300
           disgundem olay --saat 72
+          disgundem harita
       - name: classify-yeniden
         if: steps.pick.outputs.job == 'classify-yeniden'
         run: disgundem classify --yeniden --limit 200
@@ -90,6 +92,9 @@ jobs:
       - name: measure
         if: steps.pick.outputs.job == 'measure'
         run: disgundem measure --days 30 --report
+      - name: harita-olcum
+        if: steps.pick.outputs.job == 'harita-olcum' || steps.pick.outputs.job == 'measure'
+        run: disgundem harita-olcum --days 7
       - name: check-feeds
         if: steps.pick.outputs.job == 'check-feeds'
         run: disgundem check-feeds
@@ -104,6 +109,7 @@ jobs:
           disgundem birlestir
           disgundem classify --limit 300
           disgundem olay
+          disgundem harita
       - uses: actions/upload-artifact@v4
         if: always()
         with:

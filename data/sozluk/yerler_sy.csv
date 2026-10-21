@@ -1,0 +1,118 @@
+id,name_tr,aliases,country_id,kind,precision,lat,lon,verified,koordinat_kaynagi,not
+sy-sam,Şam,Damascus|Dimashq|دمشق,sy,sehir,sehir,33.5102,36.2913,true,https://www.geonames.org/170654,Başkent
+sy-halep,Halep,Aleppo|Halab|حلب,sy,sehir,sehir,36.2012,37.1612,true,https://www.geonames.org/170063,
+sy-humus,Humus,Homs|Hims|حمص,sy,sehir,sehir,34.724,36.7256,true,https://www.geonames.org/169577,
+sy-hama,Hama,Hamah|Hamaa|Ḩamāh|حماة,sy,sehir,sehir,35.1318,36.7578,true,https://www.geonames.org/170017,
+sy-lazkiye,Lazkiye,Latakia|Lattakia|Al-Ladhiqiyah|ladhqyہ,sy,sehir,sehir,35.5312,35.7909,true,https://www.geonames.org/173576,
+sy-tartus,Tartus,Tartous|Ţarţūs|ترطوس,sy,sehir,sehir,34.889,35.8866,true,https://www.geonames.org/163345,
+sy-idlib,İdlib,Idlib|Idleb|إدلب,sy,sehir,sehir,35.9306,36.6339,true,https://www.geonames.org/169389,
+sy-rakka,Rakka,Raqqa|Ar-Raqqah|Ar Raqqah|الرقة,sy,sehir,sehir,35.9528,39.0079,true,https://www.geonames.org/172955,
+sy-deyrizor,Deyrizor,Deir ez-Zor|Deir al-Zour|Dayr az-Zawr|دير الزور,sy,sehir,sehir,35.3359,40.1408,true,https://www.geonames.org/170794,AA yazımı 'Deyrizor'
+sy-haseke,Haseke,Hasakah|Al-Hasakah|Hasakeh|Al Ḩasakah|hەsychە,sy,sehir,sehir,36.5024,40.7477,true,https://www.geonames.org/173811,
+sy-kamisli,Kamışlı,Qamishli|Qamishlo|Al-Qamishli|Al Qāmishlī|qamshlۆ,sy,sehir,sehir,37.0521,41.2314,true,https://www.geonames.org/173377,Nusaybin'in karşısı
+sy-dera,Dera,Daraa|Deraa|Dar'a|Dar‘ā|dەrʿa,sy,sehir,sehir,32.6189,36.1021,true,https://www.geonames.org/170905,varliklar.csv A33 ile uyumlu
+sy-suveyda,Süveyda,Sweida|As-Suwayda|Suwayda|السويداء,sy,sehir,sehir,32.709,36.5695,true,https://www.geonames.org/172408,Dürzi nüfusun merkezi
+sy-kuneytra,Kuneytra,Quneitra|Al-Qunaytirah|Al Qunayţirah|القنيطرة,sy,sehir,sehir,33.126,35.8246,true,https://www.geonames.org/173334,varliklar.csv A32 ile uyumlu
+sy-el-bab,El-Bab,Al-Bab|Al Bāb|الباب,sy,sehir,sehir,36.3705,37.5157,true,https://www.geonames.org/174018,
+sy-menbic,Menbiç,Manbij|منبج,sy,sehir,sehir,36.5281,37.9549,true,https://www.geonames.org/167357,
+sy-azez,Azez,Azaz|A'zaz|I‘zāz|أعزاز,sy,sehir,sehir,36.5866,37.0463,true,https://www.geonames.org/172082,
+sy-afrin,Afrin,Efrin|‘Afrīn|عفرين,sy,sehir,sehir,36.5119,36.8695,true,https://www.geonames.org/174186,
+sy-cerablus,Cerablus,Jarabulus|Jarābulus|جرابلس,sy,sehir,sehir,36.8175,38.0111,true,https://www.geonames.org/169179,Karkamış'ın karşısı
+sy-tel-rifat,Tel Rıfat,Tal Rifaat|Tell Rifaat|Tall Rif'at|Tall Rif‘at|تل رفعت,sy,sehir,sehir,36.4723,37.0947,true,https://www.geonames.org/163476,
+sy-ayn-el-arab,Ayn el-Arab,Kobani|Kobane|Ayn al-Arab|‘Ayn al ‘Arab|عين العرب,sy,sehir,sehir,36.8909,38.3535,true,https://www.geonames.org/172256,Türk basını 'Ayn el-Arab (Kobani)' kalıbını kullanır
+sy-tel-abyad,Tel Abyad,Tal Abyad|Gire Spi|Tall Abyaḑ|تل أبيض,sy,sehir,sehir,36.6965,38.9538,true,https://www.geonames.org/163750,Akçakale'nin karşısı
+sy-resulayn,Resulayn,Ras al-Ain|Ra's al-'Ayn|Serekaniye|Ra’s al ‘Ayn|رأس العين,sy,sehir,sehir,36.8503,40.0705,true,https://www.geonames.org/165509,Ceylanpınar'ın karşısı
+sy-tel-tamr,Tel Temir,Tal Tamr|Tell Tamer|Tall Tamr|تل تامر,sy,sehir,sehir,36.6556,40.3708,true,https://www.geonames.org/163434,Yazım kontrol: 'Tel Tamr' de kullanılıyor
+sy-amude,Amude,Amuda|‘Āmūdā|عامودا,sy,sehir,sehir,37.1042,40.93,true,https://www.geonames.org/173230,
+sy-derbasiye,Derbasiye,Al-Darbasiyah|Ad Darbāsīyah|الدرباسية,sy,sehir,sehir,37.0728,40.652,true,https://www.geonames.org/170887,
+sy-malikiye,Malikiye,Al-Malikiyah|Derik|Dayrik|Al Mālikīyah|dێryk,sy,sehir,sehir,37.177,42.1401,true,https://www.geonames.org/173530,
+sy-kahtaniye,Kahtaniye,Al-Qahtaniyah|Tirbespi|Al Qaḩţānīyah|القحطانية,sy,sehir,sehir,37.029,41.546,true,https://www.geonames.org/165757,
+sy-tabka,Tabka,Tabqa|Al-Thawrah|Al-Tabqa|الثورة,sy,sehir,sehir,35.8376,38.5483,true,https://www.geonames.org/172374,
+sy-meskene,Meskene,Maskanah|بالس,sy,sehir,sehir,35.9658,38.0416,true,https://www.geonames.org/167080,
+sy-dir-hafir,Deyr Hafir,Deir Hafer|Dayr Hafir|Dayr Ḩāfir|دير حافر,sy,sehir,sehir,36.1569,37.7078,true,https://www.geonames.org/170785,
+sy-sefire,Sefire,As-Safirah|Safira|As Safīrah|السفيرة,sy,sehir,sehir,36.077,37.3725,true,https://www.geonames.org/172503,Savunma sanayi tesisleri yakını
+sy-nubul,Nubul,Nubl|Nubbol|نبل,sy,sehir,sehir,36.3787,36.9929,true,https://www.geonames.org/166331,
+sy-cinderes,Cinderes,Jindires|Jandairis|Jindayris|جنديرس,sy,sehir,sehir,36.395,36.6889,true,https://www.geonames.org/169190,Şubat 2023 depremi
+sy-mayadin,Mayadin,Al-Mayadin|Mayadeen|Al Mayādīn|الميادين,sy,sehir,sehir,35.0198,40.4515,true,https://www.geonames.org/173480,
+sy-ebu-kemal,Ebu Kemal,Albu Kamal|Abu Kamal|Al-Bukamal|Ālbū Kamāl|أبو كمال,sy,sehir,sehir,34.4523,40.9185,true,https://www.geonames.org/174448,Irak/Kaim sınırı
+sy-hacin,Hacin,Hajin|Hajīn|هجين,sy,sehir,sehir,34.6951,40.8314,true,https://www.geonames.org/174506,
+sy-tedmur,Tedmür,Palmyra|Tadmur|Palmira|تدمر,sy,sehir,sehir,34.5624,38.284,true,https://www.geonames.org/163808,Yazım kontrol: 'Palmira' da yaygın
+sy-selemiye,Selemiye,Salamiyah|As-Salamiyah|As Salamīyah|السلمية,sy,sehir,sehir,35.0113,37.0532,true,https://www.geonames.org/164947,
+sy-masyaf,Masyaf,Misyaf|Maşyāf|مصياف,sy,sehir,sehir,35.0653,36.3406,true,https://www.geonames.org/167046,
+sy-rastan,Rastan,Ar-Rastan|Ar Rastan|الرستن,sy,sehir,sehir,34.9267,36.7324,true,https://www.geonames.org/172946,
+sy-telbise,Telbise,Talbiseh|Talbisah|Tallbīsah|تلبيسة,sy,sehir,sehir,34.8407,36.7309,true,https://www.geonames.org/163779,
+sy-kuseyr,Kuseyr,Al-Qusayr|Qusair|Al Quşayr|القصير,sy,sehir,sehir,34.5078,36.5803,true,https://www.geonames.org/173322,Lübnan sınırına yakın
+sy-karyateyn,Karyateyn,Al-Qaryatayn|Al Qaryatayn|القريتين,sy,sehir,sehir,34.2296,37.2407,true,https://www.geonames.org/173361,
+sy-nebk,Nebk,An-Nabk|Nabek|An Nabk|النبك,sy,sehir,sehir,34.024,36.7285,true,https://www.geonames.org/173193,
+sy-yebrud,Yebrud,Yabroud|Yabrud|Yabrūd|يبرود,sy,sehir,sehir,33.9692,36.6573,true,https://www.geonames.org/162627,
+sy-maalula,Malula,Maaloula|Ma'loula|Ma‘lūlā|معلولا,sy,sehir,sehir,33.8453,36.5451,true,https://www.geonames.org/167375,Hristiyan kasabası
+sy-zebedani,Zebedani,Zabadani|Az-Zabadani|Az Zabadānī|الزبداني,sy,sehir,sehir,33.7249,36.1005,true,https://www.geonames.org/172059,
+sy-sednaya,Sednaya,Saydnaya|Şaydnāyā|صيدنايا,sy,sehir,sehir,33.6947,36.3715,true,https://www.geonames.org/164717,Cezaevi ayrı kayıt: sy-sednaya-cezaevi
+sy-duma,Duma,Douma|Dūmā|دوما,sy,sehir,sehir,33.5718,36.4027,true,https://www.geonames.org/170592,Doğu Guta
+sy-harasta,Harasta,Ḩarastā|حرستا,sy,sehir,sehir,33.5587,36.3651,true,https://www.geonames.org/169897,Doğu Guta
+sy-ceremana,Ceremana,Jaramana|Jaramānā|جرمانا,sy,sehir,sehir,33.4862,36.3461,true,https://www.geonames.org/169174,Dürzi/Hristiyan nüfus
+sy-darayya,Dariya,Darayya|Daraya|Dārayyā|داريا,sy,sehir,sehir,33.4584,36.2326,true,https://www.geonames.org/170892,
+sy-sahnaya,Sahnaya,Ashrafiyat Sahnaya|Şaḩnāyā|صحنايا,sy,sehir,sehir,33.4253,36.2255,true,https://www.geonames.org/164994,Nisan-Mayıs 2025 Dürzi çatışmaları
+sy-yermuk,Yermuk,Yarmouk|Al-Yarmuk|al-Yarmūk|مخيم اليرموك,sy,sehir,sehir,33.4699,36.3018,true,https://www.geonames.org/166716,Filistin kampı
+sy-kisve,Kisve,Al-Kiswah|Kisweh|Al Kiswah|الكسوة,sy,sehir,sehir,33.3581,36.2419,true,https://www.geonames.org/173598,
+sy-katana,Katana,Qatana|Qaţanā|قطنا,sy,sehir,sehir,33.4376,36.0789,true,https://www.geonames.org/165929,
+sy-cebele,Cebele,Jableh|Jablah|جبلة,sy,sehir,sehir,35.3621,35.9276,true,https://www.geonames.org/169304,Mart 2025 kıyı olayları
+sy-banyas,Banyas,Baniyas|Bāniyās|بانياس,sy,sehir,sehir,35.1819,35.9487,true,https://www.geonames.org/171830,varliklar.csv A31 ile uyumlu
+sy-safita,Safita,Şāfītā|صافيتا,sy,sehir,sehir,34.821,36.1177,true,https://www.geonames.org/165060,
+sy-kesab,Kesab,Kassab|Kessab,sy,sehir,sehir,35.925,35.9886,true,https://en.wikipedia.org/wiki/Kessab,Yayladağı karşısı; Ermeni kasabası
+sy-cisr-es-sugur,Cisr eş-Şuğur,Jisr al-Shughur|Jisr ash-Shughur|Jisr ash Shughūr|جسر الشغور,sy,sehir,sehir,35.8142,36.3198,true,https://www.geonames.org/169023,
+sy-serakib,Serakib,Saraqib|سراقب,sy,sehir,sehir,35.8645,36.8059,true,https://www.geonames.org/164816,M4-M5 kavşağı
+sy-maarret-en-numan,Maarret en-Numan,Maarat al-Numan|Ma'arrat an-Nu'man|Ma‘arrat an Nu‘mān|معرة النعمان,sy,sehir,sehir,35.6483,36.6769,true,https://www.geonames.org/167611,M5 üzerinde
+sy-han-seyhun,Han Şeyhun,Khan Shaykhun|Khan Sheikhoun|Khān Shaykhūn|خان شيخون,sy,sehir,sehir,35.4421,36.651,true,https://www.geonames.org/168325,
+sy-selkin,Selkin,Salqin|Salqīn|سلقين,sy,sehir,sehir,36.1386,36.4524,true,https://www.geonames.org/164898,
+sy-binnis,Binniş,Binnish|بنش,sy,sehir,sehir,35.9566,36.7138,true,https://www.geonames.org/171451,
+sy-kefr-nebl,Kefr Nebl,Kafranbel|Kafr Nabl|كفر نبل,sy,sehir,sehir,35.6138,36.5645,true,https://www.geonames.org/168661,
+sy-sehba,Şehba,Shahba|Shahbā|شهبا,sy,sehir,sehir,32.8524,36.6285,true,https://www.geonames.org/164626,Süveyda
+sy-salhad,Salhad,Salkhad|Şalkhad|صلخد,sy,sehir,sehir,32.492,36.7111,true,https://www.geonames.org/164917,
+sy-busra,Busra eş-Şam,Bosra|Busra al-Sham|Buşrá ash Shām|بصرى,sy,sehir,sehir,32.5174,36.4816,true,https://www.geonames.org/171126,
+sy-nava,Nava,Nawa|Nawá|نوا,sy,sehir,sehir,32.8865,36.0391,true,https://www.geonames.org/166365,
+sy-tafes,Tafes,Tafas|Ţafas|طفس,sy,sehir,sehir,32.7371,36.0665,true,https://www.geonames.org/163806,
+sy-sanamayn,Sanameyn,As-Sanamayn|Aş Şanamayn|الصنمين,sy,sehir,sehir,33.0719,36.1832,true,https://www.geonames.org/172469,
+sy-sasa,Sasa,Sa'sa'|Sa‘sa‘|سعسع,sy,sehir,sehir,33.282,36.0195,true,https://www.geonames.org/164773,Golan yolu
+sy-beyt-cinn,Beyt Cinn,Beit Jinn|Mazraat Beit Jinn|Mazra‘at Bayt Jinn|مزرعة بيت جن,sy,sehir,sehir,33.3284,35.9214,true,https://www.geonames.org/166946,Hermon eteği; İsrail operasyonları
+sy-bab-el-heva,Bab el-Hava Sınır Kapısı,Bab al-Hawa,sy,sinir_kapisi,nokta,36.2306,36.6926,true,https://en.wikipedia.org/wiki/Bab_al-Hawa_Border_Crossing,Türkiye tarafı: Cilvegözü (Reyhanlı)
+sy-bab-es-selame,Bab es-Selame Sınır Kapısı,Bab al-Salameh|Bab al-Salama,sy,sinir_kapisi,nokta,36.6372,37.0823,false,elle,Türkiye tarafı: Öncüpınar (Kilis)
+sy-semalka,Semalka Sınır Kapısı,Semalka|Faysh Khabur,sy,sinir_kapisi,nokta,37.0893,42.3499,true,https://en.wikipedia.org/wiki/Semalka_Border_Crossing,Irak (IKBY) tarafı: Fişhabur
+sy-yarubiye,Yarubiye Sınır Kapısı,Al-Yarubiyah|Til Koçer,sy,sinir_kapisi,nokta,36.8117,42.0664,true,https://en.wikipedia.org/wiki/Al-Yaarubiyah,Irak tarafı: Rabia
+sy-tenf,Tenf,Al-Tanf|At-Tanf,sy,us,nokta,33.5058,38.6178,true,https://en.wikipedia.org/wiki/Al-Tanf,ABD garnizonu ve Irak-Ürdün üçlü sınır bölgesi
+sy-nasib,Nasib Sınır Kapısı,Nasib|Jaber,sy,sinir_kapisi,nokta,32.5286,36.2008,true,https://en.wikipedia.org/wiki/Nasib_Border_Crossing,Ürdün tarafı: Cabir
+sy-cedide-yabus,Cedide Yabus Sınır Kapısı,Jdeidet Yabous|Masnaa,sy,sinir_kapisi,nokta,33.6545,35.9734,false,elle,Lübnan tarafı: Masnaa; koordinat GeoNames köy noktası
+sy-hmeymim,Hmeymim Hava Üssü,Hmeimim|Khmeimim|Basel al-Assad Airport,sy,us,nokta,35.4117,35.945,true,https://en.wikipedia.org/wiki/Khmeimim_Air_Base,Rus hava üssü; statüsü map_features'ta tarihli tutulmalı
+sy-tartus-us,Tartus Deniz Üssü,Tartus naval facility,sy,us,nokta,34.915,35.875,true,https://en.wikipedia.org/wiki/Tartus_naval_base,Rus deniz tesisi; statü tarihli tutulmalı
+sy-t4,T4 (Tiyas) Hava Üssü,Tiyas|T-4 airbase,sy,us,nokta,34.5225,37.6297,true,https://en.wikipedia.org/wiki/Tiyas_Air_Base,İsrail saldırıları ve Türkiye konuşlanması haberlerinde geçer
+sy-sayrat,Şayrat Hava Üssü,Shayrat,sy,us,nokta,34.49,36.9089,true,https://en.wikipedia.org/wiki/Shayrat_Airbase,
+sy-kuveyris,Kuveyris Hava Üssü,Kuweires|Kuwayris,sy,us,nokta,36.1869,37.5831,true,https://en.wikipedia.org/wiki/Kuweires_Military_Aviation_Institute,
+sy-mezze,Mezze Askeri Havaalanı,Mezzeh airbase,sy,us,nokta,33.4778,36.2233,true,https://en.wikipedia.org/wiki/Mezzeh_Air_Base,
+sy-sam-havalimani,Şam Uluslararası Havalimanı,Damascus International Airport,sy,tesis,nokta,33.4114,36.5156,true,https://en.wikipedia.org/wiki/Damascus_International_Airport,
+sy-halep-havalimani,Halep Uluslararası Havalimanı,Aleppo International Airport,sy,tesis,nokta,36.1806,37.2242,true,https://en.wikipedia.org/wiki/Aleppo_International_Airport,
+sy-lazkiye-limani,Lazkiye Limanı,Port of Latakia,sy,liman,nokta,35.5133,35.7706,true,https://en.wikipedia.org/wiki/Port_of_Latakia,
+sy-tartus-limani,Tartus Limanı,Port of Tartus,sy,liman,nokta,34.898,35.871,false,elle,
+sy-banyas-rafinerisi,Banyas Rafinerisi,Baniyas refinery,sy,tesis,nokta,35.2169,35.9594,true,https://en.wikipedia.org/wiki/Baniyas_Refinery,
+sy-humus-rafinerisi,Humus Rafinerisi,Homs refinery,sy,tesis,nokta,34.73,36.665,false,elle,
+sy-omer-sahasi,Ömer Petrol Sahası,Al-Omar oil field,sy,tesis,nokta,35.1517,40.5758,true,https://en.wikipedia.org/wiki/Al-Omar_field,
+sy-conoco-sahasi,Conoco Gaz Sahası,Conoco gas field|Koniko,sy,tesis,nokta,35.37,40.27,false,elle,Koordinat yaklaşık
+sy-tisrin-baraji,Tişrin Barajı,Tishrin Dam,sy,tesis,nokta,36.3814,38.1833,true,https://en.wikipedia.org/wiki/Tishrin_Dam,2024-25 SMO-SDG çatışma hattı
+sy-firat-baraji,Fırat (Tabka) Barajı,Tabqa Dam|Euphrates Dam,sy,tesis,nokta,35.8722,38.5667,true,https://en.wikipedia.org/wiki/Euphrates_Dam,
+sy-el-hol,El-Hol Kampı,Al-Hol|Al-Hawl camp,sy,tesis,nokta,36.3756,41.1486,true,https://en.wikipedia.org/wiki/Al-Hawl_refugee_camp,DEAŞ aileleri kampı
+sy-roj,Roj Kampı,Roj camp,sy,tesis,nokta,37.0628,42.0928,true,https://en.wikipedia.org/wiki/Al-Roj_refugee_camp,
+sy-sednaya-cezaevi,Sednaya Cezaevi,Saydnaya prison,sy,tesis,nokta,33.665,36.3286,true,https://en.wikipedia.org/wiki/Sednaya_Prison,
+sy-cebel-es-seyh,Cebel eş-Şeyh (Hermon),Mount Hermon|Jabal al-Shaykh,sy,bolge,nokta,33.4161,35.8575,true,https://en.wikipedia.org/wiki/Mount_Hermon,Zirve; İsrail mevzileri
+sy-v-sam,Şam Vilayeti,Damascus Governorate,sy,bolge,bolge,33.51,36.29,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-sam-kirsali,Şam Kırsalı,Rif Dimashq|Damascus Countryside,sy,bolge,bolge,33.55,36.65,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-halep,Halep Vilayeti,Aleppo Governorate,sy,bolge,bolge,36.2,37.6,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-idlib,İdlib Vilayeti,Idlib Governorate,sy,bolge,bolge,35.8,36.6,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-humus,Humus Vilayeti,Homs Governorate,sy,bolge,bolge,34.4,38.0,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-hama,Hama Vilayeti,Hama Governorate,sy,bolge,bolge,35.2,37.0,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-lazkiye,Lazkiye Vilayeti,Latakia Governorate,sy,bolge,bolge,35.65,36.0,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-tartus,Tartus Vilayeti,Tartus Governorate,sy,bolge,bolge,34.9,36.05,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-rakka,Rakka Vilayeti,Raqqa Governorate,sy,bolge,bolge,35.95,38.8,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-deyrizor,Deyrizor Vilayeti,Deir ez-Zor Governorate,sy,bolge,bolge,35.0,40.5,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-haseke,Haseke Vilayeti,Hasakah Governorate,sy,bolge,bolge,36.6,41.0,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-dera,Dera Vilayeti,Daraa Governorate,sy,bolge,bolge,32.8,36.2,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-suveyda,Süveyda Vilayeti,Sweida Governorate,sy,bolge,bolge,32.7,36.7,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon
+sy-v-kuneytra,Kuneytra Vilayeti,Quneitra Governorate,sy,bolge,bolge,33.1,35.9,true,elle-yaklasik-merkez,Merkez noktası yaklaşık; ileride poligon

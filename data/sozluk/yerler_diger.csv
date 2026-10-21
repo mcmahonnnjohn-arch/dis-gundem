@@ -1,0 +1,10 @@
+id,name_tr,aliases,country_id,kind,precision,lat,lon,verified,koordinat_kaynagi,not
+ly-trablus,Trablus,Tripoli|طرابلس|Trablusgarp,ly,sehir,sehir,32.8874,13.1873,true,https://www.geonames.org/2210247,varliklar.csv A28: Libya başkenti 'Trablus'; Lübnan'daki şehirle karıştırma
+ly-bingazi,Bingazi,Benghazi|بنغازي,ly,sehir,sehir,32.1149,20.0686,true,https://www.geonames.org/88319,Hafter güçleri ve Temsilciler Meclisi fiilen burada
+ly-tobruk,Tobruk,Tubruq|طبرق,ly,sehir,sehir,32.0896,23.9538,true,https://www.geonames.org/81302,Temsilciler Meclisi'nin resmi merkezi
+lb-trablussam,Trablusşam,Tripoli|طرابلس,lb,sehir,sehir,34.4335,35.8441,true,https://www.geonames.org/266826,varliklar.csv A28: Lübnan için çıplak 'Trablus' yazma
+ua-kiev,Kiev,Kyiv|Kiyv|Київ,ua,sehir,sehir,50.4547,30.5238,true,https://www.geonames.org/703448,Kılavuz §4: AA yazımı 'Kiev'
+il-ovda,Ovda Hava Üssü,Ovda Air Base|Ovda Airport|Uvda|Eilat-Ovda,il,us,nokta,29.9403,34.9358,true,https://en.wikipedia.org/wiki/Ovda_Airport,Eilat kuzeyinde; sivil kısmı 'Eilat-Ovda Havalimanı'
+kuresel-hurmuz-bogazi,Hürmüz Boğazı,Strait of Hormuz|Hormuz Strait|Hormuz|Hürmüz,kuresel,deniz_alani,bolge,26.6,56.5,true,https://en.wikipedia.org/wiki/Strait_of_Hormuz,İran-Umman arası; varliklar.csv B34
+kuresel-basra-korfezi,Basra Körfezi,Persian Gulf|Arabian Gulf|Fars Körfezi|Arap Körfezi|Körfez,kuresel,deniz_alani,bolge,26.0,52.0,true,https://en.wikipedia.org/wiki/Persian_Gulf,Kılavuz §4: Türkçe standart 'Basra Körfezi'
+kuresel-babulmendep,Babülmendep Boğazı,Bab el-Mandeb|Bab al-Mandab|Bab-el-Mandeb Strait,kuresel,deniz_alani,bolge,12.5833,43.3333,true,https://en.wikipedia.org/wiki/Bab-el-Mandeb,Yemen-Cibuti arası; Kızıldeniz sıcak noktasının girişi

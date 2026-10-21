@@ -1,0 +1,39 @@
+id,name_tr,aliases,country_id,kind,precision,lat,lon,verified,koordinat_kaynagi,not
+eu,AB,EU|European Union|Avrupa Birliği|Brüksel,eu,ulke,ulke,50.8505,4.3488,true,https://www.geonames.org/2800866,Ülke geneli kaydı; haritada işaretçi çizilmez; Birlik kaydı; çıpa Brüksel
+us,ABD,United States|USA|United States of America|Amerika Birleşik Devletleri|Amerika,us,ulke,ulke,38.8951,-77.0364,true,https://www.geonames.org/4140963,Ülke geneli kaydı; haritada işaretçi çizilmez
+de,Almanya,Germany|Deutschland,de,ulke,ulke,52.5244,13.4105,true,https://www.geonames.org/2950159,Ülke geneli kaydı; haritada işaretçi çizilmez
+az,Azerbaycan,Azerbaijan|Azərbaycan,az,ulke,ulke,40.3777,49.892,true,https://www.geonames.org/587084,Ülke geneli kaydı; haritada işaretçi çizilmez
+ae,BAE,UAE|United Arab Emirates|Birleşik Arap Emirlikleri|الإمارات,ae,ulke,ulke,24.4512,54.397,true,https://www.geonames.org/292968,Ülke geneli kaydı; haritada işaretçi çizilmez
+be,Belçika,Belgium,be,ulke,ulke,50.8505,4.3488,true,https://www.geonames.org/2800866,Ülke geneli kaydı; haritada işaretçi çizilmez
+gb,Birleşik Krallık,United Kingdom|UK|Britain|Great Britain|İngiltere,gb,ulke,ulke,51.5085,-0.1257,true,https://www.geonames.org/2643743,Ülke geneli kaydı; haritada işaretçi çizilmez
+dz,Cezayir,Algeria|الجزائر,dz,ulke,ulke,36.7323,3.0875,true,https://www.geonames.org/2507480,Ülke geneli kaydı; haritada işaretçi çizilmez
+am,Ermenistan,Armenia|Հայաստան,am,ulke,ulke,40.1776,44.5126,true,https://www.geonames.org/616052,Ülke geneli kaydı; haritada işaretçi çizilmez
+et,Etiyopya,Ethiopia,et,ulke,ulke,9.025,38.7469,true,https://www.geonames.org/344979,Ülke geneli kaydı; haritada işaretçi çizilmez
+fr,Fransa,France,fr,ulke,ulke,48.8534,2.3488,true,https://www.geonames.org/2988507,Ülke geneli kaydı; haritada işaretçi çizilmez
+cy,GKRY,Cyprus|Güney Kıbrıs|Kıbrıs Cumhuriyeti|Kıbrıs Rum Yönetimi|Κύπρος,cy,ulke,ulke,35.1728,33.354,true,https://www.geonames.org/146268,Ülke geneli kaydı; haritada işaretçi çizilmez; Kılavuz §4: GKRY
+ge,Gürcistan,Georgia|საქართველო,ge,ulke,ulke,41.6914,44.8341,true,https://www.geonames.org/611717,Ülke geneli kaydı; haritada işaretçi çizilmez
+in,Hindistan,India,in,ulke,ulke,28.6519,77.2315,true,https://www.geonames.org/1273294,Ülke geneli kaydı; haritada işaretçi çizilmez
+nl,Hollanda,Netherlands|The Netherlands,nl,ulke,ulke,52.374,4.8897,true,https://www.geonames.org/2759794,Ülke geneli kaydı; haritada işaretçi çizilmez
+iq,Irak,Iraq|العراق,iq,ulke,ulke,33.3406,44.4009,true,https://www.geonames.org/98182,Ülke geneli kaydı; haritada işaretçi çizilmez
+jp,Japonya,Japan,jp,ulke,ulke,35.6895,139.6917,true,https://www.geonames.org/1850147,Ülke geneli kaydı; haritada işaretçi çizilmez
+kktc,KKTC,TRNC|Kuzey Kıbrıs|Kuzey Kıbrıs Türk Cumhuriyeti|Turkish Republic of Northern Cyprus,kktc,ulke,ulke,35.1728,33.354,true,https://www.geonames.org/146268,Ülke geneli kaydı; haritada işaretçi çizilmez; Kılavuz: çıplak 'Kuzey Kıbrıs' yazma
+qa,Katar,Qatar|قطر,qa,ulke,ulke,25.2855,51.531,true,https://www.geonames.org/290030,Ülke geneli kaydı; haritada işaretçi çizilmez
+ly,Libya,ليبيا,ly,ulke,ulke,32.8874,13.1873,true,https://www.geonames.org/2210247,Ülke geneli kaydı; haritada işaretçi çizilmez
+lb,Lübnan,Lebanon|لبنان,lb,ulke,ulke,33.8933,35.5016,true,https://www.geonames.org/276781,Ülke geneli kaydı; haritada işaretçi çizilmez
+eg,Mısır,Egypt|مصر,eg,ulke,ulke,30.0626,31.2497,true,https://www.geonames.org/360630,Ülke geneli kaydı; haritada işaretçi çizilmez
+ng,Nijerya,Nigeria,ng,ulke,ulke,9.0579,7.4951,true,https://www.geonames.org/2352778,Ülke geneli kaydı; haritada işaretçi çizilmez
+pk,Pakistan,,pk,ulke,ulke,33.7215,73.0433,true,https://www.geonames.org/1176615,Ülke geneli kaydı; haritada işaretçi çizilmez
+ro,Romanya,Romania|România,ro,ulke,ulke,44.4323,26.1063,true,https://www.geonames.org/683506,Ülke geneli kaydı; haritada işaretçi çizilmez
+ru,Rusya,Russia|Россия|Rusya Federasyonu,ru,ulke,ulke,55.752,37.6178,true,https://www.geonames.org/524901,Ülke geneli kaydı; haritada işaretçi çizilmez
+sn,Senegal,,sn,ulke,ulke,14.6937,-17.4441,true,https://www.geonames.org/2253354,Ülke geneli kaydı; haritada işaretçi çizilmez
+so,Somali,Somalia,so,ulke,ulke,2.0371,45.3438,true,https://www.geonames.org/53654,Ülke geneli kaydı; haritada işaretçi çizilmez
+sd,Sudan,السودان,sd,ulke,ulke,15.5518,32.5324,true,https://www.geonames.org/379252,Ülke geneli kaydı; haritada işaretçi çizilmez
+sy,Suriye,Syria|سوريا|Suriye Arap Cumhuriyeti,sy,ulke,ulke,33.5102,36.2913,true,https://www.geonames.org/170654,Ülke geneli kaydı; haritada işaretçi çizilmez
+sa,Suudi Arabistan,Saudi Arabia|السعودية,sa,ulke,ulke,24.6877,46.7219,true,https://www.geonames.org/108410,Ülke geneli kaydı; haritada işaretçi çizilmez
+tr,Türkiye,Turkey|Turkiye,tr,ulke,ulke,39.9199,32.8543,true,https://www.geonames.org/323786,Ülke geneli kaydı; haritada işaretçi çizilmez
+ua,Ukrayna,Ukraine|Україна,ua,ulke,ulke,50.4547,30.5238,true,https://www.geonames.org/703448,Ülke geneli kaydı; haritada işaretçi çizilmez
+gr,Yunanistan,Greece|Ελλάδα,gr,ulke,ulke,37.9838,23.7278,true,https://www.geonames.org/264371,Ülke geneli kaydı; haritada işaretçi çizilmez
+cn,Çin,China|中国,cn,ulke,ulke,39.9075,116.3972,true,https://www.geonames.org/1816670,Ülke geneli kaydı; haritada işaretçi çizilmez
+ir,İran,Iran|ایران,ir,ulke,ulke,35.6944,51.4215,true,https://www.geonames.org/112931,Ülke geneli kaydı; haritada işaretçi çizilmez
+il,İsrail,Israel|ישראל|إسرائيل,il,ulke,ulke,31.769,35.2163,true,https://www.geonames.org/281184,Ülke geneli kaydı; haritada işaretçi çizilmez; Çıpa; başkent tartışmalı
+it,İtalya,Italy|Italia,it,ulke,ulke,41.8919,12.5113,true,https://www.geonames.org/3169070,Ülke geneli kaydı; haritada işaretçi çizilmez
