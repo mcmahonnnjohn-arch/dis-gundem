@@ -68,11 +68,15 @@ def judge(clf: Classifier, case: dict, summary: str, text: str | None = None) ->
     user = json.dumps({"baslik": case["baslik"], "kaynak": getattr(src, "name", case.get("source_id", "")),
                        "metin": text or "", "kaynak_olgulari": case.get("kaynak_olgulari") or [],
                        "referans_ozet": case["referans_ozet"], "aday_ozet": summary}, ensure_ascii=False)
+    prev_rol = getattr(clf, "rol", "hat")
+    clf.rol = "hakem"   # hakem çağrılarının maliyeti aday modelin (hat) maliyetinden ayrı sayılır
     try:
         # Hakem, aday modelden bağımsız sabit tutulur (JUDGE_MODEL); yoksa özet modeline düşer (eski davranış).
         raw = _parse(clf._call(system, user, model=getattr(clf, "judge_model", clf.summary_model), cache=True))
     except Exception as e:
         return {"hata": str(e)[:200]}
+    finally:
+        clf.rol = prev_rol
     def _score(k):
         v = raw.get(k)
         return int(v) if isinstance(v, (int, float)) and 1 <= v <= 5 else None
@@ -148,6 +152,37 @@ def aggregate(results: list[CaseResult]) -> dict:
     return out
 
 
+def usage_summary(clf, n_cases: int) -> dict | None:
+    """Çalışmanın token ve maliyet özeti. `hat_usd` aday modellerin (eleme/özet/denetim/olay) toplamıdır ve
+    haber başına maliyet buradan bölünür; hakem ayrı sayılır. Fiyatı bilinmeyen model varsa o toplam None olur."""
+    rep_fn = getattr(clf, "usage_report", None)
+    rep = rep_fn() if callable(rep_fn) else None
+    if not rep:
+        return None
+
+    def total(rol: str) -> float | None:
+        costs = [u["maliyet"] for u in (rep.get(rol) or {}).values()]
+        return None if not costs or any(c is None for c in costs) else round(sum(costs), 6)
+
+    hat = total("hat")
+    return {"hat_usd": hat, "hakem_usd": total("hakem"),
+            "hat_usd_haber": round(hat / n_cases, 6) if hat is not None and n_cases else None,
+            "tahmini": any(u.get("tahmini") for b in rep.values() for u in b.values()), "ayrinti": rep}
+
+
+def usage_md(k: dict) -> list[str]:
+    def usd(v):
+        return "?" if v is None else f"${v:.4f}"
+    lines = ["", "## Kullanım ve maliyet", "",
+             f"hat {usd(k['hat_usd'])} (haber başına {usd(k['hat_usd_haber'])}) · hakem {usd(k['hakem_usd'])}"
+             + (" · maliyet fiyat tablosundan **tahmini** (OpenRouter dışı)" if k["tahmini"] else ""), "",
+             "| rol | model | çağrı | girdi | önbellek | çıktı | maliyet |", "|---|---|---|---|---|---|---|"]
+    for rol, models in k["ayrinti"].items():
+        for model, u in models.items():
+            lines.append(f"| {rol} | {model} | {u['cagri']} | {u['girdi']} | {u['onbellek']} | {u['cikti']} | {usd(u['maliyet'])} |")
+    return lines
+
+
 def report_md(meta: dict, agg: dict, results: list[CaseResult]) -> str:
     lines = [f"# Özet test seti — {meta['prompt']} / {meta['denetim']} / {meta['model']}", "",
              f"n={agg['n']} · olmalı {agg['olmali_oran']} · ihlal {agg['ihlal_orani']} · biçim {agg['bicim_ok']} · "
@@ -162,6 +197,8 @@ def report_md(meta: dict, agg: dict, results: list[CaseResult]) -> str:
         if r.kurallar["ihlal"] or r.kurallar["eksik"] or (h.get("dogruluk") or 5) <= 3:
             lines.append(f"- **{r.no}** ({r.lang}) eksik={r.kurallar['eksik']} ihlal={r.kurallar['ihlal']} "
                          f"doğruluk={h.get('dogruluk')} · {'; '.join(h.get('hatalar') or [])}")
+    if agg.get("kullanim"):
+        lines += usage_md(agg["kullanim"])
     return "\n".join(lines)
 
 

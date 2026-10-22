@@ -418,8 +418,11 @@ def cmd_eval(s, args):
     if getattr(args, "yalniz_olay", False):   # yalnız birleştirme ölçümü: özet üretilmez, tek LLM çağrısı
         res = ev.olay_testi(clf, cases)
         print(f"olay birleştirme: {res}")
+        kul = ev.usage_summary(clf, 1)
+        if kul:
+            print(f"maliyet: hat {kul['hat_usd']} USD{' (tahmini)' if kul['tahmini'] else ''}")
         from .olay import GROUP_VERSION
-        Store(s).insert_eval_run({"meta": {**meta, "olay": GROUP_VERSION}, "ozet": {"n": len(cases), "olay": res},
+        Store(s).insert_eval_run({"meta": {**meta, "olay": GROUP_VERSION}, "ozet": {"n": len(cases), "olay": res, "kullanim": kul},
                                   "sonuclar": [], "etiket": args.etiket or None})
         return
     print(f"eval: {len(cases)} haber · {meta}")
@@ -440,6 +443,11 @@ def cmd_eval(s, args):
         agg["olay"] = ev.olay_testi(clf, cases)
         print(f"olay birleştirme: kesinlik {agg['olay']['kesinlik']} · duyarlılık {agg['olay']['duyarlilik']} · "
               f"yanlış birleşen {agg['olay']['yanlis_birlesen']} · kaçan {agg['olay']['kacan']}")
+    agg["kullanim"] = ev.usage_summary(clf, len(results))   # olay birleştirme çağrıları dahil
+    if agg["kullanim"]:
+        k = agg["kullanim"]
+        print(f"maliyet: hat {k['hat_usd']} USD (haber başına {k['hat_usd_haber']}) · hakem {k['hakem_usd']} USD"
+              f"{' · tahmini' if k['tahmini'] else ''}")
     md = ev.report_md(meta, agg, results)
     (config.OUT / "eval_raporu.md").write_text(md, encoding="utf-8")
     print(md)

@@ -5,13 +5,15 @@ Prompt sürümü dosya adından gelir (classify_v1.md) ve her sınıflandırma �
 """
 from __future__ import annotations
 
+import csv
 import json
 import logging
 import re
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from . import glossary
-from .config import PROMPTS, Settings
+from .config import DATA, PROMPTS, Settings
 from .fetch import Item
 from .sources import FRAMES, KNOWN_DOSSIERS, KNOWN_THEMES, Source, clean_countries, clean_ids
 from .terms import Matcher
@@ -48,6 +50,39 @@ class Classification:
     raw: dict = field(default_factory=dict)
     model: str = "terms"
     prompt_version: str = PROMPT_VERSION
+
+
+CACHE_WRITE_MULT = 1.25   # Anthropic önbellek yazımı için varsayım (girdi fiyatının katı); tahmini maliyette kullanılır
+
+
+@lru_cache(maxsize=1)
+def load_prices() -> dict[str, dict]:
+    """data/model_fiyatlari.csv: sağlayıcının yanıtta maliyet vermediği modeller (Claude, doğrudan OpenAI) için.
+    OpenRouter yanıtta gerçek maliyeti döndürür, bu tablo onun için kullanılmaz. Fiyatlar zamanla değişir; güncel tutun."""
+    p = DATA / "model_fiyatlari.csv"
+    if not p.exists():
+        return {}
+    out = {}
+    with p.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            def num(k):
+                try:
+                    return float(r[k])
+                except (KeyError, TypeError, ValueError):
+                    return None
+            out[r["model"].strip()] = {"girdi": num("girdi_usd_1m"), "cikti": num("cikti_usd_1m"),
+                                       "onbellek": num("onbellek_usd_1m")}
+    return out
+
+
+def estimate_cost(model: str, girdi: int, cikti: int, onbellek: int = 0, yazim: int = 0) -> float | None:
+    """Fiyat tablosundan tahmini maliyet (USD); modelin fiyatı yoksa None. `girdi` önbelleksiz girdi tokenıdır."""
+    pr = load_prices().get(model)
+    if not pr or pr["girdi"] is None or pr["cikti"] is None:
+        return None
+    read = pr["onbellek"] if pr["onbellek"] is not None else pr["girdi"]
+    return round((girdi * pr["girdi"] + onbellek * read + yazim * pr["girdi"] * CACHE_WRITE_MULT
+                  + cikti * pr["cikti"]) / 1e6, 6)
 
 
 def _with_glossary(name: str) -> str:
@@ -113,6 +148,8 @@ class Classifier:
         self.provider = s.llm_provider
         self._client = None
         self._thinking: dict[str, dict] = {}   # model → kabul edilen "düşünme kapalı" değeri
+        self.usage: dict[tuple[str, str], dict] = {}   # (rol, model) → token ve maliyet toplamı
+        self.rol = "hat"                                # eval hakemi çağrılarında "hakem" olur
         try:
             if self.provider == "anthropic" and s.anthropic_key:
                 import anthropic
@@ -161,6 +198,11 @@ class Classifier:
                     raise
                 self._thinking[model] = THINKING_OFF_ALT
                 r = self._client.messages.create(thinking=THINKING_OFF_ALT, **kw)
+            us = getattr(r, "usage", None)
+            if us:   # Anthropic'te input_tokens önbelleksiz girdidir; önbellek okuma/yazma ayrı sayılır
+                self._record(model, girdi=getattr(us, "input_tokens", 0), cikti=getattr(us, "output_tokens", 0),
+                             onbellek=getattr(us, "cache_read_input_tokens", 0),
+                             yazim=getattr(us, "cache_creation_input_tokens", 0))
             # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
             return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
         if self.provider == "openrouter":
@@ -175,11 +217,50 @@ class Classifier:
                 model=model, max_tokens=8000, extra_body=extra or None,
                 messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                 response_format={"type": "json_object"})
+            self._record_openai_style(model, r, reported_cost=True)   # OpenRouter yanıtta gerçek maliyeti verir
             return r.choices[0].message.content or ""   # boşsa _parse hata verir, çağıran terim sonucuna düşer
         r = self._client.chat.completions.create(model=model, messages=[
             {"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"})
+        self._record_openai_style(model, r)
         return r.choices[0].message.content
+
+    def _record(self, model: str, girdi: int = 0, cikti: int = 0, onbellek: int = 0, yazim: int = 0,
+                maliyet: float | None = None) -> None:
+        """Çağrı başına token ve maliyet toplar. `maliyet` sağlayıcıdan geldiyse gerçektir; yoksa fiyat tablosundan
+        tahmin edilir (`tahmini` bayrağı); fiyatı olmayan modelde maliyet None kalır."""
+        u = self.usage.setdefault((self.rol, model), {"cagri": 0, "girdi": 0, "onbellek": 0, "yazim": 0, "cikti": 0,
+                                                       "maliyet": 0.0, "tahmini": False})
+        girdi, cikti, onbellek, yazim = (int(x or 0) for x in (girdi, cikti, onbellek, yazim))
+        u["cagri"] += 1
+        u["girdi"] += girdi
+        u["onbellek"] += onbellek
+        u["yazim"] += yazim
+        u["cikti"] += cikti
+        if u["maliyet"] is None:
+            return
+        if maliyet is None:
+            maliyet = estimate_cost(model, girdi, cikti, onbellek, yazim)
+            u["tahmini"] = u["tahmini"] or maliyet is not None
+        u["maliyet"] = None if maliyet is None else round(u["maliyet"] + float(maliyet), 6)
+
+    def _record_openai_style(self, model: str, r, reported_cost: bool = False) -> None:
+        us = getattr(r, "usage", None)
+        if not us:
+            return
+        cached = getattr(getattr(us, "prompt_tokens_details", None), "cached_tokens", 0) or 0
+        written = getattr(getattr(us, "prompt_tokens_details", None), "cache_write_tokens", 0) or 0
+        cost = getattr(us, "cost", None) if reported_cost else None
+        # prompt_tokens önbellek okumasını da kapsar; önbelleksiz girdi = fark
+        self._record(model, girdi=max((getattr(us, "prompt_tokens", 0) or 0) - cached - written, 0),
+                     cikti=getattr(us, "completion_tokens", 0), onbellek=cached, yazim=written, maliyet=cost)
+
+    def usage_report(self) -> dict:
+        """{rol: {model: {cagri, girdi, onbellek, yazim, cikti, maliyet, tahmini}}}; rol: hat | hakem."""
+        out: dict = {}
+        for (rol, model), u in self.usage.items():
+            out.setdefault(rol, {})[model] = dict(u)
+        return out
 
     def triage(self, batch: list[tuple[Item, dict]]) -> list[dict]:
         """Toplu ön eleme: yalnız başlık + kaynak bilgisi; dönen her öğe {"imp", "tr", "eko", "c"}.
