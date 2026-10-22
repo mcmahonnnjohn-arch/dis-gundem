@@ -28,6 +28,11 @@ env:
   DROP_NO_TEXT: ${{ vars.DROP_NO_TEXT || '1' }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  # OpenRouter (LLM_PROVIDER=openrouter): DeepSeek/GLM gibi modeller; hakem modeli sabit tutulur
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  JUDGE_MODEL: ${{ vars.JUDGE_MODEL }}
+  FALLBACK_MODELS: ${{ vars.FALLBACK_MODELS }}
+  OPENROUTER_ZDR: ${{ vars.OPENROUTER_ZDR || '0' }}
   # Önem hunisi eşikleri (Settings → Variables ile değiştirilebilir)
   IMPORTANCE_STORE_MIN: ${{ vars.IMPORTANCE_STORE_MIN || '3' }}
   IMPORTANCE_QUEUE_MIN: ${{ vars.IMPORTANCE_QUEUE_MIN || '4' }}

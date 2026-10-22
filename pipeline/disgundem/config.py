@@ -32,8 +32,12 @@ class Settings:
     audit: bool = True             # özetten sonra kaynağa karşı denetim çağrısı
     article_text: bool = True      # özetlemede makale metnini oku (saklanmaz; kılavuz §7)
     drop_no_text: bool = True      # metni hiç okunamamış kuyruk kümesi havuza düşer (21 Ekim editör kararı)
+    judge_model: str = ""          # eval hakemi; boşsa özet modeli. Model karşılaştırmasında hakem sabit kalmalı (kendi kendini puanlamasın)
     anthropic_key: str = ""
     openai_key: str = ""
+    openrouter_key: str = ""
+    openrouter_zdr: bool = False   # True: yalnız Zero Data Retention uç noktaları (bazı modellerde uygun uç nokta kalmayabilir)
+    fallback_models: tuple = ()    # OpenRouter: ana model hata verirse sırayla denenecek modeller
     dry_run: bool = True
     user_agent: str = "DisGundemBot/0.1 (+https://github.com/mcmahonnnjohn-arch/dis-gundem; baslik/metadata toplama)"
     http_timeout: float = 15.0
@@ -57,8 +61,12 @@ def load() -> Settings:
         audit=env("AUDIT", "1") not in ("0", "false", "False"),
         article_text=env("ARTICLE_TEXT", "1") not in ("0", "false", "False"),
         drop_no_text=env("DROP_NO_TEXT", "1") not in ("0", "false", "False"),
+        judge_model=env("JUDGE_MODEL", ""),
         anthropic_key=env("ANTHROPIC_API_KEY", ""),
         openai_key=env("OPENAI_API_KEY", ""),
+        openrouter_key=env("OPENROUTER_API_KEY", ""),
+        openrouter_zdr=env("OPENROUTER_ZDR", "0") in ("1", "true", "True"),
+        fallback_models=tuple(m.strip() for m in env("FALLBACK_MODELS", "").split(",") if m.strip()),
         dry_run=env("DRY_RUN", "1") not in ("0", "false", "False"),
     )
     if not (s.supabase_url and s.supabase_key):

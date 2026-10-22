@@ -1,4 +1,4 @@
-"""LLM sınıflandırma. Sağlayıcıdan bağımsız: anthropic | openai | none.
+"""LLM sınıflandırma. Sağlayıcıdan bağımsız: anthropic | openai | openrouter | none.
 
 `none` modunda yalnız terim filtresi çalışır (turkey_related), özet/önem üretilmez; kayıt yine kuyruğa düşer.
 Prompt sürümü dosya adından gelir (classify_v1.md) ve her sınıflandırma çıktısına yazılır.
@@ -119,18 +119,32 @@ class Classifier:
                 self._client = anthropic.Anthropic(api_key=s.anthropic_key)
                 self.model = s.llm_model or "claude-haiku-5-5"
                 self.summary_model = s.summary_model or "claude-sonnet-5-5"
+                self.judge_model = s.judge_model or self.summary_model
                 return
             if self.provider == "openai" and s.openai_key:
                 import openai
                 self._client = openai.OpenAI(api_key=s.openai_key)
                 self.model = s.llm_model or "gpt-5-mini"
                 self.summary_model = s.summary_model or self.model
+                self.judge_model = s.judge_model or self.summary_model
+                return
+            if self.provider == "openrouter" and s.openrouter_key:
+                import openai   # OpenRouter OpenAI uyumlu: yalnız base_url değişir
+                self._client = openai.OpenAI(
+                    base_url="https://openrouter.ai/api/v1", api_key=s.openrouter_key,
+                    default_headers={"HTTP-Referer": "https://github.com/mcmahonnnjohn-arch/dis-gundem",
+                                     "X-Title": "Dis Gundem"})
+                # Model kimlikleri OpenRouter biçimindedir ("sağlayıcı/model"); güncel kimlik için openrouter.ai/models.
+                self.model = s.llm_model or "deepseek/deepseek-chat"
+                self.summary_model = s.summary_model or self.model
+                self.judge_model = s.judge_model or self.summary_model
                 return
         except ImportError as e:  # paket kurulu değilse hat durmaz; terim filtresine düşer
             log.error("LLM paketi yok (%s); `pip install -e './pipeline[llm]'` gerekli. Terim filtresi kullanılıyor.", e)
         self.provider = "none"
         self.model = "terms"
         self.summary_model = "terms"
+        self.judge_model = "terms"
 
     def _call(self, system: str, user: str, model: str | None = None, cache: bool = False) -> str:
         model = model or self.model
@@ -149,6 +163,19 @@ class Classifier:
                 r = self._client.messages.create(thinking=THINKING_OFF_ALT, **kw)
             # Yanıt düşünme (thinking) bloğuyla başlayabilir; yalnız metin bloklarını birleştir.
             return "".join(b.text for b in r.content if getattr(b, "type", None) == "text")
+        if self.provider == "openrouter":
+            # Yedek model listesi: ana model hata/limit/kesinti verirse OpenRouter sıradakini dener (yanıttaki
+            # `model` alanı gerçekte yanıtlayanı söyler). ZDR açıksa yalnız veri saklamayan uç noktalar kullanılır.
+            extra: dict = {}
+            if self.s.fallback_models:
+                extra["models"] = [model, *[m for m in self.s.fallback_models if m != model]]
+            if self.s.openrouter_zdr:
+                extra["provider"] = {"zdr": True}
+            r = self._client.chat.completions.create(
+                model=model, max_tokens=8000, extra_body=extra or None,
+                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                response_format={"type": "json_object"})
+            return r.choices[0].message.content or ""   # boşsa _parse hata verir, çağıran terim sonucuna düşer
         r = self._client.chat.completions.create(model=model, messages=[
             {"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"})

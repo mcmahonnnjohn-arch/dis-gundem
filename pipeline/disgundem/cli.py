@@ -533,6 +533,11 @@ def main(argv=None):
     e.add_argument("--hakemsiz", action="store_true", help="LLM hakem çağrısını atla (yalnız kurallar)")
     e.add_argument("--etiket", default="", help="çalışmaya not (ör. 'classify_v4 tabanı')")
     e.add_argument("--yalniz-olay", action="store_true", help="yalnız olay birleştirme ölçümü")
+    # Model karşılaştırması: ortam değişkenlerine dokunmadan tek çalışma için geçersiz kılar (CI'da repo vars değişmez)
+    e.add_argument("--saglayici", choices=["anthropic", "openai", "openrouter"], help="LLM_PROVIDER yerine")
+    e.add_argument("--model", help="eleme modeli (LLM_MODEL yerine)")
+    e.add_argument("--ozet-modeli", help="özet/denetim modeli (SUMMARY_MODEL yerine)")
+    e.add_argument("--hakem-modeli", help="hakem modeli (JUDGE_MODEL yerine); adaylar arasında sabit tutun")
     m = sub.add_parser("measure", help="kayan pencere hacmi hesapla")
     m.add_argument("--days", type=int, default=30)
     m.add_argument("--report", action="store_true")
@@ -540,6 +545,11 @@ def main(argv=None):
     k.add_argument("--core", action="store_true")
     args = p.parse_args(argv)
     s = config.load()
+    if args.cmd == "eval":
+        for attr, val in (("llm_provider", args.saglayici), ("llm_model", args.model),
+                          ("summary_model", args.ozet_modeli), ("judge_model", args.hakem_modeli)):
+            if val:
+                setattr(s, attr, val)
     {"seed": cmd_seed, "fetch": cmd_fetch, "premium-import": cmd_premium_import, "chrome-import": cmd_premium_import, "classify": cmd_classify, "eval": cmd_eval,
      "birlestir": cmd_birlestir, "olay": cmd_olay, "harita": cmd_harita, "harita-olcum": cmd_harita_olcum,
      "measure": cmd_measure, "check-feeds": cmd_check_feeds}[args.cmd](s, args)

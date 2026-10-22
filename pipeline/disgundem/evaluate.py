@@ -69,7 +69,8 @@ def judge(clf: Classifier, case: dict, summary: str, text: str | None = None) ->
                        "metin": text or "", "kaynak_olgulari": case.get("kaynak_olgulari") or [],
                        "referans_ozet": case["referans_ozet"], "aday_ozet": summary}, ensure_ascii=False)
     try:
-        raw = _parse(clf._call(system, user, model=clf.summary_model, cache=True))
+        # Hakem, aday modelden bağımsız sabit tutulur (JUDGE_MODEL); yoksa özet modeline düşer (eski davranış).
+        raw = _parse(clf._call(system, user, model=getattr(clf, "judge_model", clf.summary_model), cache=True))
     except Exception as e:
         return {"hata": str(e)[:200]}
     def _score(k):
@@ -189,5 +190,10 @@ def olay_testi(clf: Classifier, cases: list[dict]) -> dict:
 
 
 def meta_for(clf: Classifier, s) -> dict:
-    return {"prompt": PROMPT_VERSION, "denetim": AUDIT_VERSION if s.audit else None, "hakem": JUDGE_VERSION,
+    meta = {"prompt": PROMPT_VERSION, "denetim": AUDIT_VERSION if s.audit else None, "hakem": JUDGE_VERSION,
             "model": clf.summary_model, "metin": s.article_text}
+    if clf.provider == "openrouter":   # model karşılaştırmasında hangi sağlayıcı/eleme/hakem modeli kullanıldı
+        meta.update({"saglayici": "openrouter", "eleme_modeli": clf.model,
+                     "hakem_modeli": getattr(clf, "judge_model", clf.summary_model),
+                     "yedekler": list(s.fallback_models), "zdr": s.openrouter_zdr})
+    return meta
