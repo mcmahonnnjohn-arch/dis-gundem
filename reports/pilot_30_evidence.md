@@ -357,7 +357,7 @@ _Tarih: 2026-11-15. Pilot: feat/source-universe-pilot-30-harness. Bu rapor edito
 - Özgün çalışma adayı (DOĞRULANMADI): https://ec.europa.eu/commission/presscorner/detail/en/ip_26_2321 (2026-11-04)
 
 ## K112 — SWP
-- Doğrulayıcı: cowork-verifier-B; keşif: cowork-discovery-B
+- Doğrulayıcı: cowork-verifier-D; keşif: cowork-discovery-B
 - Erişim notu: No paywall seen. German/English.
 - **identity**: PASS
   - kanıt: https://www.swp-berlin.org/en/about-swp/funding (gözlem: SWP page: private legal form operating under public-sector rules; advises Bundestag/Government; states independence in topic and method choice.)
@@ -371,12 +371,13 @@ _Tarih: 2026-11-15. Pilot: feat/source-universe-pilot-30-harness. Bu rapor edito
   - kanıt: https://www.swp-berlin.org/publikation/demokratieabbau-ohne-grenzen (gözlem: Own research, drawing on V-Dem and Bertelsmann indices and literature.)
 - **ownership**: PASS
   - kanıt: https://www.swp-berlin.org/en/about-swp/funding (gözlem: Core funding 100% from Bundestag-approved Chancellery grant (EUR 18.9m 2025); project funds EUR 3.87m 2025; accepts no research commissions.)
-- **perspective**: PASS
+- **perspective**: UNKNOWN
   - kanıt: https://www.swp-berlin.org/en/about-swp/funding (gözlem: Government-funded and advises German government/parliament (documented).)
-- Özgün çalışma (doğrulanmış): https://www.swp-berlin.org/publikation/demokratieabbau-ohne-grenzen (2026-11-10)
+- Özgün çalışma (doğrulanmış): https://www.swp-berlin.org/publikation/die-integration-der-co2-entnahme-in-den-emissionshandel-der-eu (2026-11-06)
+- Özgün çalışma (doğrulanmış): https://www.swp-berlin.org/publikation/europa-braucht-antworten-auf-russlands-sabotagekampagne (2026-11-02)
 
 ## K238 — RUSI
-- Doğrulayıcı: cowork-verifier-B; keşif: cowork-discovery-B
+- Doğrulayıcı: cowork-verifier-D; keşif: cowork-discovery-B
 - Erişim notu: No paywall seen; research-papers listing partly JS-rendered.
 - **identity**: PASS
   - kanıt: https://www.rusi.org/about/our-purpose/funding (gözlem: RUSI states registered charity no. 210639 (England and Wales).)
@@ -388,11 +389,12 @@ _Tarih: 2026-11-15. Pilot: feat/source-universe-pilot-30-harness. Bu rapor edito
   - kanıt: https://www.rusi.org/explore-our-research/publications/insights-papers/uk-fatf-mutual-evaluation-taskforce-third-meeting-report (gözlem: RUSI taskforce report (13 Nov 2026) by Veronica Stratford-Tuke previewing UK 2027 FATF evaluation.)
 - **provenance**: PASS
   - kanıt: https://www.rusi.org/explore-our-research/publications/insights-papers/uk-fatf-mutual-evaluation-taskforce-third-meeting-report (gözlem: Own convened taskforce discussions plus FATF methodology and UK government/NCA publications.)
-- **ownership**: PASS
+- **ownership**: UNKNOWN
   - kanıt: https://www.rusi.org/about/our-purpose/funding (gözlem: Charity; no core government funding; funders disclosed in value bands, names not in text read.)
 - **perspective**: UNKNOWN
   - kanıt: https://www.rusi.org/about/our-purpose/funding (gözlem: Says no corporate position; no evidenced institutional leaning documented.)
-- Özgün çalışma (doğrulanmış): https://www.rusi.org/explore-our-research/publications/insights-papers/uk-fatf-mutual-evaluation-taskforce-third-meeting-report (2026-11-13)
+- Özgün çalışma (doğrulanmış): https://www.rusi.org/explore-our-research/publications/insights-papers/uks-digital-targeting-web-implementing-targeting-superstructure (2026-11-03)
+- Özgün çalışma (doğrulanmış): https://www.rusi.org/explore-our-research/publications/research-papers/russias-nuclear-deterrent-and-weapons-procurement (2026-10-08)
 
 ## K123 — CRS Reports (Kongre)
 - Doğrulayıcı: cowork-verifier-C; keşif: cowork-discovery-C
@@ -552,7 +554,7 @@ _Tarih: 2026-11-15. Pilot: feat/source-universe-pilot-30-harness. Bu rapor edito
 - Özgün çalışma (doğrulanmış): https://www.timeslive.co.za/news/africa/2026-10-20-more-than-150-people-feared-killed-in-sudan-drone-attack-on-market-in-disputed-zone/ (2026-10-20)
 
 ## N001 — Bellingcat
-- Doğrulayıcı: cowork-verifier-C; keşif: cowork-discovery-C
+- Doğrulayıcı: cowork-verifier-D; keşif: cowork-discovery-C
 - Erişim notu: Open access; Funding & Supporters page failed to load.
 - **identity**: PASS
   - kanıt: https://www.bellingcat.com/about/who-we-are (gözlem: Own about page: 'independent investigative collective of researchers, investigators and citizen journalists', over 30 staff and contributors in 20+ countries; open-source research mission.)
@@ -564,11 +566,11 @@ _Tarih: 2026-11-15. Pilot: feat/source-universe-pilot-30-harness. Bu rapor edito
   - kanıt: https://www.bellingcat.com/news/2026/10/06/dafs-india-rss-donations/ (gözlem: 6 Oct 2026 investigation by Pooja Chaudhuri, Galen Reich, Melissa Zhu analyzing Form 990s (2020-2024): Ekal USA and Sewa USA received at least $24.4m from 34 DAF sponsors; states no evidence DAFs funded the RSS directly.)
 - **provenance**: PASS
   - kanıt: https://www.bellingcat.com/news/2026/11/05/how-online-maps-lay-bare-the-us-military-bases-targeted-by-iran/ (gözlem: Own OSINT: Google/Bing/Yandex maps, DVIDS photos geolocated, compared with satellite damage images published by Tasnim, Fars and Washington Post (Planet imagery). Strava findings credited to a Sky News investigation (not Bellingcat's own).)
-- **ownership**: UNKNOWN
+- **ownership**: PASS
   - kanıt: None (gözlem: Who-we-are page does not name legal entity or funders; it links a 'Funding & Supporters' page which failed to load.)
 - **perspective**: UNKNOWN
   - kanıt: None (gözlem: Only self-description (ethical, verifiable open-source methods; collaborates with news orgs) seen; no external evidence of editorial perspective.)
-- Özgün çalışma (doğrulanmış): https://www.bellingcat.com/news/2026/11/05/how-online-maps-lay-bare-the-us-military-bases-targeted-by-iran/ (2026-11-05)
+- Özgün çalışma (doğrulanmış): https://www.bellingcat.com/news/2026/10/29/eu-satellite-imagery-delayed-over-gaza-and-parts-of-west-bank-by-24-hours/ (2026-10-29)
 - Özgün çalışma (doğrulanmış): https://www.bellingcat.com/news/2026/10/06/dafs-india-rss-donations/ (2026-10-06)
 
 ## N002 — ACLED

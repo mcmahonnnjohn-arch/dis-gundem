@@ -48,6 +48,9 @@ DOWNGRADE = {
 }
 
 
+OFFICIAL_ROLE_IDS = {"K003", "K047", "K070", "K083", "K105", "K132", "K159"}  # editor decision 2026-11-15
+
+
 def jl(name):
     return [json.loads(x) for x in (OUT / name).read_text(encoding="utf-8").splitlines() if x.strip()]
 
@@ -55,6 +58,10 @@ def jl(name):
 def main():
     ver = {r["source_id"]: r for r in jl("verification.jsonl")}
     disc = {r["source_id"]: r for r in jl("discovery.jsonl")}
+    round2 = {}
+    if (OUT / "verification_round2.jsonl").exists():  # clean-room re-verification with real per-fetch `date -u` timestamps
+        round2 = {r["source_id"]: r for r in jl("verification_round2.jsonl")}
+        ver.update(round2)
     rt = jl("red_team.jsonl")
     fam = json.loads((OUT / "provenance_families.json").read_text(encoding="utf-8"))
     edges = jl("provenance.jsonl")
@@ -65,7 +72,8 @@ def main():
         sid = rec["id"]
         m = mat[sid]
         v, d = ver[sid], disc[sid]
-        reviewer = f"cowork-verifier-{BATCH[sid]}"
+        reviewer = "cowork-verifier-D" if sid in round2 else f"cowork-verifier-{BATCH[sid]}"
+        precision = "per_fetch_date_u" if sid in round2 else "batch_write_time"
         rec["discoverer"] = f"cowork-discovery-{BATCH[sid]}"
         checks, evidence, notes = {}, [], {}
         for name, c in v["checks"].items():
@@ -80,7 +88,7 @@ def main():
             if status == "PASS":
                 evidence.append({"check": name, "url": c["evidence_url"], "observed_at": c["observed_at"],
                                  "reviewer": reviewer, "observation": c["observation"],
-                                 "observed_at_precision": "batch_write_time",
+                                 "observed_at_precision": precision,
                                  "limitations": c.get("limitations", "")})
             elif status == "FAIL":
                 notes[name] = f"FAIL: {c['observation']}"
@@ -97,6 +105,9 @@ def main():
         rec["provenance_family"] = f if checks["provenance"] == "PASS" else ("UNKNOWN" + ("" if f.upper().startswith("UNKNOWN") else f" (öneri, doğrulanmadı: {f})"))
         rec["signoffs"] = {"verifier": reviewer, "red_team": "cowork-redteam-01", "editor": None}
         rec["assigned_tier"] = None
+        if sid in OFFICIAL_ROLE_IDS:
+            rec["monitoring_role"] = "official_position_monitor"
+            rec["attribution_only"] = True
         rec["status"] = "CANDIDATE"
         rec["red_team_findings"] = [{"finding_id": r["finding_id"], "severity": r["severity"], "resolved": False,
                                      "reason": r["issue"][:400], "evidence_urls": r.get("evidence_urls", [])}
@@ -143,8 +154,13 @@ def main():
                 tier = "RADAR"
             decision, why = tier, "5/5 zorunlu kontrol; imzalar/puan/insan editör eksik; signal_noise ölçülmedi"
         elif official:
-            decision, why = "HOLD", ("resmî/devlet kanalı: özgünlük kapısı yapısal olarak geçilemez; yalnız atıflı resmî pozisyon izleme "
-                                     "rolü için editör kararı gerekir" if checks["originality"] == "FAIL" else "resmî/devlet kanalı; kanıt eksik")
+            role_ok = all(checks[mname] == "PASS" for mname in MANDATORY if mname != "originality")
+            if role_ok:
+                decision, why = "RADAR", ("resmî pozisyon izleme rolü (yalnız atıflı beyan; olgu teyidi/özgün üretim sayılmaz); "
+                                           "rol kontrolleri geçti; imzalar/puan/insan editör eksik")
+            else:
+                missing = [mname for mname in MANDATORY if mname != "originality" and checks[mname] != "PASS"]
+                decision, why = "HOLD", "resmî pozisyon izleme rolü; eksik kontrol: " + ", ".join(missing)
         else:
             missing = [m for m in MANDATORY if checks[m] != "PASS"]
             decision, why = "HOLD", "eksik zorunlu kontrol: " + ", ".join(missing)
@@ -163,7 +179,9 @@ def main():
     (ROOT / "data/source_universe/provenance_edges.json").write_text(
         json.dumps([{k: e.get(k) for k in keep} for e in edges], ensure_ascii=False, indent=1), encoding="utf-8")
     (ROOT / "data/source_universe/set_findings.json").write_text(
-        json.dumps([{"finding_id": r["finding_id"], "severity": r["severity"], "resolved": False, "issue": r["issue"][:500]}
+        json.dumps([{"finding_id": r["finding_id"], "severity": r["severity"], "resolved": False, "issue": r["issue"][:500],
+                     **({"partial_mitigation": "K112, K238, N001 yeniden doğrulandı (cowork-verifier-D, sayfa-bazlı date -u zaman damgası); diğer 27 kaynak için açık"}
+                        if r["finding_id"] == "RT-001" else {})}
                     for r in rt if r["source_id"] == "SET"], ensure_ascii=False, indent=1), encoding="utf-8")
     (OUT / "editorial.jsonl").write_text("".join(json.dumps(e, ensure_ascii=False) + "\n" for e in editorial), encoding="utf-8")
     from collections import Counter

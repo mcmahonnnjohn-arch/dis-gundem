@@ -9,7 +9,7 @@ Teknik/araştırma kapıları geçilmedi (PENDING değil). 150 kaynağa ölçekl
 
 ## Sayılar
 - Gerçekten incelenen kaynak: 30/30 (keşif + kör doğrulama + provenance + red-team).
-- 5/5 zorunlu kontrolü geçen (editör incelemesine hazır, kabul DEĞİL): 3 — K112, K238, N001.
+- 5/5 zorunlu kontrolü geçen (editör incelemesine hazır, kabul DEĞİL): 6 — K003, K070, K112, K238, K159, N001.
 - Reddedilen: 0 (kanıtlı ret yok). Bekleyen/HOLD: 27. Kabul edilen: 0.
 - Kapı sayıları: kimlik 18/30, kanonik URL 19/29, özgünlük 8/27, köken 13/27.
 
@@ -29,7 +29,7 @@ Teknik/araştırma kapıları geçilmedi (PENDING değil). 150 kaynağa ölçekl
 - Kırmızı takımın **yalnız öneri** olarak andığı yerel dil adayları (kayıt defterine EKLENMEDİ): Kan/Ynet/Maariv, BBC Persian/Radio Farda, Medyascope/bianet/T24, Ukrainska Pravda/Suspilne, Novaya Gazeta Europe/Mediazona, Al-Araby Al-Jadeed, Dabanga, Jeune Afrique, Folha/Infobae, Caixin, Dawn/Scroll.
 
 ## Editörün karar vermesi gereken açık konular
-1. **Resmî/devlet kanalları (SANA, IRNA, AZERTAC, TASS, Xinhua, Dışişleri, AB Press Corner) — KARAR VERİLDİ (kullanıcı, 2026-11-15):** 'atıflı resmî pozisyon izleme' rolünde izlenecek. Uygulama ilkeleri: yalnız `attributed_statement` olarak kaydedilir; olgunun doğruluğunu teyit saymaz ve iki-aile kuralında bağımsız kanıt olarak sayılmaz; özgünlük kapısı gevşetilmedi (bu kaynaklar 'özgün üretim' sayımına girmez); kod/politika değişikliği ve nihai kaynak kabulü hâlâ bekliyor (`signoffs.editor` boş).
+1. **Resmî/devlet kanalları (SANA, IRNA, AZERTAC, TASS, Xinhua, Dışişleri, AB Press Corner) — KARAR VERİLDİ (kullanıcı, 2026-11-15):** 'atıflı resmî pozisyon izleme' rolünde izlenecek. Uygulama ilkeleri: yalnız `attributed_statement` olarak kaydedilir; olgunun doğruluğunu teyit saymaz ve iki-aile kuralında bağımsız kanıt olarak sayılmaz; özgünlük kapısı gevşetilmedi (bu kaynaklar 'özgün üretim' sayımına girmez); ROL KODA İŞLENDİ (`monitoring_role=official_position_monitor`, `attribution_only=true`, politika `official_monitor`): rol kaynaklarında özgünlük kontrolü aranmaz ama kimlik, URL, aktiflik ve köken (state-statement/state-media/institution) PASS olmalı; olgusal iddiada kanıt sayılmazlar. **Aritmetik uyarı:** 7 rol kaynağı özgünlükte PASS olamayacağı için ≥27 özgünlük eşiği (en çok 23) varsayılan olarak ulaşılamaz kalır; `adjust_originality_threshold` anahtarı bilerek kapalı bırakıldı, yalnız editör açabilir. Nihai kaynak kabulü bekliyor (`signoffs.editor` boş).
 2. **Mada Masr (K039):** izlenmemesinin nedeni reddedilmesi değil, HOLD'da olmasıdır: 7 kontrolün hepsi UNKNOWN (sayfalar açılmadı, ana sayfa eski/tarihsiz), 27 Ekim 2026'da mahkeme kapatma ve ekipman müsaderesi kararı verdi, haber odası kapatıldı; site 2017'den beri Mısır içinde engelli. 2026-11-15'te yapılan ek aramada kapatma kararının temyiz duruşması 25 Kasım olarak görüldü (Drop Site News; Attalah'ın kendi yazısı gibi görünüyor, ikincil okuma); 11 Kasım'daki duruşma ayrı davadır. İzleme için gereken: kanonik alan adında veya birinci elden kanıtlı bir aynada/kanalda son tarihli özgün makale.
 3. **Erişilemeyen kaynaklar (Haaretz, The Hindu, Reuters, CRS, IRNA, IranWire):** robots/paywall/engelden BLOCKED. Yasal erişim yolu (abonelik, API, lisanslı akış) gerekir; ücretli hizmet için sizin onayınız gerekir, kullanılmadı.
 4. **signal_noise ölçümü:** her aday için 20 maddelik örneklem; ölçülmeden tam puan ve katman yok.

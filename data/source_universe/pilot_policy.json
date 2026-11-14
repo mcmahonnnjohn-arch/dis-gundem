@@ -1,5 +1,5 @@
 {
-  "version": "pilot-30-v1",
+  "version": "pilot-30-v1.1",
   "source_universe_target": {
     "total": 150,
     "RADAR": 35,
@@ -44,5 +44,14 @@
     "ownership",
     "perspective"
   ],
-  "note": "Bu hedefler pilotu 35/65/50 oranında bölmez. 150 benzersiz kaynaklık nihai seçki 269+ kaynaklık envanterin editoryal alt kümesidir."
+  "note": "Bu hedefler pilotu 35/65/50 oranında bölmez. 150 benzersiz kaynaklık nihai seçki 269+ kaynaklık envanterin editoryal alt kümesidir.",
+  "official_monitor": {
+    "enabled": true,
+    "originality_exempt": true,
+    "adjust_originality_threshold": false,
+    "allowed_claim_kinds": [
+      "attributed_statement"
+    ],
+    "note": "Editor decision 2026-11-15: state/official channels are tracked only as attributed official positions. They never count as original reporting or as an independent factual corroboration family. adjust_originality_threshold=false keeps min_verified_originality unchanged; only the editor may set it true."
+  }
 }

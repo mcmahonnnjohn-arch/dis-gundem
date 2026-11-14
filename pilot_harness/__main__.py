@@ -130,7 +130,16 @@ def check_evidence(record: dict, check: str, days: int, now: datetime | None = N
 def source_readiness(record: dict, policy: dict, now: datetime | None = None) -> list[str]:
     issues = []
     checks = record.get("checks") or {}
-    for check in policy["mandatory_checks"]:
+    role = is_official_monitor(record, policy)
+    mandatory = [c for c in policy["mandatory_checks"] if not (role and c == "originality")]
+    if role:
+        if record.get("attribution_only") is not True:
+            issues.append("resmî kanal rolü: attribution_only=true zorunlu")
+        if not str(record.get("provenance_family") or "").startswith(OFFICIAL_FAMILY_PREFIXES):
+            issues.append("resmî kanal rolü: provenance_family state-statement/state-media/institution olmalı")
+        if checks.get("originality") not in {"PASS", "FAIL", "NA", "UNKNOWN"}:
+            issues.append("originality: geçersiz durum")
+    for check in mandatory:
         if checks.get(check) != "PASS":
             issues.append(f"{check}: PASS değil")
         elif not check_evidence(record, check, policy["acceptance"]["max_evidence_age_days"], now):
@@ -145,7 +154,7 @@ def source_readiness(record: dict, policy: dict, now: datetime | None = None) ->
         ):
             issues.append(f"{check}: kanıt yok")
     examples = record.get("original_work_examples") or []
-    if not examples or not all(is_url(x.get("url")) and is_date(x.get("published_at")) for x in examples):
+    if not role and (not examples or not all(is_url(x.get("url")) and is_date(x.get("published_at")) for x in examples)):
         issues.append("tarihli (published_at) özgün çalışma örneği ve URL yok")
     if is_unknown_family(record.get("provenance_family")):
         issues.append("provenance family bilinmiyor")
@@ -223,6 +232,24 @@ def structural_issues(records: list[dict], policy: dict) -> list[str]:
 
 
 SOURCE_DEPENDENT_RELATIONSHIPS = {"shared_owner", "partnership"}
+OFFICIAL_ROLE = "official_position_monitor"
+OFFICIAL_FAMILY_PREFIXES = ("state-statement", "state-media", "institution")
+
+
+def is_official_monitor(record: dict, policy: dict) -> bool:
+    """State/official channels tracked ONLY for attributed official positions (editor decision 2026-11-15).
+
+    The role never counts as original reporting and never as independent factual corroboration.
+    """
+    return bool((policy.get("official_monitor") or {}).get("enabled")) and record.get("monitoring_role") == OFFICIAL_ROLE
+
+
+def originality_required(policy: dict, n_exempt: int) -> int:
+    """Default keeps the threshold unchanged; lowering it needs an explicit editor-set policy switch."""
+    base = policy["acceptance"]["min_verified_originality"]
+    if (policy.get("official_monitor") or {}).get("adjust_originality_threshold"):
+        return max(0, base - n_exempt)
+    return base
 
 
 def is_unknown_family(value: object) -> bool:
@@ -230,7 +257,7 @@ def is_unknown_family(value: object) -> bool:
     return not isinstance(value, str) or not value.strip() or value.strip().upper().startswith("UNKNOWN")
 
 
-def independent_families(claim: dict, edges: list[dict]) -> int:
+def independent_families(claim: dict, edges: list[dict], official_ids: set[str] | None = None) -> int:
     """Count independent evidence origins for one claim.
 
     Sources are merged when they (a) share a provenance_family string, (b) are linked by a claim-level
@@ -253,7 +280,7 @@ def independent_families(claim: dict, edges: list[dict]) -> int:
     sources = []
     for e in claim.get("evidence") or []:
         sid, fam = e.get("source_id"), e.get("provenance_family")
-        if is_unknown_family(fam) or not sid:
+        if is_unknown_family(fam) or not sid or sid in (official_ids or set()):
             continue
         sources.append(sid)
         find(sid)
@@ -278,7 +305,8 @@ def edge_endpoint_ok(value: object, known_ids: set[str]) -> bool:
     return isinstance(value, str) and (value in known_ids or (value.startswith("EXT:") and len(value) > 4))
 
 
-def claim_issues(claims: list[dict], known_ids: set[str], edges: list[dict] | None = None) -> list[str]:
+def claim_issues(claims: list[dict], known_ids: set[str], edges: list[dict] | None = None,
+                 official_ids: set[str] | None = None) -> list[str]:
     edges = edges or []
     problems = []
     for claim in claims:
@@ -290,8 +318,15 @@ def claim_issues(claims: list[dict], known_ids: set[str], edges: list[dict] | No
         for item in evidence:
             if item.get("source_id") not in known_ids or not is_url(item.get("url")):
                 problems.append(f"{cid}: geçersiz kaynak/kanıt URL")
-        families = {e.get("provenance_family") for e in evidence if not is_unknown_family(e.get("provenance_family"))}
-        if claim.get("kind") == "factual" and len(families) >= 2 and independent_families(claim, edges) < 2:
+        official = official_ids or set()
+        if claim.get("kind") == "factual" and any(e.get("source_id") in official for e in evidence):
+            problems.append(f"{cid}: resmî kanal rolündeki kaynak olgusal iddiada kanıt sayılamaz (yalnız attributed_statement)")
+        families = {
+            e.get("provenance_family") for e in evidence
+            if not is_unknown_family(e.get("provenance_family"))
+            and not (claim.get("kind") == "factual" and e.get("source_id") in official)
+        }
+        if claim.get("kind") == "factual" and len(families) >= 2 and independent_families(claim, edges, official) < 2:
             problems.append(f"{cid}: kanıt aileleri provenance edge ile birbirine bağımlı; tek köken sayıldı")
         if claim.get("kind") == "factual" and len(families) < 2:
             problems.append(f"{cid}: aynı kökenli teyit; iki bağımsız kanıt ailesi yok")
@@ -325,7 +360,8 @@ def audit() -> dict:
             ):
                 counter[k] += 1
     edges = read_json(EDGES)
-    claims = claim_issues(read_json(CLAIMS), {r["id"] for r in records}, edges)
+    official_ids = {r["id"] for r in records if is_official_monitor(r, policy)}
+    claims = claim_issues(read_json(CLAIMS), {r["id"] for r in records}, edges, official_ids)
     ids = {r["id"] for r in records}
     for e in edges:
         ends = (e.get("from_source_id"), e.get("to_source_id"))
@@ -339,7 +375,7 @@ def audit() -> dict:
         and len(accepted) >= limits["min_accepted"]
         and counter["identity"] >= limits["min_verified_identity"]
         and counter["canonical_url"] >= limits["min_verified_url"]
-        and counter["originality"] >= limits["min_verified_originality"]
+        and counter["originality"] >= originality_required(policy, len(official_ids))
         and counter["provenance"] >= limits["min_verified_provenance"]
         and sum(r["source_type"] in {"OSINT", "Conflict data"} for r in accepted)
             >= limits["min_accepted_osint_data"]
@@ -349,7 +385,7 @@ def audit() -> dict:
         "claim_issues": claims, "set_blockers": blockers, "per_source": per_source,
         "accepted": [r["id"] for r in accepted],
         "check_counts": dict(counter), "go_no_go": "GO" if ready else "NO_GO",
-        "records": records,
+        "records": records, "official_monitor_ids": sorted(official_ids),
     }
 
 

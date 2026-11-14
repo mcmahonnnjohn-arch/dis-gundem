@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime, timezone
 
 from pilot_harness.__main__ import (
-    audit, set_blockers, claim_issues, materialize, read_json, source_readiness, structural_issues, POLICY,
+    audit, set_blockers, originality_required, is_official_monitor, claim_issues, materialize, read_json, source_readiness, structural_issues, POLICY,
 )
 
 
@@ -165,6 +165,62 @@ class PilotQualityTests(unittest.TestCase):
         self.assertTrue(set_blockers([{"finding_id": "X", "severity": "high", "resolved": False, "issue": "i"}]))
         self.assertEqual(set_blockers([{"finding_id": "X", "severity": "high", "resolved": True}]), [])
         self.assertEqual(set_blockers([{"finding_id": "X", "severity": "medium", "resolved": False}]), [])
+
+
+    # ---- official_position_monitor role (editor decision 2026-11-15) ----
+    def _official(self):
+        r = self._fully_faked()
+        r["checks"]["originality"] = "FAIL"
+        r["evidence"] = [e for e in r["evidence"] if e["check"] != "originality"]
+        r["original_work_examples"] = []
+        r["monitoring_role"] = "official_position_monitor"
+        r["attribution_only"] = True
+        r["provenance_family"] = "state-statement:test"
+        return r
+
+    def test_official_role_passes_without_originality(self):
+        self.assertEqual(source_readiness(self._official(), self.policy), [])
+
+    def test_non_official_with_failed_originality_still_blocked(self):
+        r = self._official()
+        del r["monitoring_role"]
+        self.assertTrue(source_readiness(r, self.policy))
+
+    def test_official_role_requires_attribution_only_and_state_family(self):
+        r = self._official()
+        r["attribution_only"] = False
+        self.assertTrue(any("attribution_only" in x for x in source_readiness(r, self.policy)))
+        r = self._official()
+        r["provenance_family"] = "own-field-reporting:X"
+        self.assertTrue(any("state-statement" in x for x in source_readiness(r, self.policy)))
+
+    def test_official_role_still_needs_other_mandatory_checks(self):
+        r = self._official()
+        r["checks"]["activity"] = "UNKNOWN"
+        self.assertTrue(source_readiness(r, self.policy))
+
+    def test_official_source_never_counts_as_factual_corroboration(self):
+        ids = {r["id"] for r in self.records}
+        claims = [{"id": "o1", "kind": "factual", "evidence": [
+            {"source_id": "K159", "provenance_family": "state-statement:tr", "url": "https://a.real.org/1"},
+            {"source_id": "K004", "provenance_family": "own-field", "url": "https://b.real.org/2"}]}]
+        self.assertTrue(claim_issues(claims, ids, [], {"K159"}))
+        claims[0]["kind"] = "attributed_statement"
+        claims[0]["attributed_to"] = "MFA"
+        self.assertEqual(claim_issues(claims, ids, [], {"K159"}), [])
+
+    def test_originality_threshold_unchanged_by_default(self):
+        self.assertEqual(originality_required(self.policy, 7), self.policy["acceptance"]["min_verified_originality"])
+        loosened = copy.deepcopy(self.policy)
+        loosened["official_monitor"]["adjust_originality_threshold"] = True
+        self.assertEqual(originality_required(loosened, 7), self.policy["acceptance"]["min_verified_originality"] - 7)
+
+    def test_role_flag_needs_policy_enabled(self):
+        r = self._official()
+        off = copy.deepcopy(self.policy)
+        off["official_monitor"]["enabled"] = False
+        self.assertFalse(is_official_monitor(r, off))
+        self.assertTrue(source_readiness(r, off))
 
 
 if __name__ == "__main__":
