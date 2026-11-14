@@ -26,7 +26,7 @@ test_unknown_is_not_pass (test_quality.PilotQualityTests.test_unknown_is_not_pas
 test_unknown_with_suffix_is_still_unknown (test_quality.PilotQualityTests.test_unknown_with_suffix_is_still_unknown) ... ok
 
 ----------------------------------------------------------------------
-Ran 19 tests in 0.125s
+Ran 19 tests in 0.103s
 
 OK
 ```
