@@ -7,6 +7,8 @@ on:
       - "data/source_universe/**"
       - "docs/SOURCE_UNIVERSE_PILOT.md"
       - "CLAUDE.md"
+      - "COWORK.md"
+      - "cowork/**"
       - ".claude/agents/**"
       - ".github/workflows/source-pilot.yml"
   workflow_dispatch:
