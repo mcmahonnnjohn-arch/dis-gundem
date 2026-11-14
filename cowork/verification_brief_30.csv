@@ -1,0 +1,31 @@
+id,name,starting_url,region,languages
+K001,Enab Baladi,https://www.enabbaladi.net,Levant & Irak,ar/en
+K003,SANA,https://sana.sy,Levant & Irak,ar/en/tr
+K004,Syria Direct,https://syriadirect.org,Levant & Irak,en
+K007,Omran Center for Strategic Studies,https://omrandirasat.org,Levant & Irak,ar/en
+K020,Haaretz,https://www.haaretz.com,Doğu Akdeniz,en
+K029,Naftemporiki,https://www.naftemporiki.gr,Doğu Akdeniz,el
+K031,ELIAMEP,https://www.eliamep.gr,Doğu Akdeniz,el/en
+K039,Mada Masr,https://www.madamasr.com,Doğu Akdeniz,ar/en
+K047,IRNA,https://www.irna.ir,Körfez & İran,fa
+K051,IranWire,https://iranwire.com,Körfez & İran,fa/en
+K065,Al-Monitor,https://www.al-monitor.com,Körfez & İran,en
+K070,AZERTAC,https://azertag.az,Kafkasya,az/en/tr
+K077,Hetq,https://hetq.am,Kafkasya,hy/en
+K080,OC Media,https://oc-media.org,Kafkasya,en/ru
+K083,TASS,https://tass.com,Karadeniz & Rusya,ru/en
+K086,Meduza,https://meduza.io,Karadeniz & Rusya,ru/en
+K225,Ukrainian Prism,https://prismua.org,Karadeniz & Rusya,uk/en
+K105,Avrupa Komisyonu — Press Corner,https://ec.europa.eu/commission/presscorner,Avrupa,en
+K112,SWP,https://www.swp-berlin.org,Avrupa,de/en
+K238,RUSI,https://rusi.org,Avrupa,en
+K123,CRS Reports (Kongre),https://www.congress.gov/crs-products,Kuzey Amerika,en
+K244,FDD,https://www.fdd.org,Kuzey Amerika,en
+K132,Xinhua,https://www.news.cn/,Asya,zh/en
+K138,The Hindu,https://www.thehindu.com,Asya,en
+K153,Addis Standard,https://addisstandard.com,Afrika,en/am/om
+K154,Sudan Tribune,https://sudantribune.com,Afrika,en/ar
+K159,Dışişleri Bakanlığı,https://www.mfa.gov.tr,Türkiye,tr/en
+K168,Reuters,https://www.reuters.com,Küresel,en
+N001,Bellingcat,https://www.bellingcat.com/,Küresel,en
+N002,ACLED,https://acleddata.com/,Küresel,en

@@ -1,0 +1,57 @@
+{
+  "version": "pilot-30-v1.1",
+  "source_universe_target": {
+    "total": 150,
+    "RADAR": 35,
+    "WEEKLY": 65,
+    "EVENT": 50
+  },
+  "pilot_size": 30,
+  "min_regions": 9,
+  "min_distinct_languages": 5,
+  "min_osint_data": 2,
+  "acceptance": {
+    "min_accepted": 27,
+    "min_verified_identity": 30,
+    "min_verified_url": 29,
+    "min_verified_originality": 27,
+    "min_verified_provenance": 27,
+    "min_accepted_osint_data": 2,
+    "max_evidence_age_days": 45
+  },
+  "weights": {
+    "evidence": 25,
+    "originality": 20,
+    "signal_noise": 15,
+    "coverage": 15,
+    "transparency": 10,
+    "continuity": 10,
+    "timeliness": 5
+  },
+  "tier_score_floors": {
+    "RADAR": 75,
+    "WEEKLY": 65,
+    "EVENT": 60
+  },
+  "mandatory_checks": [
+    "identity",
+    "canonical_url",
+    "activity",
+    "originality",
+    "provenance"
+  ],
+  "optional_documented_checks": [
+    "ownership",
+    "perspective"
+  ],
+  "note": "Bu hedefler pilotu 35/65/50 oranında bölmez. 150 benzersiz kaynaklık nihai seçki 269+ kaynaklık envanterin editoryal alt kümesidir.",
+  "official_monitor": {
+    "enabled": true,
+    "originality_exempt": true,
+    "adjust_originality_threshold": false,
+    "allowed_claim_kinds": [
+      "attributed_statement"
+    ],
+    "note": "Editor decision 2026-11-15: state/official channels are tracked only as attributed official positions. They never count as original reporting or as an independent factual corroboration family. adjust_originality_threshold=false keeps min_verified_originality unchanged; only the editor may set it true."
+  }
+}
