@@ -1,0 +1,47 @@
+name: source-universe-pilot
+
+on:
+  pull_request:
+    paths:
+      - "pilot_harness/**"
+      - "data/source_universe/**"
+      - "docs/SOURCE_UNIVERSE_PILOT.md"
+      - "CLAUDE.md"
+      - ".claude/agents/**"
+      - ".github/workflows/source-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Offline regression tests
+        run: python -m unittest discover -s pilot_harness/tests -p 'test_*.py' -v
+      - name: Structural quality gate (required)
+        run: python -m pilot_harness gate --mode structural
+      - name: Source universe materialization
+        run: python -m pilot_harness materialize
+      - name: Evidence readiness report (informational until audited)
+        shell: bash
+        run: |
+          python -m pilot_harness report
+          if python -m pilot_harness gate --mode readiness; then
+            echo "Pilot editorial readiness: GO" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Pilot editorial readiness: NO_GO — verification required" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          cat data/out/pilot_quality_report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-pilot-quality-report
+          path: data/out/
+          retention-days: 14

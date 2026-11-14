@@ -1,0 +1,331 @@
+"""30-source source-universe pilot. Standard library only; never fetches articles or writes to Supabase."""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import re
+import sys
+from collections import Counter
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parents[1]
+INVENTORY = ROOT / "data/kaynak_envanteri_v3.csv"
+PILOT = ROOT / "data/source_universe/pilot_30.jsonl"
+POLICY = ROOT / "data/source_universe/pilot_policy.json"
+CLAIMS = ROOT / "data/source_universe/claims.json"
+EDGES = ROOT / "data/source_universe/provenance_edges.json"
+VALID_CHECKS = {"UNKNOWN", "PASS", "FAIL", "NA"}
+VALID_TIERS = {"RADAR", "WEEKLY", "EVENT"}
+VALID_STATUSES = {"CANDIDATE", "VERIFIED", "REJECTED"}
+
+
+def read_json(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def inventory() -> dict[str, dict]:
+    with INVENTORY.open(encoding="utf-8", newline="") as f:
+        return {r["ID"]: r for r in csv.DictReader(f)}
+
+
+def normalize_url(value: str) -> str:
+    p = urlsplit(value.strip())
+    host = (p.hostname or "").lower().removeprefix("www.")
+    return host + p.path.rstrip("/").lower()
+
+
+def is_url(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    p = urlsplit(value)
+    return p.scheme == "https" and bool(p.hostname) and not p.username and not p.password
+
+
+def materialize() -> list[dict]:
+    legacy = inventory()
+    result = []
+    for record in read_jsonl(PILOT):
+        r = dict(record)
+        if r.get("source_origin") == "legacy":
+            src = legacy.get(r.get("id"))
+            if src is None:
+                r["_missing_inventory"] = True
+            else:
+                r.update({
+                    "canonical_name": src["Kaynak"],
+                    "canonical_url": src["URL"],
+                    "region": src["Bölge"],
+                    "country": src["Ülke"],
+                    "languages": [v for v in re.split(r"[/,+ ]+", src["Dil"]) if v],
+                    "source_type": src["Tür"],
+                    "legacy_status": src["Durum"],
+                    "legacy_verification": src["Doğrulama"],
+                    "legacy_verified_at": src["Doğrulama tarihi (UTC)"],
+                    "legacy_evidence_context": src.get("Bağlam kanıtı", ""),
+                })
+        result.append(r)
+    return result
+
+
+def check_evidence(record: dict, check: str, days: int, now: datetime | None = None) -> bool:
+    now = now or datetime.now(timezone.utc)
+    verifier = (record.get("signoffs") or {}).get("verifier")
+    discoverer = record.get("discoverer")
+    if not verifier or verifier == discoverer:
+        return False
+    for e in record.get("evidence", []):
+        if e.get("check") != check or not is_url(e.get("url")):
+            continue
+        if e.get("reviewer") != verifier or e.get("reviewer") == discoverer:
+            continue
+        try:
+            observed = datetime.fromisoformat(e["observed_at"].replace("Z", "+00:00"))
+            if observed.tzinfo is None:
+                continue
+            age = now - observed.astimezone(timezone.utc)
+            if timedelta(0) <= age <= timedelta(days=days):
+                return True
+        except (KeyError, ValueError, TypeError):
+            pass
+    return False
+
+
+def source_readiness(record: dict, policy: dict, now: datetime | None = None) -> list[str]:
+    issues = []
+    checks = record.get("checks") or {}
+    for check in policy["mandatory_checks"]:
+        if checks.get(check) != "PASS":
+            issues.append(f"{check}: PASS değil")
+        elif not check_evidence(record, check, policy["acceptance"]["max_evidence_age_days"], now):
+            issues.append(f"{check}: güncel ve bağımsız denetçi kanıtı yok")
+    for check in policy["optional_documented_checks"]:
+        if checks.get(check) not in {"PASS", "UNKNOWN", "NA"}:
+            issues.append(f"{check}: geçersiz durum")
+        if checks.get(check) == "UNKNOWN" and not record.get("unknowns"):
+            issues.append(f"{check}: UNKNOWN gerekçesi yazılmamış")
+        if checks.get(check) == "PASS" and not check_evidence(
+            record, check, policy["acceptance"]["max_evidence_age_days"], now
+        ):
+            issues.append(f"{check}: kanıt yok")
+    examples = record.get("original_work_examples") or []
+    if not examples or not all(is_url(x.get("url")) for x in examples):
+        issues.append("tarihlenebilir özgün çalışma örneği ve URL yok")
+    if record.get("provenance_family") in (None, "", "UNKNOWN"):
+        issues.append("provenance family bilinmiyor")
+    score = record.get("score_breakdown")
+    if not isinstance(score, dict) or set(score) != set(policy["weights"]):
+        issues.append("yedi bileşenli puan eksik")
+    else:
+        for key, maximum in policy["weights"].items():
+            value = score.get(key)
+            if type(value) is not int or not (0 <= value <= maximum):
+                issues.append(f"{key}: 0..{maximum} dışında")
+        if not issues or not any("dışında" in x for x in issues):
+            tier = record.get("assigned_tier")
+            if tier in VALID_TIERS and sum(score.values()) < policy["tier_score_floors"][tier]:
+                issues.append(f"{tier}: puan eşiği altında")
+    signoffs = record.get("signoffs") or {}
+    people = [signoffs.get(k) for k in ("verifier", "red_team", "editor")]
+    if not all(people) or len(set(people)) != 3 or record.get("discoverer") in people:
+        issues.append("üç ayrı imza ve keşif-denetim ayrılığı yok")
+    if record.get("assigned_tier") not in VALID_TIERS:
+        issues.append("editörce atanmış tekil katman yok")
+    if record.get("status") != "VERIFIED":
+        issues.append("durum VERIFIED değil")
+    if record.get("assigned_tier") == "EVENT" and not record.get("activation_trigger"):
+        issues.append("EVENT için tetikleyici yok")
+    for finding in record.get("red_team_findings") or []:
+        if finding.get("severity") in {"high", "critical"} and not finding.get("resolved", False):
+            issues.append("açık yüksek/kritik red-team bulgusu")
+    return issues
+
+
+def structural_issues(records: list[dict], policy: dict) -> list[str]:
+    issues = []
+    if len(records) != policy["pilot_size"]:
+        issues.append(f"pilot boyutu {len(records)}, hedef {policy['pilot_size']}")
+    ids = [r.get("id") for r in records]
+    if len(set(ids)) != len(ids):
+        issues.append("tekrarlanan kaynak ID")
+    urls = [normalize_url(r.get("canonical_url") or "") for r in records]
+    if any(not is_url(r.get("canonical_url")) for r in records):
+        issues.append("eksik/geçersiz HTTPS kanonik URL")
+    if len(set(urls)) != len(urls):
+        issues.append("tekrarlanan kanonik URL")
+    if any(r.get("_missing_inventory") for r in records):
+        issues.append("legacy ID envanterde yok")
+    if any(r.get("source_origin") not in {"legacy", "new"} for r in records):
+        issues.append("geçersiz source_origin")
+    if any(r.get("proposed_tier") not in VALID_TIERS for r in records):
+        issues.append("geçersiz önerilen katman")
+    if any(r.get("assigned_tier") not in VALID_TIERS | {None} for r in records):
+        issues.append("geçersiz atanmış katman")
+    if any(r.get("status") not in VALID_STATUSES for r in records):
+        issues.append("geçersiz durum")
+    if any(set((r.get("checks") or {}).values()) - VALID_CHECKS for r in records):
+        issues.append("geçersiz kontrol değeri")
+    if any(not set(policy["mandatory_checks"] + policy["optional_documented_checks"]).issubset(
+        (r.get("checks") or {}).keys()
+    ) for r in records):
+        issues.append("eksik kalite kontrol alanı")
+    regions = {r.get("region") for r in records if r.get("region")}
+    languages = {lang for r in records for lang in r.get("languages", [])}
+    special = [r for r in records if r.get("source_type") in {"OSINT", "Conflict data"}]
+    if len(regions) < policy["min_regions"]:
+        issues.append(f"bölge çeşitliliği {len(regions)} < {policy['min_regions']}")
+    if len(languages) < policy["min_distinct_languages"]:
+        issues.append("dil çeşitliliği yetersiz")
+    if len(special) < policy["min_osint_data"]:
+        issues.append("OSINT/çatışma verisi pilot kapsamı yetersiz")
+    return issues
+
+
+def claim_issues(claims: list[dict], known_ids: set[str]) -> list[str]:
+    problems = []
+    for claim in claims:
+        cid = claim.get("id", "UNKNOWN")
+        evidence = claim.get("evidence") or []
+        if not evidence:
+            problems.append(f"{cid}: kanıt yok")
+            continue
+        for item in evidence:
+            if item.get("source_id") not in known_ids or not is_url(item.get("url")):
+                problems.append(f"{cid}: geçersiz kaynak/kanıt URL")
+        families = {e.get("provenance_family") for e in evidence}
+        families.discard(None)
+        families.discard("UNKNOWN")
+        if claim.get("kind") == "factual" and len(families) < 2:
+            problems.append(f"{cid}: aynı kökenli teyit; iki bağımsız kanıt ailesi yok")
+        elif claim.get("kind") == "attributed_statement":
+            if not claim.get("attributed_to"):
+                problems.append(f"{cid}: beyanın atfedildiği aktör yok")
+            if len(families) < 1:
+                problems.append(f"{cid}: atıf kanıtı yok")
+        elif claim.get("kind") not in {"factual", "attributed_statement"}:
+            problems.append(f"{cid}: geçersiz iddia türü")
+    return problems
+
+
+def audit() -> dict:
+    policy = read_json(POLICY)
+    records = materialize()
+    structural = structural_issues(records, policy)
+    per_source = {r["id"]: source_readiness(r, policy) for r in records}
+    accepted = [r for r in records if not per_source[r["id"]]]
+    counter = Counter()
+    for r in records:
+        for k in ("identity", "canonical_url", "originality", "provenance"):
+            if r["checks"].get(k) == "PASS" and check_evidence(
+                r, k, policy["acceptance"]["max_evidence_age_days"]
+            ):
+                counter[k] += 1
+    claims = claim_issues(read_json(CLAIMS), {r["id"] for r in records})
+    edges = read_json(EDGES)
+    for e in edges:
+        if e.get("from_source_id") not in {r["id"] for r in records} or (
+            e.get("to_source_id") not in {r["id"] for r in records}
+        ) or not is_url(e.get("evidence_url")):
+            structural.append("kanıtsız veya bilinmeyen provenance edge")
+    limits = policy["acceptance"]
+    ready = (
+        not structural and not claims
+        and len(accepted) >= limits["min_accepted"]
+        and counter["identity"] >= limits["min_verified_identity"]
+        and counter["canonical_url"] >= limits["min_verified_url"]
+        and counter["originality"] >= limits["min_verified_originality"]
+        and counter["provenance"] >= limits["min_verified_provenance"]
+        and sum(r["source_type"] in {"OSINT", "Conflict data"} for r in accepted)
+            >= limits["min_accepted_osint_data"]
+    )
+    return {
+        "pilot_count": len(records), "structural_issues": structural,
+        "claim_issues": claims, "per_source": per_source,
+        "accepted": [r["id"] for r in accepted],
+        "check_counts": dict(counter), "go_no_go": "GO" if ready else "NO_GO",
+        "records": records,
+    }
+
+
+def report(result: dict) -> str:
+    lines = [
+        "# Kaynak evreni: 30 kaynak pilot kalite raporu",
+        "",
+        f"**Karar: {result['go_no_go']}** — {len(result['accepted'])}/{result['pilot_count']} kabul.",
+        "",
+        "Bu rapor otomatik kanıt toplamaz. Eski envanter doğrulaması güncel, bağımsız pilot imzası yerine geçmez.",
+        "",
+        "## Yapısal kalite kapısı",
+        "",
+        "PASS" if not result["structural_issues"] else "FAIL",
+        "",
+    ]
+    lines += ["- " + x for x in result["structural_issues"]] or ["- 30 benzersiz kayıt ve kapsama kotaları sağlandı."]
+    lines += ["", "## Kanıt kalite kapısı", ""]
+    for key in ("identity", "canonical_url", "originality", "provenance"):
+        lines.append(f"- {key}: {result['check_counts'].get(key, 0)}/{result['pilot_count']} güncel bağımsız kanıt")
+    lines += ["", "## Pilot matrisi", "",
+              "| ID | Kaynak | Bölge | Öneri | Atanan | Karar | Eksik kontrol |",
+              "|---|---|---|---|---|---|---|"]
+    for r in result["records"]:
+        issues = result["per_source"][r["id"]]
+        status = "PASS" if not issues else "PENDING/FAIL"
+        lines.append(
+            f"| {r['id']} | {r.get('canonical_name','?')} | {r.get('region','?')} | "
+            f"{r['proposed_tier']} | {r.get('assigned_tier') or '—'} | {status} | "
+            f"{'; '.join(issues[:3]) or '—'} |"
+        )
+    lines += ["", "## İddia bağımsızlığı", ""]
+    lines += ["- " + x for x in result["claim_issues"]] or ["- Kaydedilmiş iddia yok; bağımsız teyit performansı henüz ölçülmedi."]
+    lines += [
+        "", "## Ölçekleme kararı", "",
+        "GO yalnız kabul eşikleri, bölge/dil çeşitliliği, özgünlük, bağımsız provenance ve üçlü imza birlikte sağlanırsa verilir.",
+        "NO_GO halinde 150'ye ölçekleme ve otomatik yayın yetkisi açılmaz.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Dış Gündem 30 kaynak kalite harness")
+    sub = parser.add_subparsers(dest="command", required=True)
+    p_gate = sub.add_parser("gate")
+    p_gate.add_argument("--mode", choices=["structural", "readiness"], default="structural")
+    p_report = sub.add_parser("report")
+    p_report.add_argument("--out", default="data/out/pilot_quality_report.md")
+    p_materialize = sub.add_parser("materialize")
+    p_materialize.add_argument("--out", default="data/out/source_universe_pilot.jsonl")
+    args = parser.parse_args()
+    result = audit()
+    if args.command == "gate":
+        if args.mode == "structural":
+            for issue in result["structural_issues"]:
+                print("FAIL:", issue)
+            print("STRUCTURAL:", "PASS" if not result["structural_issues"] else "FAIL")
+            return 1 if result["structural_issues"] else 0
+        print("READINESS:", result["go_no_go"])
+        print("Accepted:", len(result["accepted"]), "/", result["pilot_count"])
+        for issue in result["claim_issues"]:
+            print("CLAIM FAIL:", issue)
+        return 0 if result["go_no_go"] == "GO" else 2
+    out = ROOT / args.out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if args.command == "materialize":
+        out.write_text(
+            "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in result["records"]),
+            encoding="utf-8",
+        )
+    else:
+        out.write_text(report(result), encoding="utf-8")
+    print(out)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
