@@ -9,6 +9,7 @@ on:
       - "CLAUDE.md"
       - "COWORK.md"
       - "cowork/**"
+      - "reports/**"
       - ".claude/agents/**"
       - ".github/workflows/source-pilot.yml"
   workflow_dispatch:

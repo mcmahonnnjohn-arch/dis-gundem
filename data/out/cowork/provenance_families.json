@@ -1,0 +1,222 @@
+{
+ "K001": {
+  "provenance_family": "UNKNOWN (own-field-reporting:K001 unconfirmed)",
+  "basis": "Enab Baladi English listing mixes ministry announcements, UN/CPJ material and local reporting; no article upstream opened.",
+  "unresolved_dependencies": [
+   "Which items are ministry/SANA copy vs own reporting",
+   "Arabic root fetch failed"
+  ]
+ },
+ "K003": {
+  "provenance_family": "state-statement:syria",
+  "basis": "SANA is Ministry-of-Information-affiliated agency; relays Turkish MFA statement and carries unnamed-origin casualty figures (https://sana.sy/en/politics/2358392/).",
+  "unresolved_dependencies": [
+   "SANA casualty figures for Nasser strike: origin unnamed",
+   "Syria Direct's cited SANA figure not confirmed at linked URL"
+  ]
+ },
+ "K004": {
+  "provenance_family": "own-field-reporting:K004 (one SANA-derived figure)",
+  "basis": "Own interviews (23 Oct 2026) plus UN/OCHA/World Bank/SANA figures; SANA figure link mismatch (low confidence).",
+  "unresolved_dependencies": [
+   "20,000-company figure vs linked SANA page (1,846 in 2026)"
+  ]
+ },
+ "K007": {
+  "provenance_family": "own-dataset:K007",
+  "basis": "Own 416-operation dataset per verification; upstream media inputs not seen by this audit.",
+  "unresolved_dependencies": [
+   "Whether Omran's event data draws on media from other set members (Enab Baladi, SANA) UNKNOWN"
+  ]
+ },
+ "K020": {
+  "provenance_family": "own-reporting:haaretz (anonymous-sourced)",
+  "basis": "UAE-warning story rests on anonymous sources; downstream copies in Al-Monitor/AFP, The National, Yeni Safak.",
+  "unresolved_dependencies": [
+   "Haaretz original URL not captured",
+   "Anonymous source identities"
+  ]
+ },
+ "K029": {
+  "provenance_family": "wire:ΑΠΕ-ΜΠΕ+Reuters (for sampled foreign item)",
+  "basis": "Credit 'ΑΠΕ-ΜΠΕ, με πληροφορίες από Reuters' + RIA (14 Nov 2026).",
+  "unresolved_dependencies": [
+   "Share of wire vs own reporting UNKNOWN",
+   "China Media Group MoU (2023) effects on content UNKNOWN"
+  ]
+ },
+ "K031": {
+  "provenance_family": "own-analysis:K031",
+  "basis": "Named-staff explainer; no upstream dependency examined (text in unread PDF).",
+  "unresolved_dependencies": [
+   "PDF text unread"
+  ]
+ },
+ "K039": {
+  "provenance_family": "UNKNOWN",
+  "basis": "No Mada Masr article opened in verification or this audit.",
+  "unresolved_dependencies": [
+   "Entire provenance profile"
+  ]
+ },
+ "K047": {
+  "provenance_family": "state-statement:iran (IRNA conduit)",
+  "basis": "AFP/Al-Monitor attributes army spokesman statement to IRNA; IRNA not independently readable (robots).",
+  "unresolved_dependencies": [
+   "IRNA page not read"
+  ]
+ },
+ "K051": {
+  "provenance_family": "UNKNOWN (relay of third-party reports likely)",
+  "basis": "IranWire items fetch failed; titles suggest relaying US Senate/Brussels material.",
+  "unresolved_dependencies": [
+   "Brussels-cyberattack item: original outlet unknown",
+   "Fetch failed twice"
+  ]
+ },
+ "K065": {
+  "provenance_family": "mixed:AFP-wire + Axios-relay + own anonymous sources",
+  "basis": "Al-Monitor carries AFP copy (8 Sep, 6 Nov 2026) and relays Axios on Mossad visit; own sources only for Netanyahu-strike fear.",
+  "unresolved_dependencies": [
+   "Proportion of Originals that is AFP/Axios relay",
+   "Axios original for Nov item",
+   "Article dates absent"
+  ]
+ },
+ "K070": {
+  "provenance_family": "state-statement:azerbaijan",
+  "basis": "State agency; verification shows official-statement relay; no item-level provenance audited here.",
+  "unresolved_dependencies": [
+   "No claim-level overlap tested"
+  ]
+ },
+ "K077": {
+  "provenance_family": "UNKNOWN",
+  "basis": "Sampled Hetq item cites no sources.",
+  "unresolved_dependencies": [
+   "Upstream of Hetq investigative work unseen"
+  ]
+ },
+ "K080": {
+  "provenance_family": "own-field-reporting:K080",
+  "basis": "24 Oct 2026 OC Media on-site reporting + Investigative Committee written reply.",
+  "unresolved_dependencies": [
+   "Other outlets' coverage used as secondary context not enumerated"
+  ]
+ },
+ "K083": {
+  "provenance_family": "state-statement:russia (TASS) + feed-share with Xinhua",
+  "basis": "Peskov/Radev-post/Reuters-AP relays; TASS-Xinhua 2026-2030 content-sharing agreement.",
+  "unresolved_dependencies": [
+   "Volume of TASS-Xinhua feed reuse UNKNOWN"
+  ]
+ },
+ "K086": {
+  "provenance_family": "mixed:own+partner-republication(Glasnaya)",
+  "basis": "14 Nov 2026 feature is full Glasnaya republication; Meduza originals not audited.",
+  "unresolved_dependencies": [
+   "Meduza-Glasnaya recurrence",
+   "Share of daily news rewrites"
+  ]
+ },
+ "K225": {
+  "provenance_family": "UNKNOWN",
+  "basis": "Prism papers listed but none opened.",
+  "unresolved_dependencies": [
+   "Entire provenance profile"
+  ]
+ },
+ "K105": {
+  "provenance_family": "institution:eu-commission (primary statements)",
+  "basis": "Press Corner statements; EEAS statements (relayed by Xinhua) are a different channel and not attributed to K105.",
+  "unresolved_dependencies": [
+   "EEAS vs Commission separation must be kept at claim level"
+  ]
+ },
+ "K112": {
+  "provenance_family": "own-research:K112",
+  "basis": "Study cites V-Dem/Bertelsmann indices per verification; not re-audited here.",
+  "unresolved_dependencies": [
+   "Shared use of V-Dem with other set members UNKNOWN"
+  ]
+ },
+ "K238": {
+  "provenance_family": "own-research:K238 (convened taskforce)",
+  "basis": "Taskforce synthesis plus FATF/UK government publications per verification.",
+  "unresolved_dependencies": [
+   "Dependence on UK government publications not enumerated"
+  ]
+ },
+ "K123": {
+  "provenance_family": "institution:us-congress-crs (public-record synthesis)",
+  "basis": "CRS IF13217 relies on DOD/DOC/State/GSA records, EOs, court filings and press reports (mirror PDF).",
+  "unresolved_dependencies": [
+   "CRS footnotes not visible; own site robots-blocked"
+  ]
+ },
+ "K244": {
+  "provenance_family": "own-analysis:fdd (advocacy; republished Washington Times)",
+  "basis": "1 Sep 2026 op-ed with no cited sources; republished by Washington Times.",
+  "unresolved_dependencies": [
+   "No upstream evidence identifiable"
+  ]
+ },
+ "K132": {
+  "provenance_family": "state-statement:prc (Xinhua) + feed-share with TASS",
+  "basis": "MOFCOM-sourced trade-council item; Gaza items rest on Gaza health authority/IDF/UN quotes; Hormuz items on IRGC/army claims; EEAS statement relay.",
+  "unresolved_dependencies": [
+   "UN casualty figure vs Gaza MoH data",
+   "Xinhua-Naftemporiki/CMG links UNKNOWN"
+  ]
+ },
+ "K138": {
+  "provenance_family": "UNKNOWN",
+  "basis": "The Hindu pages blocked; no item inspected.",
+  "unresolved_dependencies": [
+   "Entire provenance profile (PTI/Reuters syndication likely but unseen)"
+  ]
+ },
+ "K153": {
+  "provenance_family": "UNKNOWN",
+  "basis": "Only Telegram headline mirror seen.",
+  "unresolved_dependencies": [
+   "Entire provenance profile"
+  ]
+ },
+ "K154": {
+  "provenance_family": "UNKNOWN",
+  "basis": "Sudan Tribune pages failed to fetch in this audit; earlier sample mixed anonymous sources and statements.",
+  "unresolved_dependencies": [
+   "Whether Abyei coverage relies on Reuters/AP/own sourcing"
+  ]
+ },
+ "K159": {
+  "provenance_family": "state-statement:turkiye (primary)",
+  "basis": "Press Release No. 219 (13 Nov 2026); relayed by SANA. Proves only that Türkiye said it.",
+  "unresolved_dependencies": [
+   "Origin of '>1,600 killed since ceasefire' figure"
+  ]
+ },
+ "K168": {
+  "provenance_family": "wire:reuters",
+  "basis": "Abyei story anonymous diplomats + local official + MSF; identical copies in TimesLive/BusinessDay and credited in Al Jazeera; relayed by Naftemporiki/TASS in other stories.",
+  "unresolved_dependencies": [
+   "Reuters originals for Peskov/White House stories not opened"
+  ]
+ },
+ "N001": {
+  "provenance_family": "own-osint:bellingcat (shared imagery with Planet/WaPo, Tasnim, Fars; Sky News for Strava)",
+  "basis": "5 Nov 2026 base-geolocation article.",
+  "unresolved_dependencies": [
+   "Imagery provider for Tasnim/Fars images"
+  ]
+ },
+ "N002": {
+  "provenance_family": "dataset:acled (own coded event data)",
+  "basis": "Not audited at claim level; no in-set use of ACLED data located in this search.",
+  "unresolved_dependencies": [
+   "ACLED's upstream media inputs may include other set members UNKNOWN",
+   "Downstream reuse by set members not found"
+  ]
+ }
+}

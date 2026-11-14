@@ -17,6 +17,7 @@ PILOT = ROOT / "data/source_universe/pilot_30.jsonl"
 POLICY = ROOT / "data/source_universe/pilot_policy.json"
 CLAIMS = ROOT / "data/source_universe/claims.json"
 EDGES = ROOT / "data/source_universe/provenance_edges.json"
+SET_FINDINGS = ROOT / "data/source_universe/set_findings.json"
 VALID_CHECKS = {"UNKNOWN", "PASS", "FAIL", "NA"}
 VALID_TIERS = {"RADAR", "WEEKLY", "EVENT"}
 VALID_STATUSES = {"CANDIDATE", "VERIFIED", "REJECTED"}
@@ -45,7 +46,34 @@ def is_url(value: object) -> bool:
     if not isinstance(value, str):
         return False
     p = urlsplit(value)
-    return p.scheme == "https" and bool(p.hostname) and not p.username and not p.password
+    if not (p.scheme == "https" and p.hostname and not p.username and not p.password):
+        return False
+    return not is_placeholder_host(p.hostname)
+
+
+PLACEHOLDER_HOSTS = {"example.com", "example.org", "example.net", "localhost", "publisher.example"}
+PLACEHOLDER_SUFFIXES = (".example", ".invalid", ".test", ".localhost", ".local")
+CLAIM_DEPENDENT_RELATIONSHIPS = {
+    "republishes", "derives_from", "same_wire", "same_statement", "same_dataset",
+    "same_imagery", "same_anonymous_tip", "same_leak",
+}
+
+
+def is_placeholder_host(host: str) -> bool:
+    h = host.lower().rstrip(".")
+    return (h in PLACEHOLDER_HOSTS or h.endswith(PLACEHOLDER_SUFFIXES)
+            or any(h.endswith("." + x) for x in PLACEHOLDER_HOSTS))
+
+
+def is_date(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        d = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    d = d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+    return d <= datetime.now(timezone.utc)
 
 
 def materialize() -> list[dict]:
@@ -83,6 +111,8 @@ def check_evidence(record: dict, check: str, days: int, now: datetime | None = N
     for e in record.get("evidence", []):
         if e.get("check") != check or not is_url(e.get("url")):
             continue
+        if not str(e.get("observation") or "").strip():
+            continue  # ne görüldüğü yazılmamış kanıt geçersiz
         if e.get("reviewer") != verifier or e.get("reviewer") == discoverer:
             continue
         try:
@@ -115,9 +145,9 @@ def source_readiness(record: dict, policy: dict, now: datetime | None = None) ->
         ):
             issues.append(f"{check}: kanıt yok")
     examples = record.get("original_work_examples") or []
-    if not examples or not all(is_url(x.get("url")) for x in examples):
-        issues.append("tarihlenebilir özgün çalışma örneği ve URL yok")
-    if record.get("provenance_family") in (None, "", "UNKNOWN"):
+    if not examples or not all(is_url(x.get("url")) and is_date(x.get("published_at")) for x in examples):
+        issues.append("tarihli (published_at) özgün çalışma örneği ve URL yok")
+    if is_unknown_family(record.get("provenance_family")):
         issues.append("provenance family bilinmiyor")
     score = record.get("score_breakdown")
     if not isinstance(score, dict) or set(score) != set(policy["weights"]):
@@ -135,6 +165,8 @@ def source_readiness(record: dict, policy: dict, now: datetime | None = None) ->
     people = [signoffs.get(k) for k in ("verifier", "red_team", "editor")]
     if not all(people) or len(set(people)) != 3 or record.get("discoverer") in people:
         issues.append("üç ayrı imza ve keşif-denetim ayrılığı yok")
+    if not str(signoffs.get("editor") or "").startswith("human:"):
+        issues.append("editör imzası insan değil (human:<ad> biçimi gerekli)")
     if record.get("assigned_tier") not in VALID_TIERS:
         issues.append("editörce atanmış tekil katman yok")
     if record.get("status") != "VERIFIED":
@@ -159,6 +191,9 @@ def structural_issues(records: list[dict], policy: dict) -> list[str]:
         issues.append("eksik/geçersiz HTTPS kanonik URL")
     if len(set(urls)) != len(urls):
         issues.append("tekrarlanan kanonik URL")
+    hosts = [(urlsplit(r.get("canonical_url") or "").hostname or "").lower().removeprefix("www.") for r in records]
+    if len(set(hosts)) != len(hosts):
+        issues.append("tekrarlanan kanonik alan adı (aynı kuruluş iki kez sayılmış olabilir)")
     if any(r.get("_missing_inventory") for r in records):
         issues.append("legacy ID envanterde yok")
     if any(r.get("source_origin") not in {"legacy", "new"} for r in records):
@@ -187,7 +222,64 @@ def structural_issues(records: list[dict], policy: dict) -> list[str]:
     return issues
 
 
-def claim_issues(claims: list[dict], known_ids: set[str]) -> list[str]:
+SOURCE_DEPENDENT_RELATIONSHIPS = {"shared_owner", "partnership"}
+
+
+def is_unknown_family(value: object) -> bool:
+    """'UNKNOWN', 'UNKNOWN (… unconfirmed)', empty or non-string all count as unknown."""
+    return not isinstance(value, str) or not value.strip() or value.strip().upper().startswith("UNKNOWN")
+
+
+def independent_families(claim: dict, edges: list[dict]) -> int:
+    """Count independent evidence origins for one claim.
+
+    Sources are merged when they (a) share a provenance_family string, (b) are linked by a claim-level
+    dependent edge carrying this claim's id (this also merges through shared EXT: nodes such as one
+    wire agency), or (c) are linked by a source-level shared_owner/partnership edge.
+    """
+    parent: dict[str, str] = {}
+
+    def find(x: str) -> str:
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a: str, b: str) -> None:
+        parent[find(a)] = find(b)
+
+    by_family: dict[str, str] = {}
+    sources = []
+    for e in claim.get("evidence") or []:
+        sid, fam = e.get("source_id"), e.get("provenance_family")
+        if is_unknown_family(fam) or not sid:
+            continue
+        sources.append(sid)
+        find(sid)
+        if fam in by_family:
+            union(sid, by_family[fam])
+        else:
+            by_family[fam] = sid
+    for edge in edges:
+        rel = edge.get("relationship")
+        a, b = edge.get("from_source_id"), edge.get("to_source_id")
+        if not a or not b:
+            continue
+        if edge.get("claim_id") == claim.get("id") and rel in CLAIM_DEPENDENT_RELATIONSHIPS:
+            union(a, b)
+        elif edge.get("level") == "source" and rel in SOURCE_DEPENDENT_RELATIONSHIPS:
+            union(a, b)
+    return len({find(x) for x in sources})
+
+
+def edge_endpoint_ok(value: object, known_ids: set[str]) -> bool:
+    """A provenance edge endpoint is a pilot source ID or an explicit external origin 'EXT:<name>'."""
+    return isinstance(value, str) and (value in known_ids or (value.startswith("EXT:") and len(value) > 4))
+
+
+def claim_issues(claims: list[dict], known_ids: set[str], edges: list[dict] | None = None) -> list[str]:
+    edges = edges or []
     problems = []
     for claim in claims:
         cid = claim.get("id", "UNKNOWN")
@@ -198,9 +290,9 @@ def claim_issues(claims: list[dict], known_ids: set[str]) -> list[str]:
         for item in evidence:
             if item.get("source_id") not in known_ids or not is_url(item.get("url")):
                 problems.append(f"{cid}: geçersiz kaynak/kanıt URL")
-        families = {e.get("provenance_family") for e in evidence}
-        families.discard(None)
-        families.discard("UNKNOWN")
+        families = {e.get("provenance_family") for e in evidence if not is_unknown_family(e.get("provenance_family"))}
+        if claim.get("kind") == "factual" and len(families) >= 2 and independent_families(claim, edges) < 2:
+            problems.append(f"{cid}: kanıt aileleri provenance edge ile birbirine bağımlı; tek köken sayıldı")
         if claim.get("kind") == "factual" and len(families) < 2:
             problems.append(f"{cid}: aynı kökenli teyit; iki bağımsız kanıt ailesi yok")
         elif claim.get("kind") == "attributed_statement":
@@ -211,6 +303,12 @@ def claim_issues(claims: list[dict], known_ids: set[str]) -> list[str]:
         elif claim.get("kind") not in {"factual", "attributed_statement"}:
             problems.append(f"{cid}: geçersiz iddia türü")
     return problems
+
+
+def set_blockers(findings: list[dict]) -> list[str]:
+    """Set-wide (not per-source) red-team findings: unresolved high/critical ones block readiness."""
+    return [f"{f.get('finding_id', '?')}: {str(f.get('issue', ''))[:90]}" for f in findings
+            if f.get("severity") in {"high", "critical"} and not f.get("resolved", False)]
 
 
 def audit() -> dict:
@@ -226,16 +324,18 @@ def audit() -> dict:
                 r, k, policy["acceptance"]["max_evidence_age_days"]
             ):
                 counter[k] += 1
-    claims = claim_issues(read_json(CLAIMS), {r["id"] for r in records})
     edges = read_json(EDGES)
+    claims = claim_issues(read_json(CLAIMS), {r["id"] for r in records}, edges)
+    ids = {r["id"] for r in records}
     for e in edges:
-        if e.get("from_source_id") not in {r["id"] for r in records} or (
-            e.get("to_source_id") not in {r["id"] for r in records}
-        ) or not is_url(e.get("evidence_url")):
+        ends = (e.get("from_source_id"), e.get("to_source_id"))
+        if not all(edge_endpoint_ok(x, ids) for x in ends) or not any(x in ids for x in ends) \
+                or not is_url(e.get("evidence_url")):
             structural.append("kanıtsız veya bilinmeyen provenance edge")
+    blockers = set_blockers(read_json(SET_FINDINGS) if SET_FINDINGS.exists() else [])
     limits = policy["acceptance"]
     ready = (
-        not structural and not claims
+        not structural and not claims and not blockers
         and len(accepted) >= limits["min_accepted"]
         and counter["identity"] >= limits["min_verified_identity"]
         and counter["canonical_url"] >= limits["min_verified_url"]
@@ -246,7 +346,7 @@ def audit() -> dict:
     )
     return {
         "pilot_count": len(records), "structural_issues": structural,
-        "claim_issues": claims, "per_source": per_source,
+        "claim_issues": claims, "set_blockers": blockers, "per_source": per_source,
         "accepted": [r["id"] for r in accepted],
         "check_counts": dict(counter), "go_no_go": "GO" if ready else "NO_GO",
         "records": records,
@@ -281,6 +381,8 @@ def report(result: dict) -> str:
             f"{r['proposed_tier']} | {r.get('assigned_tier') or '—'} | {status} | "
             f"{'; '.join(issues[:3]) or '—'} |"
         )
+    lines += ["", "## Set genelinde açık yüksek/kritik red-team bulguları", ""]
+    lines += ["- " + x for x in result["set_blockers"]] or ["- Yok."]
     lines += ["", "## İddia bağımsızlığı", ""]
     lines += ["- " + x for x in result["claim_issues"]] or ["- Kaydedilmiş iddia yok; bağımsız teyit performansı henüz ölçülmedi."]
     lines += [
@@ -313,6 +415,8 @@ def main() -> int:
         print("Accepted:", len(result["accepted"]), "/", result["pilot_count"])
         for issue in result["claim_issues"]:
             print("CLAIM FAIL:", issue)
+        for issue in result["set_blockers"]:
+            print("SET-WIDE RED-TEAM BLOCKER:", issue)
         return 0 if result["go_no_go"] == "GO" else 2
     out = ROOT / args.out
     out.parent.mkdir(parents=True, exist_ok=True)

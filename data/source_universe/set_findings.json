@@ -1,0 +1,44 @@
+[
+ {
+  "finding_id": "RT-001",
+  "severity": "high",
+  "resolved": false,
+  "issue": "observed_at is a batch/write-time stamp, not a per-fetch time. In verification.jsonl all 70 checks of each verifier share one timestamp (verifier-A 2026-11-14T22:20:52Z, verifier-B 22:18:50Z, verifier-C 22:20:00Z); all 24 provenance records share 22:27:25Z, which equals provenance.jsonl's file mtime (01:27:25 +03). Discovery researched_at is '2026-11-15T12:00:00Z' for all 30 records, about 13.5 h AFTER the files were written (mtimes 01:17-01:21 +03 on 2026-11-15 = 22:17-22:21Z on 14 Nov). pilot_"
+ },
+ {
+  "finding_id": "RT-002",
+  "severity": "high",
+  "resolved": false,
+  "issue": "State/official sources dominate the proposed RADAR tier and cannot be reconciled with the acceptance policy. 7 of 20 proposed RADAR sources are state or government channels (SANA K003, IRNA K047, AZERTAC K070, TASS K083, Xinhua K132, Turkish MFA K159, EC Press Corner K105). Verifiers FAILed originality for 6 of them (K003 K070 K083 K105 K132 K159; K047 UNKNOWN) yet gave PASS on provenance and, for K003/K070/K083/K105/K159, PASS on perspective. pilot_policy needs >=27 originality PASS, so the bes"
+ },
+ {
+  "finding_id": "RT-003",
+  "severity": "high",
+  "resolved": false,
+  "issue": "Same-evidence-family corroboration passes the gate today. provenance_edges.json in the repo is an empty list ([]), so none of the 24 edges in provenance.jsonl affect independent_families(). Concretely: (a) Nasser Hospital strike 12-13 Nov: Xinhua (K132), TASS (K083) and SANA (K003) all rest on Gaza health authorities/IDF/Turkish MFA statements and TASS-Xinhua have a 2026-2030 content-sharing agreement; (b) Peskov's APEC statement appears via TASS (K083) and Naftemporiki (K029, credited 'ΑΠΕ-ΜΠΕ,"
+ },
+ {
+  "finding_id": "RT-004",
+  "severity": "high",
+  "resolved": false,
+  "issue": "Gate logic can undercount dependence and accept 'unknown' provenance. (1) independent_families() only merges edges whose relationship is in CLAIM_DEPENDENT_RELATIONSHIPS and whose BOTH endpoints are pilot sources with a family string; source-level 'partnership' edges (TASS-Xinhua K083-K132; Naftemporiki-CMG) and every edge touching an EXT: node (AFP, Axios, Glasnaya, Planet-WaPo, Sky News) are ignored. (2) source_readiness() rejects provenance_family only if it equals exactly 'UNKNOWN'; provenan"
+ },
+ {
+  "finding_id": "RT-005",
+  "severity": "high",
+  "resolved": false,
+  "issue": "'provenance PASS' is awarded without upstream tracing, inflating min_verified_provenance. Verifier's own limitation fields: K105 'No item inspected.'; K123 'Source citations inside the PDF were not examined.'; K007 'Source data underlying the 416-operation count not seen.'; K244 'Citations inside pieces not examined.'; K031 'Underlying sources of analysis not seen.' The provenance auditor independently marks K031 (text in unread PDF), K007, K123, K244, K105 as unresolved. Spot-check of K031's ci"
+ },
+ {
+  "finding_id": "RT-020",
+  "severity": "high",
+  "resolved": false,
+  "issue": "English/Western/institutional over-weighting and local-language blind spots. The 30 records list English for 28/30 (inventory view); 11 are English-only (K004 K020 K065 K105 K238 K123 K244 K138 K168 N001 N002); only K029 (el) and K047 (fa) are non-English-only. Haaretz (K020) is recorded as en-only although discovery lists Hebrew; Syria Direct as en-only although it also publishes Arabic. 13 raw language codes; region labels = 11 but 'Kuresel' covers 3 sources and 'Turkiye' is 1 source that is t"
+ },
+ {
+  "finding_id": "RT-026",
+  "severity": "low",
+  "resolved": false,
+  "issue": "Prompt-injection test: no hostile instructions found in source content, but there is no scanner and a tool-wrapper directive was observed. Regex scan of discovery.jsonl, verification.jsonl and provenance.jsonl for instruction-like phrases (ignore previous, system prompt, you must, disregard, assistant) found none; ~35 source pages read via the fetch summariser surfaced none (a summariser can strip such text). Separately, the web-search tool outputs in this audit ended with an appended line telli"
+ }
+]
